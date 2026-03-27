@@ -318,7 +318,7 @@ const ResumeBuilder: React.FC = () => {
             <div className="flex-1 flex overflow-hidden">
 
                 {/* LEFT PANEL - SECTIONS */}
-                <aside className="w-72 bg-white border-r border-gray-200 flex flex-col z-10">
+                <aside className="hidden lg:flex w-72 bg-white border-r border-gray-200 flex-col z-10">
                     <div className="p-4 border-b border-gray-200">
                         <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Sections</h3>
                         <div className="space-y-1">
@@ -609,7 +609,7 @@ const ResumeBuilder: React.FC = () => {
                 </main>
 
                 {/* RIGHT PANEL - AI & ATS */}
-                <aside className="w-80 bg-white border-l border-gray-200 flex flex-col z-10">
+                <aside className="hidden lg:flex w-80 bg-white border-l border-gray-200 flex flex-col z-10">
                     {/* Tabs */}
                     <div className="flex border-b border-gray-200">
                         <button

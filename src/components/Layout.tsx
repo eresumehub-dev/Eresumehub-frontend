@@ -4,7 +4,7 @@ import { Linkedin, Instagram } from 'lucide-react';
 
 const Layout = () => {
     return (
-        <div className="min-h-screen bg-white flex flex-col">
+        <div className="min-h-screen bg-white flex flex-col overflow-x-hidden">
             <Navbar />
             <main className="flex-grow">
                 <Outlet />

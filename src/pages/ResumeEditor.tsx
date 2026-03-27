@@ -62,6 +62,7 @@ const ResumeEditor: React.FC = () => {
     const [showActions, setShowActions] = useState(false);
     const [previewTimestamp, setPreviewTimestamp] = useState<number>(Date.now());
     const [viewMode, setViewMode] = useState<'enhanced' | 'original'>('enhanced');
+    const [mobileTab, setMobileTab] = useState<'editor' | 'preview'>('editor');
 
     // Debounced content for auto-save
     const debouncedContent = useDebounce(resumeContent, 2000);
@@ -501,10 +502,27 @@ const ResumeEditor: React.FC = () => {
                 </div>
             </header>
 
+            {/* Mobile Tabs */}
+            <div className="flex lg:hidden bg-white border-b border-slate-200 shrink-0 shadow-sm z-40 relative">
+                <button 
+                    onClick={() => setMobileTab('editor')}
+                    className={`flex-1 py-3 text-[11px] font-black uppercase tracking-widest transition-colors ${mobileTab === 'editor' ? 'text-[#0A2A6B] border-b-2 border-[#0A2A6B] bg-slate-50' : 'text-slate-500 bg-white hover:bg-slate-50'}`}
+                >
+                    Edit Details
+                </button>
+                <div className="w-px bg-slate-100"></div>
+                <button 
+                    onClick={() => setMobileTab('preview')}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 text-[11px] font-black uppercase tracking-widest transition-colors ${mobileTab === 'preview' ? 'text-[#0A2A6B] border-b-2 border-[#0A2A6B] bg-slate-50' : 'text-slate-500 bg-white hover:bg-slate-50'}`}
+                >
+                    <Eye className="w-3.5 h-3.5" /> View Resumé
+                </button>
+            </div>
+
             {/* Main Content Side-by-Side */}
             <div className="flex-1 flex overflow-hidden">
                 {/* Editor Pane */}
-                <main className="w-1/2 overflow-y-auto p-8 border-r border-slate-200 bg-white relative">
+                <main className={`w-full lg:w-1/2 overflow-y-auto p-4 sm:p-8 bg-white relative ${mobileTab === 'editor' ? 'block' : 'hidden lg:block'} border-r border-slate-200`}>
                     {incomingSuggestion && showSuggestion && (
                         <div className="mb-8 p-6 bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl border border-orange-100 shadow-sm animate-in slide-in-from-top duration-500">
                             <div className="flex items-start gap-4">
@@ -873,7 +891,7 @@ const ResumeEditor: React.FC = () => {
                 </main>
 
                 {/* Preview Pane */}
-                <aside className="w-1/2 bg-slate-100 flex flex-col items-center justify-center p-8 relative">
+                <aside className={`w-full lg:w-1/2 bg-slate-100 flex-col items-center p-4 sm:p-8 relative overflow-y-auto ${mobileTab === 'preview' ? 'flex' : 'hidden lg:flex'}`}>
                     <div className="absolute top-6 left-6 right-6 flex items-center justify-between z-10">
                         <div className="flex items-center gap-2">
                             {resume?.resume_data?.original_pdf_url ? (

@@ -657,10 +657,12 @@ const ProfileCreationMultiStep: React.FC = () => {
 
             setImportSuccess(true);
             setTimeout(() => setImportSuccess(false), 3000);
-        } catch (err) {
+        } catch (err: any) {
             console.error('Import failed:', err);
+            alert(err.message || 'Failed to analyze resume. Please try again or construct your profile manually.');
         } finally {
             setLoading(false);
+            e.target.value = ''; // Reset input to allow retrying the same file
         }
     };
 
