@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-    BarChart, Bar, PieChart, Pie, Cell
+    PieChart, Pie, Cell
 } from 'recharts';
-import { Clock, Eye, Download, TrendingUp, Globe, Smartphone, Monitor } from 'lucide-react';
+import { Clock, Eye, Download, TrendingUp, Globe, Monitor } from 'lucide-react';
 import { getDashboardAnalytics, AnalyticsData } from '../services/analytics';
 import { useAuth } from '../context/AuthContext';
 
@@ -20,7 +20,7 @@ const AnalyticsDashboard: React.FC = () => {
                 // Getting the correct ID is tricky. Let's assume user.id (platform id) is what matches resumes.
                 // Or better, let the backend handle "me". But our service takes ID.
                 try {
-                    const analytics = await getDashboardAnalytics(user.id);
+                    const analytics = await getDashboardAnalytics();
                     setData(analytics.data);
                 } catch (e) {
                     console.error("Failed to load analytics", e);
@@ -132,7 +132,7 @@ const AnalyticsDashboard: React.FC = () => {
                                         paddingAngle={5}
                                         dataKey="count"
                                     >
-                                        {data.device_stats.map((entry, index) => (
+                                        {data.device_stats.map((_, index) => (
                                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                         ))}
                                     </Pie>

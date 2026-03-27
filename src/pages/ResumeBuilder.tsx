@@ -8,7 +8,7 @@ import {
     AlertCircle, Sparkles, Upload,
     Undo, Redo, Copy, Trash2, GripVertical, X
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+
 import { getProfile, createOrUpdateProfile } from '../services/profile';
 import { profileToResume, resumeToProfile } from '../utils/resumeMapper';
 import { ResumeData, ResumeSection, ResumeItem } from '../types/resume';
@@ -19,7 +19,6 @@ const EditableText = ({
     onChange,
     className,
     placeholder,
-    multiline = false,
     tagName = 'div',
     style
 }: {
@@ -27,7 +26,6 @@ const EditableText = ({
     onChange: (val: string) => void;
     className?: string;
     placeholder?: string;
-    multiline?: boolean;
     tagName?: 'div' | 'h1' | 'h2' | 'h3' | 'span' | 'p';
     style?: React.CSSProperties;
 }) => {
@@ -540,7 +538,6 @@ const ResumeBuilder: React.FC = () => {
                                         {(section.type === 'summary' || section.type === 'skills' || section.type === 'custom') && typeof section.content === 'string' && (
                                             <EditableText
                                                 tagName="div"
-                                                multiline
                                                 className="whitespace-pre-wrap"
                                                 value={section.content}
                                                 onChange={(val) => updateSectionContent(section.id, val)}
@@ -595,7 +592,6 @@ const ResumeBuilder: React.FC = () => {
                                                         </div>
                                                         <EditableText
                                                             tagName="div"
-                                                            multiline
                                                             className="ml-4"
                                                             value={item.description || ''}
                                                             onChange={(val) => updateSectionItem(section.id, item.id, 'description', val)}
