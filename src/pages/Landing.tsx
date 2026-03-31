@@ -90,9 +90,9 @@ const Landing = () => {
                                     placeholder="Enter your job title (e.g., Software Engineer)"
                                     className="flex-1 bg-transparent px-6 py-4 text-white placeholder-gray-300 outline-none text-lg"
                                 />
-                                <button className="bg-gradient-to-r from-[#4DCFFF] to-[#A855F7] text-white px-8 py-4 rounded-2xl font-semibold hover:shadow-lg hover:shadow-[#4DCFFF]/50 transition-all duration-300 hover:scale-105">
+                                <Link to={`/signup?title=${encodeURIComponent(jobSearch)}`} className="text-center bg-gradient-to-r from-[#4DCFFF] to-[#A855F7] text-white px-8 py-4 rounded-2xl font-semibold hover:shadow-lg hover:shadow-[#4DCFFF]/50 transition-all duration-300 hover:scale-105">
                                     Create My AI Resume
-                                </button>
+                                </Link>
                             </div>
                         </div>
 
@@ -104,9 +104,9 @@ const Landing = () => {
                                 Get Started Free
                                 <ArrowRight className="w-5 h-5" />
                             </Link>
-                            <button className="inline-flex items-center gap-2 border-2 border-white/30 text-white px-8 py-4 rounded-2xl font-semibold text-lg hover:bg-white/10 transition-all">
+                            <Link to="/upload" className="inline-flex items-center gap-2 border-2 border-white/30 text-white px-8 py-4 rounded-2xl font-semibold text-lg hover:bg-white/10 transition-all">
                                 Upload Resume for Analysis
-                            </button>
+                            </Link>
                         </div>
                     </div>
 
@@ -434,10 +434,10 @@ const Landing = () => {
                         <div>
                             <h3 className="font-bold text-xl mb-4 text-[#4DCFFF]">About</h3>
                             <ul className="space-y-2 text-gray-300">
-                                <li><Link to="#" className="hover:text-white transition-colors">About Us</Link></li>
-                                <li><Link to="#" className="hover:text-white transition-colors">Contact</Link></li>
-                                <li><Link to="#" className="hover:text-white transition-colors">Careers</Link></li>
-                                <li><Link to="#" className="hover:text-white transition-colors">Blog</Link></li>
+                                <li><Link to="/signup" className="hover:text-white transition-colors">About Us</Link></li>
+                                <li><Link to="/signup" className="hover:text-white transition-colors">Contact</Link></li>
+                                <li><Link to="/signup" className="hover:text-white transition-colors">Careers</Link></li>
+                                <li><Link to="/signup" className="hover:text-white transition-colors">Blog</Link></li>
                             </ul>
                         </div>
 
@@ -446,9 +446,9 @@ const Landing = () => {
                             <h3 className="font-bold text-xl mb-4 text-[#4DCFFF]">Tools</h3>
                             <ul className="space-y-2 text-gray-300">
                                 <li><Link to="/signup" className="hover:text-white transition-colors">AI Resume Builder</Link></li>
-                                <li><Link to="#" className="hover:text-white transition-colors">Resume Templates</Link></li>
-                                <li><Link to="#" className="hover:text-white transition-colors">ATS Checker</Link></li>
-                                <li><Link to="#" className="hover:text-white transition-colors">Cover Letter Builder</Link></li>
+                                <li><Link to="/signup" className="hover:text-white transition-colors">Resume Templates</Link></li>
+                                <li><Link to="/ats-check" className="hover:text-white transition-colors">ATS Checker</Link></li>
+                                <li><Link to="/signup" className="hover:text-white transition-colors">Cover Letter Builder</Link></li>
                             </ul>
                         </div>
 

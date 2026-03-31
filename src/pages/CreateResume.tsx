@@ -453,7 +453,7 @@ const CreateResume: React.FC = () => {
     const [dismissedWarnings, setDismissedWarnings] = useState<Set<string>>(new Set());
 
     // Form State
-    const [availableCountries, setAvailableCountries] = useState<string[]>([]);
+    const [availableCountries, setAvailableCountries] = useState<string[]>(['Germany', 'India', 'Japan']);
     const [formData, setFormData] = useState({
         jobDescription: '',
         country: 'Germany',
@@ -490,7 +490,7 @@ const CreateResume: React.FC = () => {
             try {
                 const profilePromise = getProfile();
                 const timeoutPromise = new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error('Profile fetch timeout')), 10000)
+                    setTimeout(() => reject(new Error('Profile fetch timeout. Server might be waking up (cold start).')), 45000)
                 );
 
                 const { profile: fetchedProfile, exists } = await Promise.race([
@@ -514,7 +514,11 @@ const CreateResume: React.FC = () => {
 
             } catch (err: any) {
                 if (mounted) {
-                    setInitError('Unable to synchronize profile. Resume data may be incomplete.');
+                    const isTimeout = err instanceof Error && err.message.includes('timeout');
+                    const errorMsg = isTimeout 
+                        ? 'Backend server is waking up. Please refresh the page in a few seconds.' 
+                        : 'Unable to synchronize profile. Remote server unreachable.';
+                    setInitError(errorMsg);
                 }
             } finally {
                 if (mounted) setLoadingProfile(false);
