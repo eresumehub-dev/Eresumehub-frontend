@@ -31,22 +31,12 @@ const Dashboard: React.FC = () => {
     useEffect(() => {
         const loadDashboard = async () => {
             try {
-                // Add timeout wrapper to prevent infinite loading
-                const withTimeout = (promise: Promise<any>, ms: number = 10000) => {
-                    return Promise.race([
-                        promise,
-                        new Promise((_, reject) =>
-                            setTimeout(() => reject(new Error('Request timeout')), ms)
-                        )
-                    ]);
-                };
-
-                // Run all API calls in parallel with timeout protection
+                // Run all API calls in parallel
                 await Promise.allSettled([
-                    withTimeout(fetchResumes()),
-                    withTimeout(fetchUserDetails()),
-                    withTimeout(fetchProfile()),
-                    withTimeout(fetchAnalytics()) // Force call, let backend handle auth
+                    fetchResumes(),
+                    fetchUserDetails(),
+                    fetchProfile(),
+                    fetchAnalytics()
                 ]);
             } catch (error) {
                 console.error('Dashboard load error:', error);
