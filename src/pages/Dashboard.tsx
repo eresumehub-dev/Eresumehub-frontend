@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Plus, FileText, ArrowRight, Sparkles, Clock, Lightbulb } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 // Hooks
 import { useAuth } from '../context/AuthContext';
-import { useResumes } from '../hooks/useResumes';
-import { useAnalytics } from '../hooks/useAnalytics';
-import { useUserProfile } from '../hooks/useUserProfile';
+import { useResumesQuery } from '../hooks/queries/useResumesQuery';
+import { useAnalyticsQuery } from '../hooks/queries/useAnalyticsQuery';
+import { useUserProfileQuery, getUserInitials } from '../hooks/queries/useUserProfileQuery';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 
 // Components
@@ -24,27 +24,32 @@ const Dashboard: React.FC = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
 
-    // Custom Hooks
+    // 1. DATA LAYER (TanStack Query)
     const { 
-        resumes, loading: resumesLoading, fetchResumes, 
+        resumes, isLoading: resumesLoading, 
         deleteResumeAction, renameResumeAction 
-    } = useResumes();
+    } = useResumesQuery();
     
     const { 
-        analyticsData, activities, loading: analyticsLoading, fetchAnalytics 
-    } = useAnalytics();
+        data: analyticsData, isLoading: analyticsLoading, refetch: fetchAnalytics 
+    } = useAnalyticsQuery();
     
     const { 
-        userProfile, activeUser, loading: profileLoading, 
-        fetchProfileData, userInitials 
-    } = useUserProfile();
-    
+        data: profileData, isLoading: profileLoading 
+    } = useUserProfileQuery();
+
+    const activities = analyticsData?.activities || [];
+    const userProfile = profileData?.profile;
+
+    // 2. SHARED UI STATE (Zustand)
+    // Sidebar state is handled internally by the Sidebar component via useUIStore
+
     const { 
         isOpen: isConfirmOpen, title: confirmTitle, message: confirmMessage, 
         confirmAction, close: closeConfirm, handleConfirm 
     } = useConfirmModal();
 
-    // Local UI State
+    // Local Component UI State (Minimal)
     const [isRenaming, setIsRenaming] = useState<string | null>(null);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [sharingResume, setSharingResume] = useState<any>(null);
@@ -53,19 +58,6 @@ const Dashboard: React.FC = () => {
     const firstName = (userProfile?.full_name || user?.user_metadata?.full_name || 'there').split(' ')[0];
     const totalViews = analyticsData?.summary?.total_views || 0;
     const totalDownloads = analyticsData?.summary?.total_downloads || 0;
-
-    useEffect(() => {
-        if (user) {
-            Promise.allSettled([
-                fetchResumes(),
-                fetchAnalytics(),
-                fetchProfileData()
-            ]).catch(err => {
-                console.error('Dashboard data fetch error:', err);
-                toast.error('Some dashboard data failed to load.');
-            });
-        }
-    }, [user, fetchResumes, fetchAnalytics, fetchProfileData]);
 
     const handleDownload = (resume: any) => {
         if (resume.pdf_url) {
@@ -81,10 +73,10 @@ const Dashboard: React.FC = () => {
         <div className="flex bg-[#F8FAFC] min-h-[calc(100vh-64px)] relative">
             <Sidebar 
                 user={user} 
-                userProfile={userProfile} 
+                userProfile={userProfile || null} 
                 resumeCount={resumes.length}
                 totalViews={totalViews}
-                initials={userInitials(user, userProfile)} 
+                initials={getUserInitials(userProfile?.full_name)} 
             />
 
             <main className="flex-1 p-4 lg:p-8 max-w-7xl mx-auto w-full space-y-6">
@@ -124,9 +116,10 @@ const Dashboard: React.FC = () => {
                                 resumeTitle={analyticsData.recommendation.resume_title}
                                 isFallback={!analyticsData.recommendation.resume_id}
                                 onFix={() => {
-                                    const rid = analyticsData.recommendation.resume_id || (resumes.length > 0 ? resumes[0].id : null);
+                                    const rect = analyticsData.recommendation!;
+                                    const rid = rect.resume_id || (resumes.length > 0 ? resumes[0].id : null);
                                     if (rid) navigate(`/resume/edit/${rid}`, {
-                                        state: { suggestion: analyticsData.recommendation.fix }
+                                        state: { suggestion: rect.fix }
                                     });
                                 }}
                                 onNext={fetchAnalytics}
@@ -175,23 +168,29 @@ const Dashboard: React.FC = () => {
                                         </div>
                                     ) : (
                                         <div className="divide-y divide-slate-100/50">
-                                            {resumes.map((resume) => (
+                                            {resumes.map((resume: any) => (
                                                 <ResumeCard 
                                                     key={resume.id}
                                                     resume={resume}
                                                     isRenaming={isRenaming === resume.id}
                                                     setIsRenaming={setIsRenaming}
-                                                    onRename={renameResumeAction}
-                                                    onDelete={(id) => new Promise((resolve) => {
-                                                        confirmAction(
-                                                            "Delete Resume?", 
-                                                            "This action cannot be undone. All analytics for this link will be lost.",
-                                                            async () => {
-                                                                const success = await deleteResumeAction(id);
-                                                                resolve(success);
-                                                            }
-                                                        );
-                                                    })}
+                                                    onRename={(id, title) => renameResumeAction({ id, title })}
+                                                    onDelete={async (id: string) => {
+                                                        return new Promise<boolean>((resolve) => {
+                                                            confirmAction(
+                                                                "Delete Resume?", 
+                                                                "This action cannot be undone. All analytics for this link will be lost.",
+                                                                async () => {
+                                                                    try {
+                                                                        await deleteResumeAction(id);
+                                                                        resolve(true);
+                                                                    } catch {
+                                                                        resolve(false);
+                                                                    }
+                                                                }
+                                                            );
+                                                        });
+                                                    }}
                                                     onDownload={handleDownload}
                                                     onPreview={(r) => r.pdf_url && window.open(`${r.pdf_url}${r.pdf_url.includes('?') ? '&' : '?'}inline=true`, '_blank')}
                                                     onShare={(r) => { setSharingResume(r); setIsShareModalOpen(true); }}
@@ -272,14 +271,13 @@ const Dashboard: React.FC = () => {
                 onClose={closeConfirm}
             />
 
-            {isShareModalOpen && sharingResume && activeUser && (
+            {isShareModalOpen && sharingResume && userProfile && (
                 <ShareModal
                     resume={sharingResume}
-                    username={activeUser.username}
+                    username={(userProfile as any).username}
                     onClose={() => setIsShareModalOpen(false)}
-                    onUpdate={(updated) => {
-                        fetchResumes();
-                        setSharingResume(updated);
+                    onUpdate={() => {
+                        setIsShareModalOpen(false);
                     }}
                 />
             )}

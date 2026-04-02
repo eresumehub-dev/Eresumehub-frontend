@@ -15,6 +15,17 @@ export interface AnalyticsData {
     device_stats: Array<{ device: string; count: number }>;
     resume_performance: Array<{ id: string; title: string; views: number; unique_viewers: number; downloads: number; avg_time: number; score: number }>;
     activities?: any[];
+    recommendation?: {
+        resume_id: string | null;
+        resume_title: string;
+        fix: {
+            title: string;
+            current: string;
+            suggested: string;
+            reasoning?: string;
+            points: number;
+        };
+    };
 }
 
 export const logView = async (data: any) => {
