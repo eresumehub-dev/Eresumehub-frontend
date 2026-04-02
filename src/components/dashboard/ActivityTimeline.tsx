@@ -54,15 +54,15 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }) => {
                         ))}
                     </div>
                 ) : (
-                    /* GUIDED EMPTY STATE — replaces useless "No recent activity" */
+                    /* GUIDED EMPTY STATE — urgency + outcome-driven */
                     <div className="py-6">
                         <div className="text-center mb-6">
                             <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-3 border border-slate-100">
                                 <Activity className="w-5 h-5 text-slate-300" />
                             </div>
-                            <p className="text-sm font-semibold text-slate-950 mb-1">No activity yet</p>
+                            <p className="text-sm font-semibold text-slate-950 mb-1">No activity this week</p>
                             <p className="text-xs text-slate-400 max-w-xs mx-auto">
-                                When someone views or downloads your shared resume, you'll see it here in real-time.
+                                Share your resume link to see who's reading it. Every view and download appears here in real-time — so you know when recruiters are interested.
                             </p>
                         </div>
                         

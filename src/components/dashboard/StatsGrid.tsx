@@ -51,8 +51,8 @@ const StatsGrid: React.FC<StatsGridProps> = ({ analyticsData }) => {
                         <h3 className="text-3xl font-bold text-slate-950 tracking-tight">{totalViews}</h3>
                         <p className="text-[11px] text-slate-400 mt-1.5">
                             {totalViews === 0 
-                                ? 'Share your link to start tracking' 
-                                : 'across all shared links'}
+                                ? 'Most resumes get first views within 48h of sharing' 
+                                : totalViews < 5 ? 'Getting started — keep sharing your link' : 'across all shared links'}
                         </p>
                     </div>
                 </Link>
@@ -65,8 +65,8 @@ const StatsGrid: React.FC<StatsGridProps> = ({ analyticsData }) => {
                         <h3 className="text-3xl font-bold text-slate-950 tracking-tight">{avgTime}s</h3>
                         <p className="text-[11px] text-slate-400 mt-1.5">
                             {avgTime === 0 
-                                ? "Readers haven't engaged yet" 
-                                : 'per viewer session'}
+                                ? "No engagement yet — share your link to start" 
+                                : avgTime < 10 ? 'Readers are skimming — try improving your summary' : 'Solid engagement per session'}
                         </p>
                     </div>
                 </Link>
@@ -79,8 +79,8 @@ const StatsGrid: React.FC<StatsGridProps> = ({ analyticsData }) => {
                         <h3 className="text-3xl font-bold text-slate-950 tracking-tight">{totalDownloads}</h3>
                         <p className="text-[11px] text-slate-400 mt-1.5">
                             {totalDownloads === 0 
-                                ? 'PDFs not yet downloaded' 
-                                : 'PDF downloads by viewers'}
+                                ? 'Downloads happen when recruiters want to keep your resume' 
+                                : totalDownloads < 3 ? 'Gaining traction — keep optimizing' : 'Strong recruiter interest'}
                         </p>
                     </div>
                 </div>
