@@ -1,26 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { getDashboardAnalytics, AnalyticsData } from '../services/analytics';
-import { ArrowLeft, FileText, Eye, Clock, Users, Loader2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, FileText, Eye, Clock, Users, Loader2, AlertCircle, Search, ChevronLeft, ChevronRight, Globe, Smartphone } from 'lucide-react';
+import { LineChart, Line, ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from 'recharts';
 
 const AnalyticsDetail: React.FC = () => {
     const { type } = useParams<{ type: string }>(); // 'traffic' or 'engagement'
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState<AnalyticsData | null>(null);
+    const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 
+    const fetchData = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await getDashboardAnalytics();
+            // @ts-ignore - response structure match
+            setData(response.data);
+        } catch (err: any) {
+            console.error("Failed to fetch analytics details", err);
+            setError("We couldn't load your analytics. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await getDashboardAnalytics();
-                // @ts-ignore - response structure match
-                setData(response.data);
-            } catch (error) {
-                console.error("Failed to fetch analytics details", error);
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchData();
     }, []);
 
@@ -32,13 +38,29 @@ const AnalyticsDetail: React.FC = () => {
         );
     }
 
-    if (!data) {
+    if (error || !data) {
         return (
-            <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
-                <div className="bg-white p-8 rounded-2xl shadow-lg text-center">
-                    <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-                    <h3 className="text-xl font-bold text-slate-900">Failed to load data</h3>
-                    <button onClick={() => navigate('/dashboard')} className="mt-4 text-[#0A2A6B] font-bold">Return to Dashboard</button>
+            <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-6">
+                <div className="bg-white p-10 rounded-[32px] border border-slate-100 shadow-xl shadow-slate-200/20 max-w-md w-full text-center">
+                    <div className="p-4 bg-red-50 text-red-500 rounded-2xl w-fit mx-auto mb-6">
+                        <AlertCircle className="w-10 h-10" />
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-900 mb-2">Service Unavailable</h3>
+                    <p className="text-slate-500 mb-8">{error || "Failed to load data"}</p>
+                    <div className="flex flex-col gap-3">
+                        <button 
+                            onClick={fetchData} 
+                            className="bg-foreground text-background py-3 px-6 rounded-xl font-bold hover:opacity-90 transition-all"
+                        >
+                            Try Again
+                        </button>
+                        <button 
+                            onClick={() => navigate('/dashboard')} 
+                            className="text-slate-500 py-3 px-6 rounded-xl font-bold hover:bg-slate-50 transition-all"
+                        >
+                            Return to Dashboard
+                        </button>
+                    </div>
                 </div>
             </div>
         );
@@ -49,13 +71,30 @@ const AnalyticsDetail: React.FC = () => {
         ? 'Detailed breakdown of views and unique visitors across your resumes.'
         : 'Analysis of how long recruiters and hiring managers are reading your resumes.';
 
-    // Sort data based on type
-    const sortedResumes = [...data.resume_performance].sort((a, b) => {
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 8;
+
+    // Filter and Sort data
+    const filteredResumes = (data?.resume_performance || []).filter(r => 
+        r.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const sortedResumes = [...filteredResumes].sort((a, b) => {
         if (type === 'engagement') {
             return b.avg_time - a.avg_time;
         }
         return b.views - a.views;
     });
+
+    const paginatedResumes = sortedResumes.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    const totalPages = Math.ceil(sortedResumes.length / itemsPerPage);
+
+    const COLORS = ['#0A2A6B', '#10B981', '#F59E0B', '#6366F1', '#EC4899'];
 
     return (
         <div className="min-h-screen bg-[#F8FAFC] p-6 lg:p-12">
@@ -113,16 +152,27 @@ const AnalyticsDetail: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Detailed Table */}
+                {/* Performance Breakdown Table */}
                 <div className="bg-white rounded-[32px] border border-slate-100 shadow-xl shadow-slate-200/20 overflow-hidden">
-                    <div className="p-8 border-b border-slate-100">
+                    <div className="p-8 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <h2 className="text-xl font-bold text-slate-900">Performance Breakdown</h2>
+                        <div className="relative group">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-[#0A2A6B] transition-colors" />
+                            <input 
+                                type="text"
+                                placeholder="Search resumes..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="pl-11 pr-4 py-2 bg-slate-50 border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-[#0A2A6B]/10 w-full md:w-64 outline-none transition-all"
+                            />
+                        </div>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
                                 <tr className="bg-slate-50 border-b border-slate-100">
                                     <th className="px-8 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Resume</th>
+                                    <th className="px-8 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Trend (30d)</th>
                                     <th className="px-8 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Views</th>
                                     <th className="px-8 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Unique People</th>
                                     <th className="px-8 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Avg. Time</th>
@@ -131,8 +181,8 @@ const AnalyticsDetail: React.FC = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
-                                {sortedResumes.length > 0 ? (
-                                    sortedResumes.map((item) => (
+                                {paginatedResumes.length > 0 ? (
+                                    paginatedResumes.map((item) => (
                                         <tr key={item.id} className="hover:bg-slate-50/50 transition-colors group">
                                             <td className="px-8 py-6">
                                                 <div className="flex items-center gap-4">
@@ -143,6 +193,22 @@ const AnalyticsDetail: React.FC = () => {
                                                         <h4 className="font-bold text-slate-900">{item.title}</h4>
                                                         <p className="text-xs text-slate-400 mt-1">AWS Score: {item.score}</p>
                                                     </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-6">
+                                                <div className="w-24 h-8">
+                                                    <ResponsiveContainer width="100%" height="100%">
+                                                        <LineChart data={data.trends}>
+                                                            <Line 
+                                                                type="monotone" 
+                                                                dataKey="views" 
+                                                                stroke="#0A2A6B" 
+                                                                strokeWidth={2} 
+                                                                dot={false} 
+                                                                isAnimationActive={false}
+                                                            />
+                                                        </LineChart>
+                                                    </ResponsiveContainer>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-6">
@@ -176,12 +242,112 @@ const AnalyticsDetail: React.FC = () => {
                                 ) : (
                                     <tr>
                                         <td colSpan={6} className="px-8 py-12 text-center text-slate-400 text-sm">
-                                            No analytics data available yet. Share your resume to start tracking!
+                                            {searchTerm ? "No resumes match your search." : "No analytics data available yet."}
                                         </td>
                                     </tr>
                                 )}
                             </tbody>
                         </table>
+                    </div>
+                    
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                        <div className="p-6 border-t border-slate-100 flex items-center justify-between bg-slate-50/30">
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest px-2">
+                                Page {currentPage} of {totalPages}
+                            </p>
+                            <div className="flex gap-2">
+                                <button 
+                                    disabled={currentPage === 1}
+                                    onClick={() => setCurrentPage(prev => prev - 1)}
+                                    className="p-2 bg-white border border-slate-200 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed hover:border-[#0A2A6B] transition-all"
+                                >
+                                    <ChevronLeft className="w-4 h-4 text-slate-600" />
+                                </button>
+                                <button 
+                                    disabled={currentPage === totalPages}
+                                    onClick={() => setCurrentPage(prev => prev + 1)}
+                                    className="p-2 bg-white border border-slate-200 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed hover:border-[#0A2A6B] transition-all"
+                                >
+                                    <ChevronRight className="w-4 h-4 text-slate-600" />
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Lower Grid: Geo & Devices */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Geo Distribution */}
+                    <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-xl shadow-slate-200/20">
+                        <div className="flex items-center gap-3 mb-8">
+                            <div className="p-2 bg-blue-50 text-[#0A2A6B] rounded-lg">
+                                <Globe className="w-5 h-5" />
+                            </div>
+                            <h2 className="text-xl font-bold text-slate-900">Top Locations</h2>
+                        </div>
+                        <div className="space-y-6">
+                            {(data.geo_distribution || []).length > 0 ? (
+                                data.geo_distribution.map((item, idx) => (
+                                    <div key={idx} className="space-y-2">
+                                        <div className="flex justify-between items-center text-sm font-bold">
+                                            <span className="text-slate-900">{item.country}</span>
+                                            <span className="text-slate-400">{item.visitors} visitors</span>
+                                        </div>
+                                        <div className="h-2 bg-slate-50 rounded-full overflow-hidden">
+                                            <div 
+                                                className="h-full bg-[#0A2A6B] rounded-full" 
+                                                style={{ width: `${(item.visitors / data.summary.total_views) * 100}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-slate-400 text-sm text-center py-8">No location data available.</p>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Device Breakdown */}
+                    <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-xl shadow-slate-200/20">
+                        <div className="flex items-center gap-3 mb-8">
+                            <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
+                                <Smartphone className="w-5 h-5" />
+                            </div>
+                            <h2 className="text-xl font-bold text-slate-900">Device Breakdown</h2>
+                        </div>
+                        <div className="flex flex-col md:flex-row items-center gap-8">
+                            <div className="w-full h-48">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <PieChart>
+                                        <Pie
+                                            data={data.device_stats}
+                                            innerRadius={60}
+                                            outerRadius={80}
+                                            paddingAngle={8}
+                                            dataKey="count"
+                                            nameKey="device"
+                                        >
+                                            {(data.device_stats || []).map((_, index) => (
+                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </div>
+                            <div className="w-full space-y-4">
+                                {(data.device_stats || []).map((item, idx) => (
+                                    <div key={idx} className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[idx % COLORS.length] }} />
+                                            <span className="text-sm font-bold text-slate-600 capitalize">{item.device}</span>
+                                        </div>
+                                        <span className="text-sm font-bold text-slate-900">{item.count}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

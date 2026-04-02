@@ -174,7 +174,15 @@ const Dashboard: React.FC = () => {
                                                     resume={resume}
                                                     isRenaming={isRenaming === resume.id}
                                                     setIsRenaming={setIsRenaming}
-                                                    onRename={(id, title) => renameResumeAction({ id, title })}
+                                                    onRename={async (id, title) => {
+                                                        try {
+                                                            await renameResumeAction({ id, title });
+                                                            return true;
+                                                        } catch (err) {
+                                                            console.error('Rename failed:', err);
+                                                            return false;
+                                                        }
+                                                    }}
                                                     onDelete={async (id: string) => {
                                                         return new Promise<boolean>((resolve) => {
                                                             confirmAction(
@@ -184,7 +192,8 @@ const Dashboard: React.FC = () => {
                                                                     try {
                                                                         await deleteResumeAction(id);
                                                                         resolve(true);
-                                                                    } catch {
+                                                                    } catch (err) {
+                                                                        console.error('Delete failed:', err);
                                                                         resolve(false);
                                                                     }
                                                                 }

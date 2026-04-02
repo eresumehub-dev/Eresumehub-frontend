@@ -159,6 +159,7 @@ const ReadinessHub: React.FC<ReadinessHubProps> = ({
                                 className="w-full"
                                 disabled={!canGenerate}
                                 onClick={onGenerate}
+                                data-testid="generate-button"
                             >
                                 <Sparkles className="w-4 h-4 mr-2" />
                                 {score >= 80 ? 'Ready to Generate' : 'Generate Resume'}

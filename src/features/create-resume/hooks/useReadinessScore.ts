@@ -116,16 +116,24 @@ export const useReadinessScore = (
 
         // ATS Score
         let ats = 85;
-        if ((profile.work_experiences?.length || 0) > 1) ats += 5;
-        if ((profile.skills?.length || 0) > 5) ats += 5;
-        if (jobDescription.trim().length > 50) {
+        if ((profile.work_experiences?.length || 0) === 0) ats -= 20;
+        else if ((profile.work_experiences?.length || 0) > 1) ats += 5;
+        
+        if ((profile.skills?.length || 0) === 0) ats -= 15;
+        else if ((profile.skills?.length || 0) > 5) ats += 5;
+
+        if (!profile.professional_summary) ats -= 10;
+
+        if (jobDescription.trim().length > 20) { // Lowered threshold for meaningful matching
             const jdLower = jobDescription.toLowerCase();
             const profileSkills = (profile.skills || []).map(s => s.toLowerCase());
             let matches = 0;
             profileSkills.forEach(skill => { if (jdLower.includes(skill)) matches++; });
-            const matchRatio = Math.min(1, matches / 5); // Heuristic: 5 skill matches = max matching boost
-            ats = 70 + (matchRatio * 25);
+            const matchRatio = Math.min(1, matches / 5); 
+            // Scale dynamically between 60 (bad match) and 95 (hub match)
+            ats = 60 + (matchRatio * 35);
         }
+        
         if (activeWarnings.some(w => w.type === 'error')) ats -= 20;
         if (activeWarnings.some(w => w.type === 'warning')) ats -= 5;
         ats = Math.floor(Math.max(0, Math.min(99, ats)));

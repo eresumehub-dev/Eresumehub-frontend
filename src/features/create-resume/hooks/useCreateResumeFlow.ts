@@ -86,7 +86,13 @@ export const useCreateResumeFlow = () => {
         setGenerationStep('Initializing...');
         setGenerationProgress(5);
 
-        // Map user data
+        // 1. Sanitization Helper: Strip DB internal metadata to reduce payload bloat
+        // Uses optional parameter to ensure TS compliance (v7.1.0)
+        const sanitize = (items?: any[]) => (items || []).map(({ 
+            id, profile_id, user_id, created_at, updated_at, display_order, ...rest 
+        }: any) => rest);
+
+        // 2. Map user data - Aligning with backend 'UserData' schema (v7.1.0)
         const userData = {
             full_name: profile.full_name,
             contact: {
@@ -95,16 +101,17 @@ export const useCreateResumeFlow = () => {
                 linkedin: profile.linkedin_url,
                 city: profile.city
             },
-            professional_summary: profile.professional_summary,
+            summary: profile.professional_summary,
             skills: profile.skills || [],
-            work_experiences: profile.work_experiences || [],
-            educations: profile.educations || [],
+            experience: sanitize(profile.work_experiences),
+            education: sanitize(profile.educations),
+            projects: sanitize(profile.projects),
             languages: (profile.languages || []).map((l: any) => {
                 const name = typeof l === 'string' ? l : l.name;
                 const level = typeof l === 'string' ? 'Native' : (l.level || l.proficiency_cefr || 'Native');
                 return { language: name, proficiency_cefr: level };
             }),
-            certifications: profile.certifications || [],
+            certifications: (profile.certifications || []).map((c: any) => typeof c === 'string' ? c : c.name),
             profile_pic_url: profile.photo_url
         };
 

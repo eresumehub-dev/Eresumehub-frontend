@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Target, FileText, Globe, Languages, Sparkles } from 'lucide-react';
+import { Target, FileText, Globe, Sparkles, Check } from 'lucide-react';
 import Input from '../../../components/shared/ui/Input';
 import Textarea from '../../../components/shared/ui/Textarea';
 import Select from '../../../components/shared/ui/Select';
@@ -11,10 +11,9 @@ interface FormSectionsProps {
     formData: any;
     setFormData: (data: any) => void;
     countries: string[];
-    readinessScore: number;
 }
 
-const FormSections: React.FC<FormSectionsProps> = ({ currentStep, formData, setFormData, countries, readinessScore }) => {
+const FormSections: React.FC<FormSectionsProps> = ({ currentStep, formData, setFormData, countries }) => {
     
     // Step 0: Role
     const RoleSection = (

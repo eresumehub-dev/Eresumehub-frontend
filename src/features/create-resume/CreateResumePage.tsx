@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertCircle, Sparkles, Check } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
 
 // --- SHARED UI ---
@@ -14,6 +14,8 @@ import FormSections from './components/FormSections';
 // --- FEATURE HOOKS ---
 import { useCreateResumeFlow } from './hooks/useCreateResumeFlow';
 import { useReadinessScore } from './hooks/useReadinessScore';
+import * as resumeService from '../../services/resume';
+import * as profileQuery from '../../hooks/queries/useUserProfileQuery';
 
 // --- SERVICES ---
 import { getAvailableCountries } from '../../services/schema';
@@ -21,20 +23,18 @@ import { getAvailableCountries } from '../../services/schema';
 const CreateResumePage: React.FC = () => {
     const navigate = useNavigate();
     const [availableCountries, setAvailableCountries] = useState<string[]>(['Germany', 'India', 'Japan']);
-    const [dismissedWarnings, setDismissedWarnings] = useState<Set<string>>(new Set());
-
     const {
         formData, setFormData,
         profile, loadingProfile,
         isGenerating, generationStep, generationProgress,
-        cooldown, error, setError,
+        error, setError,
         handleGenerate
     } = useCreateResumeFlow();
 
     const {
         readinessScore, projectedAtsScore, interpretation, warnings
     } = useReadinessScore(
-        profile, formData.jobTitle, formData.jobDescription, formData.country, dismissedWarnings
+        profile, formData.jobTitle, formData.jobDescription, formData.country, new Set()
     );
 
     // Step logic: Progressive disclosure
@@ -119,7 +119,6 @@ const CreateResumePage: React.FC = () => {
                                 formData={formData}
                                 setFormData={setFormData}
                                 countries={availableCountries}
-                                readinessScore={readinessScore}
                             />
                         </div>
                     </main>
@@ -150,7 +149,7 @@ const CreateResumePage: React.FC = () => {
                     `}
                 >
                     {isGenerating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
-                    {isGenerating ? generationStep : 'Generate Resume'}
+                    {isGenerating ? (generationStep || 'Generating...') : 'Generate Resume'}
                 </button>
             </div>
         </div>
