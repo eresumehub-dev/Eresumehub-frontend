@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles, CheckCircle2, Star, ChevronLeft, ChevronRight, Zap, Target, FileText, BarChart3, Wand2, Download, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 // Import logos
 import cozaintLogo from '../../Logos/cozaint_logo.png';
@@ -11,6 +12,10 @@ import securityWorldLogo from '../../Logos/security_world_logo-1.png';
 const Landing = () => {
     const [jobSearch, setJobSearch] = useState('');
     const [currentTestimonial, setCurrentTestimonial] = useState(0);
+    const { user } = useAuth();
+
+    // Smart Navigation Target
+    const ctaTarget = user ? '/dashboard' : '/signup';
 
     const testimonials = [
         {
@@ -90,7 +95,7 @@ const Landing = () => {
                                     placeholder="Enter your job title (e.g., Software Engineer)"
                                     className="flex-1 bg-transparent px-6 py-4 text-white placeholder-gray-300 outline-none text-lg"
                                 />
-                                <Link to={`/signup?title=${encodeURIComponent(jobSearch)}`} className="text-center bg-gradient-to-r from-[#4DCFFF] to-[#A855F7] text-white px-8 py-4 rounded-2xl font-semibold hover:shadow-lg hover:shadow-[#4DCFFF]/50 transition-all duration-300 hover:scale-105">
+                                <Link to={user ? `/create?title=${encodeURIComponent(jobSearch)}` : `/signup?title=${encodeURIComponent(jobSearch)}`} className="text-center bg-gradient-to-r from-[#4DCFFF] to-[#A855F7] text-white px-8 py-4 rounded-2xl font-semibold hover:shadow-lg hover:shadow-[#4DCFFF]/50 transition-all duration-300 hover:scale-105">
                                     Create My AI Resume
                                 </Link>
                             </div>
@@ -98,7 +103,7 @@ const Landing = () => {
 
                         <div className="flex gap-4">
                             <Link
-                                to="/signup"
+                                to={ctaTarget}
                                 className="inline-flex items-center gap-2 bg-white text-[#0A2A6B] px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-xl hover:shadow-white/30 transition-all duration-300 hover:scale-105"
                             >
                                 Get Started Free
@@ -231,7 +236,7 @@ const Landing = () => {
                     </div>
 
                     <div className="text-center mt-12">
-                        <Link to="/signup" className="inline-flex items-center gap-2 text-white border-2 border-white/30 px-8 py-4 rounded-2xl font-semibold hover:bg-white/10 transition-all">
+                        <Link to={ctaTarget} className="inline-flex items-center gap-2 text-white border-2 border-white/30 px-8 py-4 rounded-2xl font-semibold hover:bg-white/10 transition-all">
                             Browse All Premium Templates
                             <ArrowRight className="w-5 h-5" />
                         </Link>
@@ -356,7 +361,7 @@ const Landing = () => {
                                 ))}
                             </ul>
                             <Link
-                                to="/signup"
+                                to={ctaTarget}
                                 className="block text-center bg-white text-[#0A2A6B] px-8 py-4 rounded-2xl font-bold hover:shadow-xl transition-all"
                             >
                                 Get Started Free
@@ -417,7 +422,7 @@ const Landing = () => {
                         Get hired 10× faster with AI-powered tools trusted by professionals worldwide.
                     </p>
                     <Link
-                        to="/signup"
+                        to={ctaTarget}
                         className="inline-flex items-center gap-3 bg-white text-[#0A2A6B] px-12 py-6 rounded-[25px] font-bold text-xl hover:shadow-2xl hover:shadow-white/50 transition-all duration-300 hover:scale-110"
                     >
                         Build My Resume Now
