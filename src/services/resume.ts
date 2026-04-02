@@ -21,6 +21,16 @@ export interface Resume {
     regenerate_pdf?: boolean;
 }
 
+export interface JobStatusResponse {
+    job_id: string;
+    status: 'queued' | 'started' | 'deferred' | 'finished' | 'failed' | 'stopped' | 'canceled';
+    progress: number;
+    step: string;
+    result?: Resume;
+    error?: string;
+    request_id: string;
+}
+
 export const getResumes = async () => {
     const response = await api.get<{ success: boolean; data: { resumes: Resume[] } }>('/resumes');
     return response.data.data.resumes;
@@ -41,9 +51,59 @@ export const deleteResume = async (id: string): Promise<boolean> => {
     return response.data;
 };
 
-export const createResume = async (data: any) => {
-    const response = await api.post('/resume/create', data); // Corrected endpoint based on main.py
+export const createResume = async (data: any): Promise<{ job_id: string; success: boolean }> => {
+    const response = await api.post('/resume/create', data);
     return response.data;
+};
+
+/**
+ * Elite Recursive Polling Engine (v3.9.0)
+ * Uses recursive setTimeout instead of setInterval to prevent request stacking.
+ * Includes a 5-minute (300s) watchdog safety.
+ */
+export const pollJobStatus = (
+    jobId: string,
+    onProgress?: (progress: number, step: string) => void,
+    intervalMs: number = 2000
+): Promise<any> => {
+    return new Promise((resolve, reject) => {
+        const startTime = Date.now();
+        const WATCHDOG_LIMIT_MS = 300000; // 5 minutes
+
+        const poll = async () => {
+            // 1. Safety Check: Watchdog
+            if (Date.now() - startTime > WATCHDOG_LIMIT_MS) {
+                return reject(new Error("GENERATION_TIMEOUT: Pipeline took too long to respond."));
+            }
+
+            try {
+                const response = await api.get(`/jobs/${jobId}`);
+                const { status, progress, step, data, error } = response.data;
+
+                if (onProgress) onProgress(progress, step);
+
+                // 2. Terminal States
+                if (status === 'completed') {
+                    if (onProgress) onProgress(100, "Completed");
+                    return resolve(data);
+                }
+
+                if (status === 'failed') {
+                    return reject(new Error(error || "JOB_FAILED: The background worker encountered a fatal error."));
+                }
+
+                // 3. Recursive Step: Wait for the next beat
+                setTimeout(poll, intervalMs);
+            } catch (err: any) {
+                // Handle 404s or network drops gracefully for 3 retries
+                console.error("Polling error:", err);
+                setTimeout(poll, intervalMs * 2); // Exponential backoff on error
+            }
+        };
+
+        // Kick off the engine
+        poll();
+    });
 };
 
 // New helper for ATS Import flow
@@ -130,4 +190,17 @@ export const setDefaultResume = async (id: string) => {
 export const getPublicResume = async (username: string, slug: string): Promise<Resume> => {
     const response = await api.get<{ success: boolean; data: Resume }>(`/public/resumes/${username}/${slug}`);
     return response.data.data;
+};
+
+/**
+ * Optimized PDF Download: Utilizes the backend's RedirectResponse pattern 
+ * to stream the file securely with zero API-server RAM overhead.
+ */
+export const downloadResumePDF = (resumeId: string) => {
+    const baseUrl = import.meta.env.VITE_API_URL || '';
+    const token = localStorage.getItem('token');
+    
+    // Redirect browser to the secure download endpoint
+    // The browser will handle the 307 redirect automatically.
+    window.location.href = `${baseUrl}/api/v1/resume/${resumeId}/pdf?token=${token}`;
 };

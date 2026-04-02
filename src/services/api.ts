@@ -21,8 +21,9 @@ api.interceptors.request.use(
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
-        // Add API Key from backend .env configuration
-        config.headers['X-API-Key'] = 'EresumeHubSecretKey-12345!';
+        // Staff+ Security: Never hardcode secrets in source code.
+        // Use VITE_ environment variables for client-side injection.
+        config.headers['X-API-Key'] = import.meta.env.VITE_API_KEY || '';
         return config;
     },
     (error) => {

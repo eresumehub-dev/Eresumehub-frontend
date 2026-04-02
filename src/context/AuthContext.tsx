@@ -79,6 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
+    localStorage.removeItem('token'); // Hard wipe immediate
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
   };

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import api from '../services/api';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -24,6 +25,7 @@ const Dashboard: React.FC = () => {
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [sharingResume, setSharingResume] = useState<Resume | null>(null);
     const [analyticsData, setAnalyticsData] = useState<any>(null);
+    const [systemStats, setSystemStats] = useState<any>(null);
 
     const { user } = useAuth();
     const navigate = useNavigate();
@@ -35,8 +37,9 @@ const Dashboard: React.FC = () => {
                 await Promise.allSettled([
                     fetchResumes(),
                     fetchUserDetails(),
-                    fetchProfile(),
-                    fetchAnalytics()
+                    fetchAnalytics(),
+                    fetchSystemHealth(),
+                    fetchProfile()
                 ]);
             } catch (error) {
                 console.error('Dashboard load error:', error);
@@ -50,6 +53,15 @@ const Dashboard: React.FC = () => {
             loadDashboard();
         }
     }, [user]);
+
+    const fetchSystemHealth = async () => {
+        try {
+            const response = await api.get('/system/stats');
+            setSystemStats(response.data);
+        } catch {
+            setSystemStats({ status: "OFFLINE" });
+        }
+    };
 
     const fetchAnalytics = async () => {
         try {
@@ -197,6 +209,17 @@ const Dashboard: React.FC = () => {
                 </nav>
 
                 <div className="p-3 border-t border-slate-100">
+                    {/* Pipeline Status Indicator (Staff+ Elite) */}
+                    <div className="flex items-center justify-between px-3 py-2 mb-2 bg-slate-50 rounded-lg border border-slate-100">
+                        <div className="flex items-center gap-2">
+                            <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${systemStats?.status === 'HEALTHY' ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Generation Pipeline</span>
+                        </div>
+                        <span className={`text-[9px] font-bold ${systemStats?.status === 'HEALTHY' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                            {systemStats?.status || "LOADING"}
+                        </span>
+                    </div>
+
                     <div className="flex items-center gap-3 p-2.5 bg-slate-50 rounded-xl">
                         <div className={`w-8 h-8 rounded-lg border border-white shadow-sm shrink-0 ${userProfile?.photo_url ? 'overflow-hidden' : 'bg-gradient-to-br from-[#0A2A6B] to-[#1E3A8A] flex items-center justify-center text-white font-bold text-[10px]'}`}>
                             {userProfile?.photo_url ? (
