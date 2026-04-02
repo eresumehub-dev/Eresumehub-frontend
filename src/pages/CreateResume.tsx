@@ -759,6 +759,7 @@ const CreateResume: React.FC = () => {
             };
 
             const response = await createResume({
+                title: formData.jobTitle || 'New Resume',
                 country: formData.country,
                 language: formData.language,
                 template_style: formData.template,
