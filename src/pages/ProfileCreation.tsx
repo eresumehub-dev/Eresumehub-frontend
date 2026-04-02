@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Plus, Trash2, Upload, CheckCircle, AlertCircle } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { getProfile, createOrUpdateProfile, createProfileFromResume, UserProfile } from '../services/profile';
 import { getAvailableCountries } from '../services/schema';
 
@@ -71,7 +72,9 @@ const ProfileCreation: React.FC = () => {
             setSuccess(true);
             setTimeout(() => setSuccess(false), 3000);
         } catch (err: any) {
-            setError('Failed to import resume. Please try again.');
+            console.error('Import failed:', err);
+            const detail = err.response?.data?.detail;
+            toast.error(detail || 'Failed to import resume. Please try again.');
         } finally {
             setImporting(false);
         }
@@ -89,7 +92,8 @@ const ProfileCreation: React.FC = () => {
                 navigate('/dashboard');
             }, 2000);
         } catch (err: any) {
-            setError('Failed to save profile. Please try again.');
+            console.error('Save failed:', err);
+            toast.error(err.response?.data?.detail || 'Failed to save profile. Please try again.');
         } finally {
             setLoading(false);
         }

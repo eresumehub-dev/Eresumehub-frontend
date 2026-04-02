@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Plus, FileText } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 // Hooks
 import { useAuth } from '../context/AuthContext';
@@ -64,7 +65,7 @@ const Dashboard: React.FC = () => {
             // Standardizing download URLs (removing manual token injection where possible)
             window.open(resume.pdf_url, '_blank');
         } else {
-            alert('PDF is not available for this resume.');
+            toast.error('PDF is not available for this resume.');
         }
     };
 

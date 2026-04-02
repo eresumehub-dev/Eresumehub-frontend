@@ -4,6 +4,7 @@ import {
     Plus, Upload, CheckCircle, ArrowLeft, ArrowRight,
     User as UserIcon, Mail, Briefcase, GraduationCap, Award, Code, Globe, BookOpen, Star, MapPin, X, AlertTriangle, Linkedin, Loader2, Sparkles
 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence, LayoutGroup, MotionProps } from 'framer-motion';
 
 // Real Imports
@@ -608,11 +609,11 @@ const ProfileCreationMultiStep: React.FC = () => {
                 setProfile(prev => ({ ...prev, photo_url: updatedProfile.photo_url }));
             }
 
-        } catch (err) {
+        } catch (err: any) {
             console.error('Photo upload failed:', err);
             // Revert optimistic update on failure
             setProfile(prev => ({ ...prev, photo_url: undefined }));
-            alert("Failed to upload photo. Please try again.");
+            toast.error(err.response?.data?.detail || "Failed to upload photo. Please try again.");
         } finally {
             setPhotoUploading(false);
         }
@@ -659,7 +660,8 @@ const ProfileCreationMultiStep: React.FC = () => {
             setTimeout(() => setImportSuccess(false), 3000);
         } catch (err: any) {
             console.error('Import failed:', err);
-            alert(err.message || 'Failed to analyze resume. Please try again or construct your profile manually.');
+            const detail = err.response?.data?.detail;
+            toast.error(detail || 'Failed to analyze resume. Please try again or construct your profile manually.');
         } finally {
             setLoading(false);
             e.target.value = ''; // Reset input to allow retrying the same file
@@ -687,9 +689,11 @@ const ProfileCreationMultiStep: React.FC = () => {
 
             await createOrUpdateProfile(payload as any);
             setSuccess(true);
+            toast.success("Profile saved successfully!");
             setTimeout(() => navigate('/dashboard'), 2000);
         } catch (err: any) {
             console.error('Save profile error:', err);
+            toast.error(err.response?.data?.detail || "Failed to save profile. Please check your network.");
         } finally {
             setLoading(false);
         }
