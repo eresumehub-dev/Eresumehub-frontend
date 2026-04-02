@@ -51,7 +51,7 @@ export const deleteResume = async (id: string): Promise<boolean> => {
     return response.data;
 };
 
-export const createResume = async (data: any): Promise<{ job_id: string; success: boolean }> => {
+export const createResume = async (data: any): Promise<{ success: boolean; data: { id: string }; job_id?: string }> => {
     const response = await api.post('/resume/create', data);
     return response.data;
 };

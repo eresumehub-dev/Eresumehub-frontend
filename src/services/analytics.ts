@@ -14,6 +14,7 @@ export interface AnalyticsData {
     geo_distribution: Array<{ country: string; visitors: number }>;
     device_stats: Array<{ device: string; count: number }>;
     resume_performance: Array<{ id: string; title: string; views: number; unique_viewers: number; downloads: number; avg_time: number; score: number }>;
+    activities?: any[];
 }
 
 export const logView = async (data: any) => {
