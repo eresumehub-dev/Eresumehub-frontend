@@ -8,11 +8,12 @@ import { UserProfile } from '../../services/profile';
 interface SidebarProps {
     user: any;
     userProfile: UserProfile | null;
-    systemStatus: string;
+    resumeCount: number;
+    totalViews: number;
     initials: string;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ user, userProfile, systemStatus, initials }) => {
+const Sidebar: React.FC<SidebarProps> = ({ user, userProfile, resumeCount, totalViews, initials }) => {
     const [avatarError, setAvatarError] = useState(false);
 
     const navItems = [
@@ -28,7 +29,7 @@ const Sidebar: React.FC<SidebarProps> = ({ user, userProfile, systemStatus, init
             <div className="p-4 border-b border-slate-100 mb-2">
                 <Link
                     to="/create"
-                    className="flex items-center justify-center gap-3 w-full py-4 bg-[#0A2A6B] text-white rounded-lg font-bold text-sm shadow-lg shadow-[#0A2A6B]/20 hover:bg-[#061A44] transition-all group"
+                    className="flex items-center justify-center gap-3 w-full py-3.5 bg-[#0A2A6B] text-white rounded-xl font-bold text-sm shadow-md shadow-[#0A2A6B]/20 hover:bg-[#061A44] active:scale-[0.98] transition-all group"
                 >
                     <Plus className="w-5 h-5 transition-transform group-hover:rotate-90" />
                     <span>Create New Resume</span>
@@ -40,7 +41,7 @@ const Sidebar: React.FC<SidebarProps> = ({ user, userProfile, systemStatus, init
                     <Link
                         key={item.label}
                         to={item.to}
-                        className={`flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium transition-all group ${item.active
+                        className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all group ${item.active
                             ? 'bg-[#0A2A6B]/5 text-[#0A2A6B]'
                             : 'text-slate-600 hover:bg-slate-50 hover:text-[#0A2A6B]'
                             }`}
@@ -55,28 +56,29 @@ const Sidebar: React.FC<SidebarProps> = ({ user, userProfile, systemStatus, init
 
                 <div className="pt-6 mt-6 border-t border-slate-100">
                     <p className="px-4 mb-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Preferences</p>
-                    <Link to="/settings" className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50 text-sm font-medium transition-all group">
+                    <Link to="/settings" className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 text-sm font-medium transition-all group">
                         <Settings className="w-4 h-4 text-slate-400 group-hover:text-[#0A2A6B]" />
                         <span className="group-hover:text-[#0A2A6B]">Settings</span>
                     </Link>
-                    <Link to="/help" className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50 text-sm font-medium transition-all group">
+                    <Link to="/help" className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 text-sm font-medium transition-all group">
                         <HelpCircle className="w-4 h-4 text-slate-400 group-hover:text-[#0A2A6B]" />
                         <span className="group-hover:text-[#0A2A6B]">Support</span>
                     </Link>
                 </div>
             </nav>
 
-            <div className="p-3 border-t border-slate-100">
-                <div className="flex items-center justify-between px-3 py-2 mb-2 bg-slate-50 rounded-lg border border-slate-100">
-                    <div className="flex items-center gap-2">
-                        <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${systemStatus === 'HEALTHY' ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Pipeline Status</span>
-                    </div>
-                    <span className={`text-[9px] font-bold ${systemStatus === 'HEALTHY' ? 'text-emerald-600' : 'text-rose-600'}`}>
-                        {systemStatus}
+            <div className="p-3 border-t border-slate-100 space-y-2">
+                {/* Real Quick Stats (replaces fake Pipeline Status) */}
+                <div className="flex items-center justify-between px-3 py-2 bg-slate-50 rounded-xl border border-slate-100">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                        {resumeCount} {resumeCount === 1 ? 'Resume' : 'Resumes'}
+                    </span>
+                    <span className="text-[10px] font-bold text-[#0A2A6B]">
+                        {totalViews} {totalViews === 1 ? 'View' : 'Views'}
                     </span>
                 </div>
 
+                {/* User Card */}
                 <div className="flex items-center gap-3 p-2.5 bg-slate-50 rounded-xl">
                     <div className={`w-8 h-8 rounded-lg border border-white shadow-sm shrink-0 overflow-hidden flex items-center justify-center ${!userProfile?.photo_url || avatarError ? 'bg-gradient-to-br from-[#0A2A6B] to-[#1E3A8A] text-white font-bold text-[10px]' : ''}`}>
                         {userProfile?.photo_url && !avatarError ? (
@@ -91,7 +93,7 @@ const Sidebar: React.FC<SidebarProps> = ({ user, userProfile, systemStatus, init
                         )}
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="font-bold text-slate-900 text-[11px] truncate">
+                        <p className="font-bold text-slate-950 text-[11px] truncate">
                             {userProfile?.full_name || user?.user_metadata?.full_name || 'Member'}
                         </p>
                         <Link to="/profile" className="text-[9px] text-[#0A2A6B] font-bold uppercase tracking-wider hover:opacity-80">

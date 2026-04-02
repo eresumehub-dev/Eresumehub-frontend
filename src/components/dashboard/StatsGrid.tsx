@@ -8,56 +8,80 @@ interface StatsGridProps {
 
 const StatsGrid: React.FC<StatsGridProps> = ({ analyticsData }) => {
     const powerScore = analyticsData?.summary?.power_score || 0;
+    const totalViews = analyticsData?.summary?.total_views || 0;
+    const avgTime = analyticsData?.summary?.avg_time_spent || 0;
+    const totalDownloads = analyticsData?.summary?.total_downloads || 0;
     
     return (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Compact Power Score Card */}
-            <div className="lg:col-span-4 bg-white rounded-[24px] border border-slate-100 shadow-xl shadow-slate-200/40 p-6 flex flex-col items-center justify-center relative overflow-hidden">
-                <div className="relative mb-6 w-32 h-32 flex items-center justify-center">
+            {/* Power Score Card */}
+            <div className="lg:col-span-4 bg-white rounded-2xl border border-slate-100 shadow-lg shadow-slate-200/40 p-6 flex flex-col items-center justify-center relative overflow-hidden">
+                <div className="relative mb-5 w-28 h-28 flex items-center justify-center">
                     <svg className="w-full h-full transform -rotate-90">
-                        <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-slate-100" />
+                        <circle cx="56" cy="56" r="50" stroke="currentColor" strokeWidth="7" fill="transparent" className="text-slate-100" />
                         <circle
-                            cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="8" fill="transparent"
-                            strokeDasharray={2 * Math.PI * 58}
-                            strokeDashoffset={2 * Math.PI * 58 * (1 - (powerScore / 100))}
+                            cx="56" cy="56" r="50" stroke="currentColor" strokeWidth="7" fill="transparent"
+                            strokeDasharray={2 * Math.PI * 50}
+                            strokeDashoffset={2 * Math.PI * 50 * (1 - (powerScore / 100))}
                             strokeLinecap="round" className="text-[#0A2A6B]"
                         />
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <span className="text-4xl font-bold text-slate-900 leading-none">{powerScore || '—'}</span>
+                        <span className="text-3xl font-bold text-slate-950 leading-none">{powerScore || '—'}</span>
                         <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1">Power Score</span>
                     </div>
                 </div>
                 <div className="text-center">
-                    <div className={`inline-block px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest ${powerScore >= 80 ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-amber-50 text-amber-600 border border-amber-100'}`}>
-                        {powerScore >= 80 ? 'EXCELLENT' : 'COMPETITIVE'}
+                    <div className={`inline-block px-3 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest ${powerScore >= 80 ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : powerScore > 0 ? 'bg-amber-50 text-amber-600 border border-amber-100' : 'bg-slate-50 text-slate-400 border border-slate-100'}`}>
+                        {powerScore >= 80 ? 'EXCELLENT' : powerScore > 0 ? 'NEEDS WORK' : 'NOT SCORED YET'}
                     </div>
+                    {powerScore === 0 && (
+                        <p className="text-[11px] text-slate-400 mt-2">Run an ATS check to get your score</p>
+                    )}
                 </div>
             </div>
 
-            {/* Three Smaller Metric Cards */}
+            {/* Three Metric Cards */}
             <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Link to="/analytics/traffic" className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-xl shadow-slate-200/30 hover:shadow-2xl transition-all group flex flex-col justify-between cursor-pointer">
-                    <div className="p-2.5 bg-blue-50 text-[#0A2A6B] rounded-xl w-fit mb-4"><Eye className="w-5 h-5" /></div>
+                {/* Views */}
+                <Link to="/analytics/traffic" className="bg-white p-5 rounded-2xl border border-slate-100 shadow-lg shadow-slate-200/30 hover:shadow-xl hover:border-blue-100 transition-all group flex flex-col justify-between cursor-pointer">
+                    <div className="p-2 bg-blue-50 text-[#0A2A6B] rounded-xl w-fit mb-3"><Eye className="w-4 h-4" /></div>
                     <div>
-                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Portfolio Traffic</p>
-                        <h3 className="text-3xl font-bold text-slate-900 tracking-tight">{analyticsData?.summary?.total_views || 0}</h3>
+                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Resume Views</p>
+                        <h3 className="text-3xl font-bold text-slate-950 tracking-tight">{totalViews}</h3>
+                        <p className="text-[11px] text-slate-400 mt-1.5">
+                            {totalViews === 0 
+                                ? 'Share your link to start tracking' 
+                                : 'across all shared links'}
+                        </p>
                     </div>
                 </Link>
 
-                <Link to="/analytics/engagement" className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-xl shadow-slate-200/30 hover:shadow-2xl transition-all group flex flex-col justify-between cursor-pointer">
-                    <div className="p-2.5 bg-amber-50 text-amber-600 rounded-xl w-fit mb-4"><Clock className="w-5 h-5" /></div>
+                {/* Time Spent */}
+                <Link to="/analytics/engagement" className="bg-white p-5 rounded-2xl border border-slate-100 shadow-lg shadow-slate-200/30 hover:shadow-xl hover:border-amber-100 transition-all group flex flex-col justify-between cursor-pointer">
+                    <div className="p-2 bg-amber-50 text-amber-600 rounded-xl w-fit mb-3"><Clock className="w-4 h-4" /></div>
                     <div>
                         <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Avg. Time Spent</p>
-                        <h3 className="text-3xl font-bold text-slate-900 tracking-tight">{analyticsData?.summary?.avg_time_spent || 0}s</h3>
+                        <h3 className="text-3xl font-bold text-slate-950 tracking-tight">{avgTime}s</h3>
+                        <p className="text-[11px] text-slate-400 mt-1.5">
+                            {avgTime === 0 
+                                ? "Readers haven't engaged yet" 
+                                : 'per viewer session'}
+                        </p>
                     </div>
                 </Link>
 
-                <div className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-xl shadow-slate-200/30 hover:shadow-2xl transition-all group flex flex-col justify-between">
-                    <div className="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl w-fit mb-4"><Download className="w-5 h-5" /></div>
+                {/* Downloads */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-lg shadow-slate-200/30 hover:shadow-xl hover:border-emerald-100 transition-all group flex flex-col justify-between">
+                    <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl w-fit mb-3"><Download className="w-4 h-4" /></div>
                     <div>
                         <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Downloads</p>
-                        <h3 className="text-3xl font-bold text-slate-900 tracking-tight">{analyticsData?.summary?.total_downloads || 0}</h3>
+                        <h3 className="text-3xl font-bold text-slate-950 tracking-tight">{totalDownloads}</h3>
+                        <p className="text-[11px] text-slate-400 mt-1.5">
+                            {totalDownloads === 0 
+                                ? 'PDFs not yet downloaded' 
+                                : 'PDF downloads by viewers'}
+                        </p>
                     </div>
                 </div>
             </div>
