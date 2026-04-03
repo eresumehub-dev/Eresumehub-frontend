@@ -5,9 +5,10 @@ import { toast } from 'react-hot-toast';
 
 // Hooks
 import { useAuth } from '../context/AuthContext';
+import { useBootstrapQuery } from '../hooks/queries/useBootstrapQuery';
 import { useResumesQuery } from '../hooks/queries/useResumesQuery';
 import { useAnalyticsQuery } from '../hooks/queries/useAnalyticsQuery';
-import { useUserProfileQuery, getUserInitials } from '../hooks/queries/useUserProfileQuery';
+import { getUserInitials } from '../hooks/queries/useUserProfileQuery';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 
 // Components
@@ -19,30 +20,27 @@ import DashboardSkeleton from '../components/dashboard/DashboardSkeleton';
 import ConfirmModal from '../components/dashboard/ConfirmModal';
 import ShareModal from '../components/ShareModal';
 import ForensicFixCard from '../components/ForensicFixCard';
+import MagicNudge from '../components/dashboard/MagicNudge';
+import { dismissNudge, MagicNudge as MagicNudgeType } from '../services/analytics';
 
 const Dashboard: React.FC = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
 
-    // 1. DATA LAYER (TanStack Query)
-    const { 
-        resumes, isLoading: resumesLoading, 
-        deleteResumeAction, renameResumeAction 
-    } = useResumesQuery();
+    // 1. FAST-PATH DATA LAYER (v15.0.0)
+    // Profile and Resumes only. Target: <150ms.
+    const { data: bootData, isLoading: bootLoading } = useBootstrapQuery();
     
-    const { 
-        data: analyticsData, isLoading: analyticsLoading, refetch: fetchAnalytics 
-    } = useAnalyticsQuery();
-    
-    const { 
-        data: profileData, isLoading: profileLoading 
-    } = useUserProfileQuery();
+    // 2. ASYNC ANALYTICS LAYER (v15.0.0)
+    // Heavy telemetry metrics. Loads in background.
+    const { data: analyticsData, isLoading: analyticsLoading, refetch: fetchAnalytics } = useAnalyticsQuery();
 
+    // 3. MUTATIONS (v15.0.0)
+    const { deleteResumeAction, renameResumeAction } = useResumesQuery();
+
+    const resumes = bootData?.resumes || [];
+    const userProfile = bootData?.profile;
     const activities = analyticsData?.activities || [];
-    const userProfile = profileData?.profile;
-
-    // 2. SHARED UI STATE (Zustand)
-    // Sidebar state is handled internally by the Sidebar component via useUIStore
 
     const { 
         isOpen: isConfirmOpen, title: confirmTitle, message: confirmMessage, 
@@ -53,6 +51,7 @@ const Dashboard: React.FC = () => {
     const [isRenaming, setIsRenaming] = useState<string | null>(null);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [sharingResume, setSharingResume] = useState<any>(null);
+    const [nudges, setNudges] = useState<MagicNudgeType[]>([]);
 
     // Derived state
     const firstName = (userProfile?.full_name || user?.user_metadata?.full_name || 'there').split(' ')[0];
@@ -67,7 +66,29 @@ const Dashboard: React.FC = () => {
         }
     };
 
-    const isLoading = resumesLoading || analyticsLoading || profileLoading;
+    // SYNC NUDGES FROM ANALYTICS (v15.0.0)
+    React.useEffect(() => {
+        if (analyticsData?.nudges) {
+            setNudges(analyticsData.nudges);
+        }
+    }, [analyticsData]);
+
+    const handleDismissNudge = async (type: string, resumeId: string, confidence: number) => {
+        // Optimistic UI
+        setNudges(prev => prev.filter(n => !(n.type === type && n.resume_id === resumeId)));
+        try {
+            await dismissNudge(type, resumeId, confidence);
+        } catch (err) {
+            console.error('Failed to dismiss nudge:', err);
+        }
+    };
+
+    const handleActionNudge = (resumeId: string) => {
+        navigate(`/resume/edit/${resumeId}`);
+    };
+
+    const isLoading = bootLoading;
+    const isStatsLoading = analyticsLoading;
 
     return (
         <div className="flex bg-[#F8FAFC] min-h-[calc(100vh-64px)] relative">
@@ -109,8 +130,26 @@ const Dashboard: React.FC = () => {
                             </Link>
                         </div>
 
-                        {/* 2. ACTION ZONE — ForensicFixCard is TOP PRIORITY */}
-                        {analyticsData?.recommendation && (
+                        {/* 1.5 MAGIC NUDGES (v15.0.0 Async) */}
+                        {isStatsLoading ? (
+                            <div className="h-24 w-full bg-white/50 animate-pulse rounded-2xl border border-slate-100" />
+                        ) : nudges.length > 0 && (
+                            <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-700">
+                                {nudges.map((nudge, idx) => (
+                                    <MagicNudge 
+                                        key={`${nudge.resume_id}-${nudge.type}-${idx}`}
+                                        nudge={nudge}
+                                        onDismiss={handleDismissNudge}
+                                        onAction={handleActionNudge}
+                                    />
+                                ))}
+                            </div>
+                        )}
+
+                        {/* 2. ACTION ZONE — ForensicFixCard (v15.0.0 Async) */}
+                        {isStatsLoading ? (
+                             <div className="h-32 w-full bg-white/40 animate-pulse rounded-2xl border border-slate-100" />
+                        ) : analyticsData?.recommendation && (
                             <ForensicFixCard
                                 fix={analyticsData.recommendation.fix}
                                 resumeTitle={analyticsData.recommendation.resume_title}
@@ -125,9 +164,17 @@ const Dashboard: React.FC = () => {
                                 onNext={fetchAnalytics}
                             />
                         )}
-
-                        {/* 3. PERFORMANCE STATS */}
-                        <StatsGrid analyticsData={analyticsData} />
+ 
+                        {/* 3. PERFORMANCE STATS (v15.0.0 Async) */}
+                        {isStatsLoading ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                {[1,2,3,4].map(i => (
+                                    <div key={i} className="h-28 bg-white/60 animate-pulse rounded-2xl border border-slate-100" />
+                                ))}
+                            </div>
+                        ) : (
+                            <StatsGrid analyticsData={analyticsData} />
+                        )}
 
                         {/* 4. CONTENT: Resumes + Activity */}
                         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">

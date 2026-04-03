@@ -2,9 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { getDashboardAnalytics } from '../../services/analytics';
 
 /**
- * Staff+ Data Layer: Analytics Query (v6.8.0)
- * Handles automatic background synchronization for dashboard metrics.
- * Ensures data is cached for instant back-and-forth navigation.
+ * Async Analytics Hook (v15.0.0)
+ * Handles non-blocking metrics hydration for the Dashboard.
+ * Redis-backed on the server, high-TTL in the browser.
  */
 export const useAnalyticsQuery = () => {
     return useQuery({
@@ -13,7 +13,7 @@ export const useAnalyticsQuery = () => {
             const result = await getDashboardAnalytics();
             return result?.data || result;
         },
-        staleTime: 2 * 60 * 1000, // 2 minutes (analytics is more dynamic)
-        gcTime: 10 * 60 * 1000,  // Keep in cache for 10 minutes
+        staleTime: 15 * 60 * 1000, 
+        gcTime: 30 * 60 * 1000,   
     });
 };

@@ -168,3 +168,20 @@ export const generateSummary = async (profileData: Partial<UserProfile>): Promis
     const response = await api.post('/profile/generate-summary', profileData);
     return response.data;
 };
+
+/**
+ * Golden Bootstrap (v9.0.0): Fetch aggregated dashboard context.
+ * Drastically reduces Total Blocking Time (TBT) by consolidating 3 requests into 1.
+ */
+export const getBootstrapData = async (): Promise<{ 
+    success: boolean; 
+    data: { 
+        profile: any; 
+        resumes: any[]; 
+        analytics: any; 
+        timestamp: string; 
+    } 
+}> => {
+    const response = await api.get('/user/bootstrap');
+    return response.data;
+};

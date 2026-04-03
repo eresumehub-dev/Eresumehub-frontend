@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getPublicResume, Resume } from '../services/resume';
 import { logView, updateViewHeartbeat, logDownload } from '../services/analytics';
+import { tracker } from '../services/tracker';
 import { Download, Globe, Clock, AlertCircle, Loader2, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -16,6 +17,8 @@ const PublicResume: React.FC = () => {
     const viewIdRef = useRef<string | null>(null);
     const startTimeRef = useRef<number>(Date.now());
     const analyticsInitialized = useRef(false);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const maxScrollRef = useRef<number>(0);
 
     const loadResume = async (u: string, s: string) => {
         try {
@@ -55,13 +58,25 @@ const PublicResume: React.FC = () => {
 
         const initTracking = async () => {
             try {
+                // Initialize v12 standardized tracking
+                await tracker.trackEvent('resume_view_started', {
+                    resume_id: resume.id,
+                    entry_point: document.referrer ? 'link' : 'direct',
+                    is_unique: !sessionStorage.getItem(`viewed_${resume.id}`)
+                }, user?.id);
+                
+                sessionStorage.setItem(`viewed_${resume.id}`, 'true');
+
+                // Legacy fallback (v12 shim)
                 const viewData = {
                     resume_id: resume.id,
-                    session_id: sessionId,
+                    session_id: sessionStorage.getItem('eresume_session_id'),
                     viewer_user_id: user?.id || null,
                     referrer: document.referrer,
                     device_type: /Mobi|Android/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
                     browser: navigator.userAgent.slice(0, 50),
+                    screen_size: `${window.innerWidth}x${window.innerHeight}`,
+                    max_scroll_depth: 0
                 };
 
                 const response = await logView(viewData);
@@ -76,6 +91,27 @@ const PublicResume: React.FC = () => {
         };
 
         initTracking();
+
+        // SCROLL DEPTH TRACKING (v11.0.0)
+        const handleScroll = () => {
+            if (!scrollContainerRef.current) return;
+            const element = scrollContainerRef.current;
+            const scrollPercentage = element.scrollTop / (element.scrollHeight - element.clientHeight);
+            if (scrollPercentage > maxScrollRef.current) {
+                maxScrollRef.current = Math.min(1, parseFloat(scrollPercentage.toFixed(2)));
+            }
+        };
+
+        const container = scrollContainerRef.current;
+        if (container) {
+            container.addEventListener('scroll', handleScroll);
+        }
+
+        return () => {
+            if (container) {
+                container.removeEventListener('scroll', handleScroll);
+            }
+        };
     }, [resume]); // Only runs if Resume Object changes
 
     // EFFECT 2: Heartbeat Interval (Runs on Mount, restarts on Remount)
@@ -89,7 +125,30 @@ const PublicResume: React.FC = () => {
 
                 // Only send pulse if time > 0
                 if (duration > 0) {
-                    updateViewHeartbeat(viewIdRef.current, duration)
+                    // Map scroll depth to "Virtual Sections" (0-1.0)
+                    let currentSection = 'summary';
+                    if (maxScrollRef.current > 0.15) currentSection = 'experience';
+                    if (maxScrollRef.current > 0.60) currentSection = 'skills';
+                    if (maxScrollRef.current > 0.85) currentSection = 'education';
+
+                    // Standardized V12/V13 Heartbeat
+                    tracker.trackEvent('resume_view_heartbeat', {
+                        resume_id: resume.id,
+                        duration_increment: 5,
+                        total_duration: duration,
+                        scroll_depth: maxScrollRef.current,
+                        current_section: currentSection,
+                        active: !document.hidden
+                    }, user?.id);
+
+                    // Legacy Heartbeat pulse (v12 shim)
+                    const heartbeatData = { 
+                        duration_seconds: duration,
+                        max_scroll_depth: maxScrollRef.current,
+                        is_active: !document.hidden
+                    };
+                    
+                    updateViewHeartbeat(viewIdRef.current, heartbeatData as any)
                         .catch(e => console.error(`[Analytics] Heartbeat Fail`, e));
                 }
             }
@@ -166,8 +225,15 @@ const PublicResume: React.FC = () => {
                 await writable.write(blob);
                 await writable.close();
 
-                // 4. NOW we log explicitly
-                const sessionId = sessionStorage.getItem('resumey_session_id');
+                // 4. NOW we log explicitly (Standardized V12)
+                await tracker.trackEvent('resume_download', {
+                    resume_id: resume.id,
+                    file_format: 'pdf',
+                    download_source: 'button'
+                }, user?.id);
+
+                // Legacy log (v12 shim)
+                const sessionId = sessionStorage.getItem('eresume_session_id');
                 await logDownload({
                     resume_id: resume.id,
                     session_id: sessionId,
@@ -224,8 +290,21 @@ const PublicResume: React.FC = () => {
             </div>
 
             {/* Viewer Content */}
-            <div className="flex-1 p-4 md:p-8 flex justify-center overflow-y-auto">
-                <div className="w-full max-w-5xl bg-white shadow-2xl rounded-sm border border-slate-200 overflow-hidden min-h-[1122px]">
+            <div 
+                ref={scrollContainerRef}
+                className="flex-1 p-4 md:p-8 flex justify-center overflow-y-auto"
+            >
+                {/* PDF Viewer Container with Causal Tracking Zone */}
+                <div 
+                    className="w-full max-w-5xl bg-white rounded-[24px] overflow-hidden border border-slate-100 shadow-xl shadow-slate-200/20 relative"
+                    onMouseEnter={() => {
+                        tracker.trackEvent('content_interaction', {
+                            resume_id: resume.id,
+                            type: 'hover',
+                            section: 'viewer_container'
+                        });
+                    }}
+                >
                     <iframe
                         src={`${previewUrl}${previewUrl.includes('?') ? '&' : '?'}preview=true`}
                         className="w-full h-[1122px] border-none"
