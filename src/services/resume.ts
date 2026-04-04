@@ -52,8 +52,7 @@ export const deleteResume = async (id: string): Promise<boolean> => {
 };
 
 export const createResume = async (data: any): Promise<{ success: boolean; data: { id: string }; job_id?: string }> => {
-    // Staff+ Tip: Set a generous timeout (120s) for the initial creation/enqueuing request 
-    // to handle large payload validation and idempotency checks.
+    // Staff+ Tip: Synchronous Pivot (v16.4.9) - We use 120s to handle the full AI pipeline
     const response = await api.post('/resume/create', data, { timeout: 120000 });
     return response.data;
 };
