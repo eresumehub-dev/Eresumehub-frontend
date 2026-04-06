@@ -31,8 +31,16 @@ export const useReadinessScore = (
     // 1. Compliance Logic (Internal helper)
     const generateComplianceWarnings = useCallback((userProfile: UserProfile, targetCountry: string) => {
         const newWarnings: ComplianceWarning[] = [];
+        const countryLower = targetCountry.toLowerCase();
 
-        if (targetCountry === 'Germany') {
+        // DEBUG: Warning generation evaluation
+        console.log(`[useReadinessScore] 🔍 Evaluating compliance for: ${targetCountry}`, {
+            hasDob: !!userProfile.date_of_birth,
+            hasNationality: !!userProfile.nationality,
+            langCount: userProfile.languages?.length || 0
+        });
+
+        if (countryLower === 'germany') {
             if (!userProfile.date_of_birth) {
                 newWarnings.push({
                     id: 'dob-missing',
@@ -53,7 +61,6 @@ export const useReadinessScore = (
                     actionLink: '/profile',
                 });
             }
-
             if (!userProfile.photo_url) {
                 newWarnings.push({
                     id: 'photo-missing',
@@ -120,7 +127,9 @@ export const useReadinessScore = (
             }
         }
 
-        return newWarnings.filter(w => !dismissedWarnings.has(w.id));
+        const filtered = newWarnings.filter(w => !dismissedWarnings.has(w.id));
+        console.log(`[useReadinessScore] 🏁 Generated ${filtered.length} active warnings.`);
+        return filtered;
     }, [dismissedWarnings]);
 
     // 2. Main Memoized Calculation
