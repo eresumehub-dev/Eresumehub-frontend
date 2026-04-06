@@ -29,6 +29,12 @@ const CreateResumePage: React.FC = () => {
         handleGenerate
     } = useCreateResumeFlow();
 
+    // 🧪 DEBUG: v3.1.3 Call-Site Trace
+    console.warn("🧠 Passing into useReadinessScore:", {
+        targetCountry: formData.country,
+        userProfile: profile
+    });
+
     const {
         readinessScore, projectedAtsScore, interpretation, warnings
     } = useReadinessScore(
