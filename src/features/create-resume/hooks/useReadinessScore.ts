@@ -28,19 +28,23 @@ export const useReadinessScore = (
     country: string,
     dismissedWarnings: Set<string>
 ) => {
+    // 🧪 DEBUG: v3.1.3 Entry Trace
+    console.warn("🚨 useReadinessScore HOOK RUNNING", {
+        targetCountry: country,
+        userProfile: profile
+    });
+
     // 1. Compliance Logic (Internal helper)
     const generateComplianceWarnings = useCallback((userProfile: UserProfile, targetCountry: string) => {
         const newWarnings: ComplianceWarning[] = [];
-        const countryLower = targetCountry.toLowerCase();
+        const countryLower = targetCountry?.toLowerCase();
 
-        // DEBUG: Warning generation evaluation (v16.4.18)
-        console.log(`[useReadinessScore] 🔍 Evaluating compliance [Trace Start]`, {
-            targetCountry,
-            countryLower,
-            profileKeys: Object.keys(userProfile),
-            dob: userProfile.date_of_birth,
-            nat: userProfile.nationality,
-            lang: userProfile.languages
+        // 🧪 DEBUG: v3.1.3 Logic Trace
+        console.log("🌍 Country detected:", countryLower);
+        console.log("🧪 Fields check:", {
+            dob: userProfile?.date_of_birth || (userProfile as any)?.dob,
+            nationality: userProfile?.nationality,
+            languages: userProfile?.languages
         });
 
         if (countryLower === 'germany') {
@@ -138,7 +142,10 @@ export const useReadinessScore = (
         }
 
         const filtered = newWarnings.filter(w => !dismissedWarnings.has(w.id));
-        console.log(`[useReadinessScore] 🏁 Generated ${filtered.length} active warnings.`);
+        
+        // 🧪 DEBUG: v3.1.3 Result Trace
+        console.warn("⚠️ Generated warnings:", filtered);
+        
         return filtered;
     }, [dismissedWarnings]);
 

@@ -83,7 +83,12 @@ export const useCreateResumeFlow = () => {
     const handleGenerate = async (activeWarnings: any[] = [], override: any = {}) => {
         if (isGenerating || cooldown > 0 || !profile) return;
         
-        // DEBUG: Generation intercept (v16.4.18)
+        // 🧪 DEBUG: v3.1.3 Generation Trace
+        console.warn("🚨 handleGenerate triggered", {
+             activeWarnings
+        });
+
+        // 🧪 DEBUG: v3.1.3 Logic Trace
         console.log(`[useCreateResumeFlow] handleGenerate called.`, {
             activeWarningsCount: activeWarnings.length,
             errorWarnings: activeWarnings.filter(w => w.type === 'error').map(w => w.id),
