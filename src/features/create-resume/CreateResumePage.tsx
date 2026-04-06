@@ -29,6 +29,12 @@ const CreateResumePage: React.FC = () => {
         handleGenerate
     } = useCreateResumeFlow();
 
+    // 🧪 DEBUG: v3.1.4 Component Render Trace
+    console.log("🔥 CreateResumePage RENDER", {
+        country: formData?.country,
+        profileExists: !!profile
+    });
+
     // 🧪 DEBUG: v3.1.3 Call-Site Trace
     console.warn("🧠 Passing into useReadinessScore:", {
         targetCountry: formData.country,
