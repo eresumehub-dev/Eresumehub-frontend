@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createResume, pollJobStatus } from '../../../services/resume';
 import { useUserProfileQuery } from '../../../hooks/queries/useUserProfileQuery';
 import { trackEvent } from '../../../services/event_tracking';
+import { checkMarketCompliance, ComplianceWarning } from '../../../utils/compliance_check';
 
 export const useCreateResumeFlow = () => {
     const navigate = useNavigate();
@@ -80,38 +81,39 @@ export const useCreateResumeFlow = () => {
 
     const [showComplianceWarning, setShowComplianceWarning] = useState(false);
 
-    const handleGenerate = async (activeWarnings: any[] = [], override: any = {}) => {
-        // 🧪 DEBUG: v3.1.4 Generation Intercept (ABSOLUTE)
-        console.warn("🚨 handleGenerate triggered (ABSOLUTE)", {
-             activeWarnings,
+    const handleGenerate = async (_activeWarnings: any[] = [], override: any = {}) => {
+        // 🧪 DEBUG: v3.2.0 Hardened Generation Entry
+        console.warn("🚨 handleGenerate triggered (v3.2.0 Hardened)", {
              profileExists: !!profile,
-             isGenerating,
-             cooldown
+             loadingProfile,
+             country: formData.country,
+             ignoreCompliance: !!override.ignoreCompliance
         });
 
-        if (isGenerating || cooldown > 0 || !profile) return;
+        // 1. HARD GUARD: Profile Must Exist
+        if (!profile || loadingProfile) {
+            console.error("❌ Profile missing or loading. Blocking generation.");
+            setError("Profile data is still synchronizing. Please wait a moment.");
+            return;
+        }
 
-        // 🧪 DEBUG: v3.1.3 Logic Trace
-        console.log(`[useCreateResumeFlow] handleGenerate called.`, {
-            activeWarningsCount: activeWarnings.length,
-            errorWarnings: activeWarnings.filter(w => w.type === 'error').map(w => w.id),
-            ignoreCompliance: !!override.ignoreCompliance
-        });
+        if (isGenerating || cooldown > 0) return;
 
-        // Compliance UX Barrier: Intercept if missing mandatory fields and not overridden
-        const errorWarnings = activeWarnings.filter(w => w.type === 'error');
+        // 2. SYNCHRONOUS COMPLIANCE GATE (v3.2.0)
+        // We re-calculate warnings from fresh profile data to avoid race conditions with UI state.
+        const freshWarnings = checkMarketCompliance(profile, formData.country);
+        const errorWarnings = freshWarnings.filter((w: ComplianceWarning) => w.type === 'error');
         
-        // 🧪 DEBUG: v3.1.5 Classification Trace
-        console.log("ALL WARNINGS:", activeWarnings);
+        console.log("ALL FRESH WARNINGS:", freshWarnings);
         console.log("ERROR WARNINGS:", errorWarnings);
 
         if (errorWarnings.length > 0 && !override.ignoreCompliance) {
-            console.warn(`[useCreateResumeFlow] 🛑 Compliance barrier triggered. Showing modal.`);
+            console.warn(`[useCreateResumeFlow] 🛑 Compliance barrier triggered via Synchronous Gate.`);
             setShowComplianceWarning(true);
             return;
         }
-        setShowComplianceWarning(false);
         
+        setShowComplianceWarning(false);
         setIsGenerating(true);
         setError(null);
         setGenerationStep('Initializing...');

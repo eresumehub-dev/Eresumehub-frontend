@@ -142,7 +142,7 @@ const CreateResumePage: React.FC = () => {
                         generationStep={generationStep}
                         generationProgress={generationProgress}
                         onGenerate={() => handleGenerate(warnings)}
-                        canGenerate={formData.jobTitle.trim().length > 3}
+                        canGenerate={formData.jobTitle.trim().length > 3 && !loadingProfile}
                     />
                 </div>
             </div>
@@ -150,15 +150,15 @@ const CreateResumePage: React.FC = () => {
             {/* Mobile Generate Button (Floating) */}
             <div className="lg:hidden fixed bottom-6 left-6 right-6 z-50">
                 <button
-                    disabled={isGenerating || !formData.jobTitle.trim()}
+                    disabled={isGenerating || !formData.jobTitle.trim() || loadingProfile}
                     onClick={() => handleGenerate(warnings)}
                     className={`
                         w-full p-4 rounded-2xl shadow-2xl flex items-center justify-center gap-3 font-bold transition-all
-                        ${isGenerating ? 'bg-muted text-muted-foreground' : 'bg-foreground text-background active:scale-[0.98]'}
+                        ${(isGenerating || loadingProfile) ? 'bg-muted text-muted-foreground' : 'bg-foreground text-background active:scale-[0.98]'}
                     `}
                 >
-                    {isGenerating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
-                    {isGenerating ? (generationStep || 'Generating...') : 'Generate Resume'}
+                    {(isGenerating || loadingProfile) ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
+                    {isGenerating ? (generationStep || 'Generating...') : loadingProfile ? 'Synchronizing...' : 'Generate Resume'}
                 </button>
             </div>
 
