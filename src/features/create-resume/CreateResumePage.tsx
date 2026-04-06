@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Loader2, AlertCircle, Sparkles, Check } from 'lucide-react';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 // --- SHARED UI ---
 import Card from '../../components/shared/ui/Card';
@@ -14,20 +14,18 @@ import FormSections from './components/FormSections';
 // --- FEATURE HOOKS ---
 import { useCreateResumeFlow } from './hooks/useCreateResumeFlow';
 import { useReadinessScore } from './hooks/useReadinessScore';
-import * as resumeService from '../../services/resume';
-import * as profileQuery from '../../hooks/queries/useUserProfileQuery';
 
 // --- SERVICES ---
 import { getAvailableCountries } from '../../services/schema';
 
 const CreateResumePage: React.FC = () => {
-    const navigate = useNavigate();
     const [availableCountries, setAvailableCountries] = useState<string[]>(['Germany', 'India', 'Japan']);
     const {
         formData, setFormData,
         profile, loadingProfile,
         isGenerating, generationStep, generationProgress,
         error, setError,
+        showComplianceWarning,
         handleGenerate
     } = useCreateResumeFlow();
 
@@ -123,7 +121,6 @@ const CreateResumePage: React.FC = () => {
                         </div>
                     </main>
 
-                    {/* Right: The Launch Pad (Readiness Hub) */}
                     <ReadinessHub 
                         score={readinessScore}
                         atsScore={projectedAtsScore}
@@ -132,7 +129,7 @@ const CreateResumePage: React.FC = () => {
                         isGenerating={isGenerating}
                         generationStep={generationStep}
                         generationProgress={generationProgress}
-                        onGenerate={handleGenerate}
+                        onGenerate={() => handleGenerate(warnings)}
                         canGenerate={formData.jobTitle.trim().length > 3}
                     />
                 </div>
@@ -142,7 +139,7 @@ const CreateResumePage: React.FC = () => {
             <div className="lg:hidden fixed bottom-6 left-6 right-6 z-50">
                 <button
                     disabled={isGenerating || !formData.jobTitle.trim()}
-                    onClick={handleGenerate}
+                    onClick={() => handleGenerate(warnings)}
                     className={`
                         w-full p-4 rounded-2xl shadow-2xl flex items-center justify-center gap-3 font-bold transition-all
                         ${isGenerating ? 'bg-muted text-muted-foreground' : 'bg-foreground text-background active:scale-[0.98]'}
@@ -152,6 +149,54 @@ const CreateResumePage: React.FC = () => {
                     {isGenerating ? (generationStep || 'Generating...') : 'Generate Resume'}
                 </button>
             </div>
+
+            {/* Compliance Modal */}
+            <AnimatePresence>
+                {showComplianceWarning && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            className="bg-background border border-border shadow-2xl rounded-2xl p-6 max-w-md w-full overflow-hidden"
+                        >
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0">
+                                    <AlertCircle className="w-5 h-5 text-amber-500" />
+                                </div>
+                                <div>
+                                    <h2 className="text-lg font-bold text-foreground">Market Requirements Missing</h2>
+                                    <p className="text-sm text-muted-foreground">For {formData.country}</p>
+                                </div>
+                            </div>
+                            
+                            <div className="bg-amber-50/50 border border-amber-100 rounded-xl p-4 mb-6">
+                                <p className="text-sm text-amber-900 mb-3 font-medium">To be competitive, your resume should include:</p>
+                                <ul className="space-y-2 mb-4">
+                                    {warnings.filter(w => w.type === 'error').map(w => (
+                                        <li key={w.id} className="flex items-start gap-2 text-sm text-amber-800/80">
+                                            <span className="text-amber-500 mt-0.5">•</span> {w.title}
+                                        </li>
+                                    ))}
+                                </ul>
+                                <p className="text-xs font-bold text-amber-900 uppercase tracking-widest">Proceeding without these may reduce your chances significantly.</p>
+                            </div>
+
+                            <div className="flex gap-3">
+                                <Link to="/profile" className="flex-1 py-3 px-4 rounded-xl font-bold bg-foreground text-background text-sm text-center">
+                                    Fix Now
+                                </Link>
+                                <button 
+                                    onClick={() => handleGenerate(warnings, { ignoreCompliance: true })}
+                                    className="flex-1 py-3 px-4 rounded-xl font-bold border border-border text-foreground hover:bg-muted text-sm text-center transition-colors"
+                                >
+                                    Continue Anyway
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

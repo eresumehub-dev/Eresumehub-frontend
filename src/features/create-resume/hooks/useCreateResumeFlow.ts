@@ -78,8 +78,18 @@ export const useCreateResumeFlow = () => {
         }
     });
 
-    const handleGenerate = async (override: any = {}) => {
+    const [showComplianceWarning, setShowComplianceWarning] = useState(false);
+
+    const handleGenerate = async (activeWarnings: any[] = [], override: any = {}) => {
         if (isGenerating || cooldown > 0 || !profile) return;
+        
+        // Compliance UX Barrier: Intercept if missing mandatory fields and not overridden
+        const errorWarnings = activeWarnings.filter(w => w.type === 'error');
+        if (errorWarnings.length > 0 && !override.ignoreCompliance) {
+            setShowComplianceWarning(true);
+            return;
+        }
+        setShowComplianceWarning(false);
         
         setIsGenerating(true);
         setError(null);
@@ -132,6 +142,7 @@ export const useCreateResumeFlow = () => {
         profile, loadingProfile,
         isGenerating, generationStep, generationProgress,
         cooldown, error, setError,
+        showComplianceWarning, setShowComplianceWarning,
         handleGenerate
     };
 };

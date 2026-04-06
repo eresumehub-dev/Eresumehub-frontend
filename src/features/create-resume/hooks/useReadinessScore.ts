@@ -33,11 +33,32 @@ export const useReadinessScore = (
         const newWarnings: ComplianceWarning[] = [];
 
         if (targetCountry === 'Germany') {
+            if (!userProfile.date_of_birth) {
+                newWarnings.push({
+                    id: 'dob-missing',
+                    type: 'error',
+                    title: 'Date of Birth required',
+                    message: 'Date of Birth is strictly required for German market CVs.',
+                    actionLabel: 'Add',
+                    actionLink: '/profile',
+                });
+            }
+            if (!userProfile.nationality) {
+                newWarnings.push({
+                    id: 'nationality-missing',
+                    type: 'error',
+                    title: 'Nationality required',
+                    message: 'Nationality is strictly required for German market CVs.',
+                    actionLabel: 'Add',
+                    actionLink: '/profile',
+                });
+            }
+
             if (!userProfile.photo_url) {
                 newWarnings.push({
                     id: 'photo-missing',
-                    type: 'info',
-                    title: 'Photo',
+                    type: 'warning',
+                    title: 'Professional Photo',
                     message: 'German employers expect a professional headshot.',
                     actionLabel: 'Upload',
                     actionLink: '/profile',
@@ -72,6 +93,15 @@ export const useReadinessScore = (
                         actionLink: '/profile#languages',
                     });
                 }
+            } else {
+                newWarnings.push({
+                    id: 'german-missing',
+                    type: 'error',
+                    title: 'German Language required',
+                    message: 'CEFR German proficiency is required. Add it to languages.',
+                    actionLabel: 'Add',
+                    actionLink: '/profile#languages',
+                });
             }
 
             if (!userProfile.educations || userProfile.educations.length === 0) {

@@ -104,15 +104,28 @@ const ReadinessHub: React.FC<ReadinessHubProps> = ({
                         <p className="text-xs font-medium text-emerald-800">No issues found. Resume compliant.</p>
                     </div>
                 ) : (
-                    warnings.map((w) => (
-                        <div key={w.id} className="flex items-start gap-3 p-3 rounded-xl border border-amber-100 bg-amber-50/30 group hover:border-amber-200 transition-colors">
-                            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                            <div className="flex-1 min-w-0">
-                                <p className="text-xs font-bold text-amber-900">{w.title}</p>
-                                <p className="text-[10px] text-amber-800/70 mt-0.5 leading-relaxed">{w.message}</p>
+                    warnings.map((w) => {
+                        const isError = w.type === 'error';
+                        const borderColors = isError ? 'border-destructive/30 bg-destructive/10 hover:border-destructive/50' : 'border-amber-100 bg-amber-50/30 hover:border-amber-200';
+                        const iconColors = isError ? 'text-destructive' : 'text-amber-600';
+                        const titleColors = isError ? 'text-destructive font-bold' : 'text-amber-900 font-bold';
+                        const textColors = isError ? 'text-destructive/80' : 'text-amber-800/70';
+
+                        return (
+                            <div key={w.id} className={`flex items-start gap-3 p-3 rounded-xl border transition-colors group ${borderColors}`}>
+                                <AlertCircle className={`w-4 h-4 shrink-0 mt-0.5 ${iconColors}`} />
+                                <div className="flex-1 min-w-0">
+                                    <p className={`text-xs ${titleColors}`}>{w.title}</p>
+                                    <p className={`text-[10px] mt-0.5 leading-relaxed ${textColors}`}>{w.message}</p>
+                                    {w.actionLink && (
+                                        <a href={w.actionLink} className={`inline-block mt-2 text-[10px] uppercase tracking-wider font-bold hover:underline ${iconColors}`}>
+                                            {w.actionLabel} →
+                                        </a>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    ))
+                        );
+                    })
                 )}
             </div>
 
