@@ -28,8 +28,8 @@ export const useReadinessScore = (
     country: string,
     dismissedWarnings: Set<string>
 ) => {
-    // 🧪 DEBUG: v3.1.4 Hook entry (ABSOLUTE)
-    console.warn("🚨 HOOK CALLED", { targetCountry: country });
+    // 🧪 DEBUG: v3.1.4b Hook entry (CACHE BUSTER)
+    console.warn("🚨 [v3.1.4-2200] HOOK CALLED", { targetCountry: country });
 
     // 🧪 DEBUG: v3.1.3 Entry Trace
     console.warn("🚨 useReadinessScore HOOK RUNNING", {
