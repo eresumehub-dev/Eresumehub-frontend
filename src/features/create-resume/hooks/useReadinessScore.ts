@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { UserProfile } from '../../../services/profile';
 
 export interface ComplianceWarning {
@@ -33,15 +33,24 @@ export const useReadinessScore = (
         const newWarnings: ComplianceWarning[] = [];
         const countryLower = targetCountry.toLowerCase();
 
-        // DEBUG: Warning generation evaluation
-        console.log(`[useReadinessScore] 🔍 Evaluating compliance for: ${targetCountry}`, {
-            hasDob: !!userProfile.date_of_birth,
-            hasNationality: !!userProfile.nationality,
-            langCount: userProfile.languages?.length || 0
+        // DEBUG: Warning generation evaluation (v16.4.18)
+        console.log(`[useReadinessScore] 🔍 Evaluating compliance [Trace Start]`, {
+            targetCountry,
+            countryLower,
+            profileKeys: Object.keys(userProfile),
+            dob: userProfile.date_of_birth,
+            nat: userProfile.nationality,
+            lang: userProfile.languages
         });
 
         if (countryLower === 'germany') {
-            if (!userProfile.date_of_birth) {
+            console.log(`[useReadinessScore] 🇩🇪 Germany compliance detected.`);
+            
+            const dob = userProfile.date_of_birth;
+            const nationality = userProfile.nationality;
+
+            if (!dob || dob === "" || dob === "undefined") {
+                console.warn(`[useReadinessScore] 🔴 DOB missing or invalid: ${dob}`);
                 newWarnings.push({
                     id: 'dob-missing',
                     type: 'error',
@@ -51,7 +60,8 @@ export const useReadinessScore = (
                     actionLink: '/profile',
                 });
             }
-            if (!userProfile.nationality) {
+            if (!nationality || nationality === "" || nationality === "undefined") {
+                console.warn(`[useReadinessScore] 🔴 Nationality missing or invalid: ${nationality}`);
                 newWarnings.push({
                     id: 'nationality-missing',
                     type: 'error',

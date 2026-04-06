@@ -105,6 +105,8 @@ export const useCreateResumeFlow = () => {
         // 2. Map user data - Aligning with backend 'UserData' schema (v7.1.0)
         const userData = {
             full_name: profile.full_name,
+            date_of_birth: profile.date_of_birth,
+            nationality: profile.nationality,
             contact: {
                 email: profile.email,
                 phone: profile.phone,
