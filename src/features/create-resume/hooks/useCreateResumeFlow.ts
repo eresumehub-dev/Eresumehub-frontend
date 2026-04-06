@@ -100,6 +100,11 @@ export const useCreateResumeFlow = () => {
 
         // Compliance UX Barrier: Intercept if missing mandatory fields and not overridden
         const errorWarnings = activeWarnings.filter(w => w.type === 'error');
+        
+        // 🧪 DEBUG: v3.1.5 Classification Trace
+        console.log("ALL WARNINGS:", activeWarnings);
+        console.log("ERROR WARNINGS:", errorWarnings);
+
         if (errorWarnings.length > 0 && !override.ignoreCompliance) {
             console.warn(`[useCreateResumeFlow] 🛑 Compliance barrier triggered. Showing modal.`);
             setShowComplianceWarning(true);

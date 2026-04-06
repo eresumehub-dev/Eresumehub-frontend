@@ -58,25 +58,29 @@ export const useReadinessScore = (
 
             if (!dob || dob === "" || dob === "undefined" || dob === "null") {
                 console.warn(`[useReadinessScore] 🔴 DOB missing or invalid (fallback checked): ${dob}`);
-                newWarnings.push({
+                const w: ComplianceWarning = {
                     id: 'dob-missing',
                     type: 'error',
                     title: 'Date of Birth required',
                     message: 'Date of Birth is strictly required for German market CVs.',
                     actionLabel: 'Add',
                     actionLink: '/profile',
-                });
+                };
+                console.log("Pushing warning:", w.id);
+                newWarnings.push(w);
             }
             if (!nationality || nationality === "" || nationality === "undefined" || nationality === "null") {
                 console.warn(`[useReadinessScore] 🔴 Nationality missing or invalid: ${nationality}`);
-                newWarnings.push({
+                const w: ComplianceWarning = {
                     id: 'nationality-missing',
                     type: 'error',
                     title: 'Nationality required',
                     message: 'Nationality is strictly required for German market CVs.',
                     actionLabel: 'Add',
                     actionLink: '/profile',
-                });
+                };
+                console.log("Pushing warning:", w.id);
+                newWarnings.push(w);
             }
             if (!userProfile.photo_url) {
                 newWarnings.push({
