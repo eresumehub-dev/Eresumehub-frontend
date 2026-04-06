@@ -83,9 +83,17 @@ export const useCreateResumeFlow = () => {
     const handleGenerate = async (activeWarnings: any[] = [], override: any = {}) => {
         if (isGenerating || cooldown > 0 || !profile) return;
         
+        // DEBUG: Generation intercept (v16.4.18)
+        console.log(`[useCreateResumeFlow] handleGenerate called.`, {
+            activeWarningsCount: activeWarnings.length,
+            errorWarnings: activeWarnings.filter(w => w.type === 'error').map(w => w.id),
+            ignoreCompliance: !!override.ignoreCompliance
+        });
+
         // Compliance UX Barrier: Intercept if missing mandatory fields and not overridden
         const errorWarnings = activeWarnings.filter(w => w.type === 'error');
         if (errorWarnings.length > 0 && !override.ignoreCompliance) {
+            console.warn(`[useCreateResumeFlow] 🛑 Compliance barrier triggered. Showing modal.`);
             setShowComplianceWarning(true);
             return;
         }

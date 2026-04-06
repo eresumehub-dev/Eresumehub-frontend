@@ -46,11 +46,11 @@ export const useReadinessScore = (
         if (countryLower === 'germany') {
             console.log(`[useReadinessScore] 🇩🇪 Germany compliance detected.`);
             
-            const dob = userProfile.date_of_birth;
+            const dob = userProfile.date_of_birth || (userProfile as any).dob;
             const nationality = userProfile.nationality;
 
-            if (!dob || dob === "" || dob === "undefined") {
-                console.warn(`[useReadinessScore] 🔴 DOB missing or invalid: ${dob}`);
+            if (!dob || dob === "" || dob === "undefined" || dob === "null") {
+                console.warn(`[useReadinessScore] 🔴 DOB missing or invalid (fallback checked): ${dob}`);
                 newWarnings.push({
                     id: 'dob-missing',
                     type: 'error',
@@ -60,7 +60,7 @@ export const useReadinessScore = (
                     actionLink: '/profile',
                 });
             }
-            if (!nationality || nationality === "" || nationality === "undefined") {
+            if (!nationality || nationality === "" || nationality === "undefined" || nationality === "null") {
                 console.warn(`[useReadinessScore] 🔴 Nationality missing or invalid: ${nationality}`);
                 newWarnings.push({
                     id: 'nationality-missing',
