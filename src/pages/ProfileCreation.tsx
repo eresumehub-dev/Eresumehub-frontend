@@ -254,6 +254,25 @@ const ProfileCreation: React.FC = () => {
                                 />
                             </div>
                             <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+                                <input
+                                    type="date"
+                                    value={profile.date_of_birth || ''}
+                                    onChange={(e) => setProfile({ ...profile, date_of_birth: e.target.value })}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Nationality</label>
+                                <input
+                                    type="text"
+                                    value={profile.nationality || ''}
+                                    onChange={(e) => setProfile({ ...profile, nationality: e.target.value })}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                                    placeholder="e.g. American"
+                                />
+                            </div>
+                            <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
                                 <input
                                     type="tel"

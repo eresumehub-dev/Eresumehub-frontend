@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createResume, pollJobStatus } from '../../../services/resume';
 import { useUserProfileQuery } from '../../../hooks/queries/useUserProfileQuery';
 import { trackEvent } from '../../../services/event_tracking';
-import { checkMarketCompliance, ComplianceWarning } from '../../../utils/compliance_check';
+import { ComplianceWarning } from '../../../utils/compliance_check';
 
 export const useCreateResumeFlow = () => {
     const navigate = useNavigate();
@@ -99,12 +99,12 @@ export const useCreateResumeFlow = () => {
 
         if (isGenerating || cooldown > 0) return;
 
-        // 2. SYNCHRONOUS COMPLIANCE GATE (v3.2.0)
-        // We re-calculate warnings from fresh profile data to avoid race conditions with UI state.
-        const freshWarnings = checkMarketCompliance(profile, formData.country);
-        const errorWarnings = freshWarnings.filter((w: ComplianceWarning) => w.type === 'error');
+        // 2. COMPLIANCE GATE
+        // We rely on _activeWarnings passed from the UI layer, which now evaluates dynamic schemas asynchronously.
+        // The UI guarantees that 'isEvaluatingRules' is false before this button is clickable.
+        const errorWarnings = _activeWarnings.filter((w: ComplianceWarning) => w.type === 'error');
         
-        console.log("ALL FRESH WARNINGS:", freshWarnings);
+        console.log("ALL ACTIVE WARNINGS:", _activeWarnings);
         console.log("ERROR WARNINGS:", errorWarnings);
 
         if (errorWarnings.length > 0 && !override.ignoreCompliance) {
@@ -119,47 +119,77 @@ export const useCreateResumeFlow = () => {
         setGenerationStep('Initializing...');
         setGenerationProgress(5);
 
-        // 1. Sanitization Helper: Strip DB internal metadata to reduce payload bloat
-        // Uses optional parameter to ensure TS compliance (v7.1.0)
+        // 1. Sanitization Helper: Strip DB internal metadata
         const sanitize = (items?: any[]) => (items || []).map(({ 
             id, profile_id, user_id, created_at, updated_at, display_order, ...rest 
         }: any) => rest);
 
-        // 2. Map user data - Aligning with backend 'UserData' schema (v7.1.0)
+        // 2. Map user data - Aligning with backend 'UserData' schema
+        const p = profile!; 
         const userData = {
-            full_name: profile.full_name,
-            date_of_birth: profile.date_of_birth,
-            nationality: profile.nationality,
+            full_name: p.full_name,
+            date_of_birth: p.date_of_birth,
+            nationality: p.nationality,
             contact: {
-                email: profile.email,
-                phone: profile.phone,
-                linkedin: profile.linkedin_url,
-                city: profile.city
+                email: p.email,
+                phone: p.phone,
+                linkedin: p.linkedin_url,
+                city: p.city
             },
-            summary: profile.professional_summary,
-            skills: profile.skills || [],
-            experience: sanitize(profile.work_experiences),
-            education: sanitize(profile.educations),
-            projects: sanitize(profile.projects),
-            languages: (profile.languages || []).map((l: any) => {
-                const name = typeof l === 'string' ? l : l.name;
+            summary: p.professional_summary,
+            skills: p.skills || [],
+            experience: sanitize(p.work_experiences),
+            education: sanitize(p.educations),
+            projects: sanitize(p.projects),
+            languages: (p.languages || []).map((l: any) => {
+                const name = typeof l === 'string' ? l : (l.name || l.language || '');
                 const level = typeof l === 'string' ? 'Native' : (l.level || l.proficiency_cefr || 'Native');
                 return { language: name, proficiency_cefr: level };
             }),
-            certifications: (profile.certifications || []).map((c: any) => typeof c === 'string' ? c : c.name),
-            profile_pic_url: profile.photo_url
+            certifications: (p.certifications || []).map((c: any) => typeof c === 'string' ? c : (c.name || c.title || c)),
+            profile_pic_url: p.photo_url
         };
 
-        mutation.mutate({
-            title: formData.jobTitle,
-            country: formData.country,
-            language: formData.language,
-            template_style: formData.template,
-            user_data: userData,
-            job_description: formData.jobDescription,
-            job_title: formData.jobTitle,
-            ...override
-        });
+        try {
+            const result = await mutation.mutateAsync({
+                title: formData.jobTitle,
+                country: formData.country,
+                language: formData.language,
+                template_style: formData.template,
+                user_data: userData,
+                job_description: formData.jobDescription,
+                job_title: formData.jobTitle,
+                ignoreCompliance: !!override.ignoreCompliance,
+                ...override
+            });
+
+            if (result.success) {
+                setGenerationProgress(100);
+                setTimeout(() => {
+                    // Force casting since backend returns top-level ID
+                    const resumeId = (result as any).id;
+                    if (resumeId) {
+                        navigate(`/resume/edit/${resumeId}`);
+                    } else {
+                        navigate('/dashboard');
+                    }
+                }, 800);
+            }
+        } catch (err: any) {
+            console.error("🚨 Generation Failed:", err);
+            
+            // Phase 4: Backend Enforcement Interceptor
+            const responseData = err?.response?.data;
+            if (err?.response?.status === 422 && responseData?.status === 'requires_user_action') {
+                console.warn("⚠️ Backend requested compliance action. Re-triggering modal.");
+                setShowComplianceWarning(true);
+                setIsGenerating(false);
+                return;
+            }
+
+            setError(responseData?.message || err.message || "An unexpected error occurred during generation.");
+            setIsGenerating(false);
+        }
     };
 
     return {

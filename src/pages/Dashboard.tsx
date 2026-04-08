@@ -22,6 +22,7 @@ import ShareModal from '../components/ShareModal';
 import ForensicFixCard from '../components/ForensicFixCard';
 import MagicNudge from '../components/dashboard/MagicNudge';
 import { dismissNudge, MagicNudge as MagicNudgeType } from '../services/analytics';
+import { checkBasicCompleteness } from '../utils/compliance_check';
 
 const Dashboard: React.FC = () => {
     const { user } = useAuth();
@@ -128,7 +129,28 @@ const Dashboard: React.FC = () => {
                                 <Plus className="w-4 h-4" />
                                 New Resume
                             </Link>
-                        </div>
+                        </div>                        {/* 1.5 BASIC COMPLETENESS (New Hardened Gate) */}
+                        {!isLoading && checkBasicCompleteness(userProfile || null).length > 0 && (
+                            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
+                                <div className="flex gap-4">
+                                    <div className="p-3 bg-amber-100 text-amber-600 rounded-xl h-fit">
+                                        <Lightbulb className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-bold text-amber-900">Finish your Global Profile</h3>
+                                        <p className="text-sm text-amber-700 max-w-xl">
+                                            Your profile is missing essential global data (Name, Email, or Experience). Complete these to unlock best-in-class resume matching.
+                                        </p>
+                                    </div>
+                                </div>
+                                <Link 
+                                    to="/profile" 
+                                    className="px-6 py-3 bg-amber-600 text-white rounded-xl text-sm font-bold shadow-md shadow-amber-600/20 hover:bg-amber-700 transition-all flex items-center gap-2"
+                                >
+                                    Complete Profile <ArrowRight className="w-4 h-4" />
+                                </Link>
+                            </div>
+                        )}
 
                         {/* 1.5 MAGIC NUDGES (v15.0.0 Async) */}
                         {isStatsLoading ? (

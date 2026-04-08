@@ -42,7 +42,7 @@ const CreateResumePage: React.FC = () => {
     });
 
     const {
-        readinessScore, projectedAtsScore, interpretation, warnings
+        readinessScore, projectedAtsScore, interpretation, warnings, isEvaluatingRules
     } = useReadinessScore(
         profile, formData.jobTitle, formData.jobDescription, formData.country, new Set()
     );
@@ -143,23 +143,34 @@ const CreateResumePage: React.FC = () => {
                         generationProgress={generationProgress}
                         onGenerate={() => handleGenerate(warnings)}
                         canGenerate={formData.jobTitle.trim().length > 3 && !loadingProfile}
+                        isEvaluatingRules={isEvaluatingRules}
                     />
                 </div>
             </div>
 
             {/* Mobile Generate Button (Floating) */}
             <div className="lg:hidden fixed bottom-6 left-6 right-6 z-50">
-                <button
-                    disabled={isGenerating || !formData.jobTitle.trim() || loadingProfile}
-                    onClick={() => handleGenerate(warnings)}
-                    className={`
-                        w-full p-4 rounded-2xl shadow-2xl flex items-center justify-center gap-3 font-bold transition-all
-                        ${(isGenerating || loadingProfile) ? 'bg-muted text-muted-foreground' : 'bg-foreground text-background active:scale-[0.98]'}
-                    `}
-                >
-                    {(isGenerating || loadingProfile) ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
-                    {isGenerating ? (generationStep || 'Generating...') : loadingProfile ? 'Synchronizing...' : 'Generate Resume'}
-                </button>
+                {warnings.some(w => w.type === 'error') ? (
+                    <button
+                        onClick={() => handleGenerate(warnings)}
+                        className="w-full p-4 rounded-2xl shadow-2xl flex items-center justify-center gap-3 font-bold transition-all bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 active:scale-[0.98]"
+                    >
+                        <AlertCircle className="w-5 h-5" />
+                        Resolve {warnings.filter(w => w.type === 'error').length} Issues
+                    </button>
+                ) : (
+                    <button
+                        disabled={isGenerating || isEvaluatingRules || !formData.jobTitle.trim() || loadingProfile}
+                        onClick={() => handleGenerate(warnings)}
+                        className={`
+                            w-full p-4 rounded-2xl shadow-2xl flex items-center justify-center gap-3 font-bold transition-all
+                            ${(isGenerating || loadingProfile || isEvaluatingRules) ? 'bg-muted text-muted-foreground' : 'bg-foreground text-background active:scale-[0.98]'}
+                        `}
+                    >
+                        {(isGenerating || loadingProfile || isEvaluatingRules) ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
+                        {isEvaluatingRules ? 'Evaluating Rules...' : isGenerating ? (generationStep || 'Generating...') : loadingProfile ? 'Synchronizing...' : 'Generate Resume'}
+                    </button>
+                )}
             </div>
 
             {/* Compliance Modal */}
@@ -177,32 +188,38 @@ const CreateResumePage: React.FC = () => {
                                     <AlertCircle className="w-5 h-5 text-amber-500" />
                                 </div>
                                 <div>
-                                    <h2 className="text-lg font-bold text-foreground">Market Requirements Missing</h2>
-                                    <p className="text-sm text-muted-foreground">For {formData.country}</p>
+                                    <h2 className="text-lg font-bold text-foreground">Mandatory Market Requirements</h2>
+                                    <p className="text-sm text-muted-foreground">Required for {formData.country} Compliance</p>
                                 </div>
                             </div>
                             
                             <div className="bg-amber-50/50 border border-amber-100 rounded-xl p-4 mb-6">
-                                <p className="text-sm text-amber-900 mb-3 font-medium">To be competitive, your resume should include:</p>
-                                <ul className="space-y-2 mb-4">
+                                <p className="text-sm text-amber-900 mb-3 font-medium">To proceed with generation, we recommend fixing these gaps:</p>
+                                <ul className="space-y-3 mb-4">
                                     {warnings.filter(w => w.type === 'error').map(w => (
-                                        <li key={w.id} className="flex items-start gap-2 text-sm text-amber-800/80">
-                                            <span className="text-amber-500 mt-0.5">•</span> {w.title}
+                                        <li key={w.id} className="flex items-start gap-2">
+                                            <div className="mt-1 w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                                            <div>
+                                                <p className="text-sm font-bold text-amber-900">{w.title}</p>
+                                                <p className="text-xs text-amber-800/70 leading-relaxed">{w.message}</p>
+                                            </div>
                                         </li>
                                     ))}
                                 </ul>
-                                <p className="text-xs font-bold text-amber-900 uppercase tracking-widest">Proceeding without these may reduce your chances significantly.</p>
+                                <p className="text-xs font-bold text-amber-900 uppercase tracking-widest bg-amber-100/50 p-2 rounded-lg text-center">
+                                    Generative AI works best with full identification data.
+                                </p>
                             </div>
 
-                            <div className="flex gap-3">
-                                <Link to="/profile" className="flex-1 py-3 px-4 rounded-xl font-bold bg-foreground text-background text-sm text-center">
+                            <div className="flex flex-col gap-3">
+                                <Link to="/profile" className="w-full py-3 px-4 rounded-xl font-bold bg-foreground text-background text-sm text-center">
                                     Fix Now
                                 </Link>
                                 <button 
                                     onClick={() => handleGenerate(warnings, { ignoreCompliance: true })}
-                                    className="flex-1 py-3 px-4 rounded-xl font-bold border border-border text-foreground hover:bg-muted text-sm text-center transition-colors"
+                                    className="w-full py-2 px-4 font-medium text-muted-foreground hover:text-foreground text-xs text-center transition-colors underline decoration-border underline-offset-4"
                                 >
-                                    Continue Anyway
+                                    Force generation anyway (Not Recommended)
                                 </button>
                             </div>
                         </motion.div>

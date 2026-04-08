@@ -947,6 +947,29 @@ const ProfileCreationMultiStep: React.FC = () => {
                                         }
                                     />
                                 </motion.div>
+                                <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-4 pt-4 border-t border-border/50">
+                                    <div className="col-span-full">
+                                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">
+                                            Regional Requirements (DACH & Japan)
+                                        </p>
+                                    </div>
+                                    <GlassTextarea
+                                        label="Self-PR (自己PR)"
+                                        placeholder="Highlight your core strengths and character..."
+                                        value={profile.self_pr || ''}
+                                        onChange={e => setProfile({ ...profile, self_pr: e.target.value })}
+                                        onBlur={handleAutoSave}
+                                        rows={3}
+                                    />
+                                    <GlassTextarea
+                                        label="Motivation (志望動機)"
+                                        placeholder="Why do you want to work in this industry/role?"
+                                        value={profile.motivation || ''}
+                                        onChange={e => setProfile({ ...profile, motivation: e.target.value })}
+                                        onBlur={handleAutoSave}
+                                        rows={3}
+                                    />
+                                </motion.div>
                             </div>
                         </div>
                     </motion.div>

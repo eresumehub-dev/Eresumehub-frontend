@@ -1,6 +1,7 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState, useEffect } from 'react';
 import { UserProfile } from '../../../services/profile';
-import { checkMarketCompliance, ComplianceWarning } from '../../../utils/compliance_check';
+import { evaluateMarketRules, ComplianceWarning } from '../../../utils/compliance_check';
+import { getCountrySchema } from '../../../services/schema';
 
 export interface ReadinessScoreResult {
     readinessScore: number;
@@ -11,7 +12,9 @@ export interface ReadinessScoreResult {
         guidance: string;
     };
     warnings: ComplianceWarning[];
+    isEvaluatingRules?: boolean;
 }
+
 
 export const useReadinessScore = (
     profile: UserProfile | null,
@@ -20,17 +23,31 @@ export const useReadinessScore = (
     country: string,
     dismissedWarnings: Set<string>
 ) => {
-    // 🧪 DEBUG: v3.1.4b Hook entry (CACHE BUSTER)
-    console.warn("🚨 [v3.1.4-2200] HOOK CALLED", { targetCountry: country });
+    const [schema, setSchema] = useState<any>(null);
+    const [isLoadingRules, setIsLoadingRules] = useState(false);
 
-    // 1. Compliance Logic (Refactored to shared utility v3.2.0)
-    const generateComplianceWarnings = useCallback((userProfile: UserProfile, targetCountry: string) => {
-        const newWarnings = checkMarketCompliance(userProfile, targetCountry);
+    useEffect(() => {
+        let active = true;
+        if (!country) {
+            setSchema(null);
+            return;
+        }
+        setIsLoadingRules(true);
+        getCountrySchema(country).then(data => {
+            if (active) {
+                setSchema(data);
+                setIsLoadingRules(false);
+            }
+        });
+        return () => { active = false; };
+    }, [country]);
+
+    // 1. Compliance Logic (Refactored to dynamic rule evaluation)
+    const generateComplianceWarnings = useCallback((userProfile: UserProfile, schemaData: any) => {
+        if (!schemaData) return [];
+        const newWarnings = evaluateMarketRules(userProfile, schemaData);
         
         const filtered = newWarnings.filter(w => !dismissedWarnings.has(w.id));
-        
-        // 🧪 DEBUG: v3.1.3 Result Trace
-        console.warn("⚠️ Generated warnings:", filtered);
         
         return filtered;
     }, [dismissedWarnings]);
@@ -41,10 +58,11 @@ export const useReadinessScore = (
             readinessScore: 0, 
             projectedAtsScore: 0, 
             interpretation: { label: 'Incomplete', color: 'gray', guidance: 'Define your role to start.' }, 
-            warnings: [] 
+            warnings: [],
+            isEvaluatingRules: false
         };
 
-        const activeWarnings = generateComplianceWarnings(profile, country);
+        const activeWarnings = generateComplianceWarnings(profile, schema);
 
         // Readiness Score
         let rScore = 100;
@@ -90,9 +108,10 @@ export const useReadinessScore = (
             readinessScore: rScore,
             projectedAtsScore: ats,
             interpretation,
-            warnings: activeWarnings
+            warnings: activeWarnings,
+            isEvaluatingRules: isLoadingRules
         };
-    }, [profile, country, jobTitle, jobDescription, generateComplianceWarnings]);
+    }, [profile, schema, isLoadingRules, jobTitle, jobDescription, generateComplianceWarnings]);
 
     return result;
 };

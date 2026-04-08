@@ -1,10 +1,10 @@
 import React from 'react';
 import { 
     Zap, Shield, AlertCircle, Check, 
-    ChevronRight, Sparkles, Clock, Loader2 
+    ChevronRight, Sparkles, Loader2 
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ComplianceWarning } from '../hooks/useReadinessScore';
+import { ComplianceWarning } from '../../../utils/compliance_check';
 import Button from '../../../components/shared/ui/Button';
 import Card from '../../../components/shared/ui/Card';
 
@@ -18,12 +18,13 @@ interface ReadinessHubProps {
     generationProgress: number;
     onGenerate: () => void;
     canGenerate: boolean;
+    isEvaluatingRules?: boolean;
 }
 
 const ReadinessHub: React.FC<ReadinessHubProps> = ({
     score, atsScore, interpretation, warnings,
     isGenerating, generationStep, generationProgress,
-    onGenerate, canGenerate
+    onGenerate, canGenerate, isEvaluatingRules
 }) => {
     
     const colorMap: Record<string, string> = {
@@ -166,18 +167,32 @@ const ReadinessHub: React.FC<ReadinessHubProps> = ({
                             exit={{ opacity: 0, y: -10 }}
                             className="space-y-4"
                         >
-                            <Button 
-                                variant={score >= 80 ? 'primary' : 'outline'}
-                                size="lg"
-                                className="w-full"
-                                disabled={!canGenerate}
-                                onClick={onGenerate}
-                                data-testid="generate-button"
-                            >
-                                <Sparkles className="w-4 h-4 mr-2" />
-                                {score >= 80 ? 'Ready to Generate' : 'Generate Resume'}
-                                <ChevronRight className="w-4 h-4 ml-2" />
-                            </Button>
+                            {warnings.some(w => w.type === 'error') ? (
+                                <Button 
+                                    variant="outline"
+                                    size="lg"
+                                    className="w-full bg-red-50 text-red-700 border-red-200 hover:bg-red-100 hover:text-red-800"
+                                    disabled={!canGenerate}
+                                    onClick={onGenerate}
+                                    data-testid="resolve-button"
+                                >
+                                    <AlertCircle className="w-4 h-4 mr-2" />
+                                    Resolve {warnings.filter(w => w.type === 'error').length} Issues
+                                </Button>
+                            ) : (
+                                <Button 
+                                    variant={score >= 80 ? 'primary' : 'outline'}
+                                    size="lg"
+                                    className="w-full"
+                                    disabled={!canGenerate || isEvaluatingRules}
+                                    onClick={onGenerate}
+                                    data-testid="generate-button"
+                                >
+                                    {isEvaluatingRules ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
+                                    {isEvaluatingRules ? 'Evaluating Rules...' : score >= 80 ? 'Ready to Generate' : 'Generate Resume'}
+                                    <ChevronRight className="w-4 h-4 ml-2" />
+                                </Button>
+                            )}
                             <p className="text-[10px] text-center text-muted-foreground">
                                 High readiness ensures better ATS scoring.
                             </p>

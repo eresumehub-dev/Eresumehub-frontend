@@ -10,142 +10,124 @@ export interface ComplianceWarning {
 }
 
 /**
- * Unified Market Compliance Engine (v3.2.0)
- * Mirrors Backend 'ResumeComplianceValidator' logic to ensure consistency.
+ * Basic Completeness Check (Dashboard use)
+ * Ensures standard fields are present before showing health stats.
  */
-export const checkMarketCompliance = (
-    profile: UserProfile | null, 
-    country: string
-): ComplianceWarning[] => {
+export const checkBasicCompleteness = (profile: UserProfile | null): ComplianceWarning[] => {
     if (!profile) return [];
-
     const warnings: ComplianceWarning[] = [];
-    const countryLower = country?.toLowerCase();
+    if (!profile.full_name?.trim()) {
+        warnings.push({
+            id: 'basic-name', type: 'error', title: 'Name Required',
+            message: 'Your full name is required for any resume.',
+            actionLabel: 'Add', actionLink: '/profile'
+        });
+    }
+    if (!profile.email?.trim()) {
+        warnings.push({
+            id: 'basic-email', type: 'error', title: 'Email Required',
+            message: 'An email address is required so employers can contact you.',
+            actionLabel: 'Add', actionLink: '/profile'
+        });
+    }
+    if (!profile.work_experiences || profile.work_experiences.length === 0) {
+        warnings.push({
+            id: 'basic-experience', type: 'warning', title: 'Experience Recommended',
+            message: 'Adding work experience significantly improves your resume score.',
+            actionLabel: 'Add', actionLink: '/profile'
+        });
+    }
+    return warnings;
+};
 
-    // --- GERMANY (DACH) RULES ---
-    if (countryLower === 'germany') {
-        // 1. Date of Birth (Strictly Required in DE)
+/**
+ * Dynamic Market Compliance Engine
+ * Uses the RAG JSON knowledge_base schema dynamically to enforce regional rules.
+ */
+export const evaluateMarketRules = (profile: UserProfile | null, schema: any): ComplianceWarning[] => {
+    if (!profile || !schema) return [];
+    
+    const warnings: ComplianceWarning[] = [];
+    const country = schema.country || 'Target market';
+
+    // 1. Parse Mandatory Personal Info
+    const requiredPersonalInfo: string[] = schema.cv_structure?.mandatory_sections?.personal_info?.required || [];
+    const checkRequired = (keyword: string) => 
+        requiredPersonalInfo.some(req => req.toLowerCase().includes(keyword.toLowerCase()));
+
+    // Date of Birth
+    if (checkRequired('date of birth') || checkRequired('dob')) {
         const dob = profile.date_of_birth || (profile as any).dob;
-        if (!dob || dob === "" || dob === "undefined" || dob === "null") {
+        if (!dob || dob.trim() === "") {
             warnings.push({
-                id: 'dob-missing',
-                type: 'error',
-                title: 'Date of Birth required',
-                message: 'German market CVs strictly require Date of Birth for identification.',
-                actionLabel: 'Add',
-                actionLink: '/profile',
+                id: 'dob-missing', type: 'error', title: 'Date of Birth Required',
+                message: `${country} standard CVs strictly require a Date of Birth for identification.`,
+                actionLabel: 'Add', actionLink: '/profile'
             });
         }
+    }
 
-        // 2. Nationality (Strictly Required for Visa/Work Permit checks)
+    // Nationality
+    if (checkRequired('nationality')) {
         const nationality = profile.nationality;
-        if (!nationality || nationality === "" || nationality === "undefined" || nationality === "null") {
+        if (!nationality || nationality.trim() === "") {
             warnings.push({
-                id: 'nationality-missing',
-                type: 'error',
-                title: 'Nationality required',
-                message: 'Nationality is mandatory for German market compliance.',
-                actionLabel: 'Add',
-                actionLink: '/profile',
+                id: 'nationality-missing', type: 'error', title: 'Nationality Required',
+                message: `Nationality is mandatory in ${country} to clarify work permit and visa status.`,
+                actionLabel: 'Add', actionLink: '/profile'
             });
         }
+    }
 
-        // 3. German Language Proficiency (B1+ usually required)
+    // Professional Photo
+    if (checkRequired('photo') && !profile.photo_url) {
+        warnings.push({
+            id: 'photo-missing', type: 'warning', title: 'Professional Photo',
+            message: `${country} employers typically expect a professional headshot.`,
+            actionLabel: 'Upload', actionLink: '/profile'
+        });
+    }
+
+    // 2. Structural Content Parsing
+    const order: string[] = schema.cv_structure?.order || [];
+    const requiresSelfPr = order.some(o => o.toLowerCase().includes('self-pr') || o.includes('自己PR'));
+    const requiresMotivation = order.some(o => o.toLowerCase().includes('motivation') || o.includes('志望動機'));
+
+    if (requiresSelfPr) {
+        if (!profile.professional_summary?.trim() && !(profile as any).self_pr?.trim()) {
+            warnings.push({
+                id: 'self-pr-missing', type: 'error', title: 'Self-PR Required',
+                message: `A Self-PR section is required for ${country} market resumes.`,
+                actionLabel: 'Add', actionLink: '/profile'
+            });
+        }
+    }
+
+    if (requiresMotivation && !(profile as any).motivation?.trim()) {
+        warnings.push({
+            id: 'motivation-missing', type: 'error', title: 'Motivation Required',
+            message: `A Motivation section is critical for ${country} employers.`,
+            actionLabel: 'Add', actionLink: '/profile'
+        });
+    }
+
+    // 3. Required Languages Check
+    const requiredLanguages: string[] = schema.required_languages || [];
+    requiredLanguages.forEach(langReq => {
         const languages = (profile.languages || []) as any[];
-        const germanLang = languages.find(l => {
+        const hasLang = languages.find(l => {
             const name = typeof l === 'string' ? l : (l.name || l.language || '');
-            return name.toLowerCase().includes('german');
+            return name.toLowerCase().includes(langReq.toLowerCase());
         });
 
-        if (germanLang) {
-            const level = typeof germanLang === 'string' ? 'Native' : (germanLang.level || germanLang.proficiency_cefr || 'Native');
-            const upper = level.toUpperCase();
-            
-            const cefrScore: { [key: string]: number } = {
-                'A1': 1, 'A2': 2, 'B1': 3, 'B2': 4, 'C1': 5, 'C2': 6, 'NATIVE': 7,
-                'FLUENT': 6, 'PROFICIENT': 5, 'ADVANCED': 5, 'INTERMEDIATE': 3, 'BASIC': 1, 'BEGINNER': 1
-            };
-            
-            // Extract A1, B2, etc. using regex
-            const cefrMatch = upper.match(/\b([A-C][1-2])\b/g);
-            let detectedLevel = 'NATIVE';
-            if (cefrMatch && cefrMatch.length > 0) {
-                detectedLevel = cefrMatch.sort()[cefrMatch.length - 1].toUpperCase();
-            }
-            
-            const userScore = cefrScore[detectedLevel] || 0;
-            if (userScore > 0 && userScore < 3) { // Below B1
-                warnings.push({
-                    id: 'german-level-low',
-                    type: 'warning',
-                    title: 'German level',
-                    message: `German B1+ is typically required. Detected: ${detectedLevel}.`,
-                    actionLabel: 'Update',
-                    actionLink: '/profile#languages',
-                });
-            }
-        } else {
+        if (!hasLang) {
             warnings.push({
-                id: 'german-missing',
-                type: 'error',
-                title: 'German Language required',
-                message: 'CEFR German proficiency is required for German market CVs.',
-                actionLabel: 'Add',
-                actionLink: '/profile#languages',
+                id: `language-missing-${langReq.toLowerCase()}`, type: 'error', title: `${langReq} Required`,
+                message: `${langReq} language proficiency is strictly required in ${country}.`,
+                actionLabel: 'Add', actionLink: '/profile#languages'
             });
         }
-
-        // 4. Photo (Warning)
-        if (!profile.photo_url) {
-            warnings.push({
-                id: 'photo-missing',
-                type: 'warning',
-                title: 'Professional Photo',
-                message: 'German employers expect a professional headshot.',
-                actionLabel: 'Upload',
-                actionLink: '/profile',
-            });
-        }
-    }
-
-    // --- JAPAN RULES (Functional Parity v3.2.0) ---
-    if (countryLower === 'japan') {
-        // 1. Self-PR (Mandatory in Japan)
-        if (!profile.professional_summary && !(profile as any).self_pr) {
-            warnings.push({
-                id: 'self-pr-missing',
-                type: 'error',
-                title: 'Self-PR Required',
-                message: 'A Self-PR (自己PR) section is required for Japanese market resumes.',
-                actionLabel: 'Add',
-                actionLink: '/profile',
-            });
-        }
-
-        // 2. Motivation (Critical for Japan)
-        if (!(profile as any).motivation) {
-            warnings.push({
-                id: 'motivation-missing',
-                type: 'error',
-                title: 'Motivation Required',
-                message: "A Motivation section (志望動機) is critical for Japanese employers.",
-                actionLabel: 'Add',
-                actionLink: '/profile',
-            });
-        }
-
-        // 3. Certifications (Expected by default)
-        if ((!profile.educations || profile.educations.length === 0) && !(profile as any).certifications) {
-            warnings.push({
-                id: 'certifications-missing',
-                type: 'warning',
-                title: 'Certifications',
-                message: 'Qualifications and Licenses are highly expected in Japanese resumes.',
-                actionLabel: 'Add',
-                actionLink: '/profile',
-            });
-        }
-    }
+    });
 
     return warnings;
 };
