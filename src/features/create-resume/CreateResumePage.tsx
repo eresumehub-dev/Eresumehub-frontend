@@ -142,7 +142,7 @@ const CreateResumePage: React.FC = () => {
                         isGenerating={isGenerating}
                         generationStep={generationStep}
                         generationProgress={generationProgress}
-                        onGenerate={() => handleGenerate(warnings)}
+                        onGenerate={() => handleGenerate()}
                         canGenerate={formData.jobTitle.trim().length > 3 && !loadingProfile}
                         isEvaluatingRules={isEvaluatingRules}
                     />
@@ -153,7 +153,7 @@ const CreateResumePage: React.FC = () => {
             <div className="lg:hidden fixed bottom-6 left-6 right-6 z-50">
                 {warnings.some(w => w.type === 'error') ? (
                     <button
-                        onClick={() => handleGenerate(warnings)}
+                        onClick={() => handleGenerate()}
                         className="w-full p-4 rounded-2xl shadow-2xl flex items-center justify-center gap-3 font-bold transition-all bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 active:scale-[0.98]"
                     >
                         <AlertCircle className="w-5 h-5" />
@@ -162,7 +162,7 @@ const CreateResumePage: React.FC = () => {
                 ) : (
                     <button
                         disabled={isGenerating || isEvaluatingRules || !formData.jobTitle.trim() || loadingProfile}
-                        onClick={() => handleGenerate(warnings)}
+                        onClick={() => handleGenerate()}
                         className={`
                             w-full p-4 rounded-2xl shadow-2xl flex items-center justify-center gap-3 font-bold transition-all
                             ${(isGenerating || loadingProfile || isEvaluatingRules) ? 'bg-muted text-muted-foreground' : 'bg-foreground text-background active:scale-[0.98]'}

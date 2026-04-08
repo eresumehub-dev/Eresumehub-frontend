@@ -82,11 +82,12 @@ export const useCreateResumeFlow = () => {
     const [showComplianceWarning, setShowComplianceWarning] = useState(false);
     const [complianceWarnings, setComplianceWarnings] = useState<ComplianceWarning[]>([]);
 
-    const handleGenerate = async (_activeWarnings: any[] = [], override: any = {}) => {
-        // 🧪 DEBUG: v3.3.0 Final Synchronous Gate
-        console.warn("🚨 handleGenerate triggered (v3.3.0 Synchronous Gate)", {
+    const handleGenerate = async (_deprecatedWarnings: any[] = [], override: any = {}) => {
+        // 🧬 v3.3.1 - Authoritative Synchronous Gate
+        console.warn("🔥 [v3.3.1] handleGenerate EXECUTING", {
              country: formData.country,
-             ignoreCompliance: !!override.ignoreCompliance
+             profileId: profile?.id,
+             isGenerating
         });
 
         // 1. HARD GUARD: Profile Must Exist
