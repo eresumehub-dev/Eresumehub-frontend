@@ -26,6 +26,7 @@ const CreateResumePage: React.FC = () => {
         isGenerating, generationStep, generationProgress,
         error, setError,
         showComplianceWarning,
+        complianceWarnings,
         handleGenerate
     } = useCreateResumeFlow();
 
@@ -196,7 +197,7 @@ const CreateResumePage: React.FC = () => {
                             <div className="bg-amber-50/50 border border-amber-100 rounded-xl p-4 mb-6">
                                 <p className="text-sm text-amber-900 mb-3 font-medium">To proceed with generation, we recommend fixing these gaps:</p>
                                 <ul className="space-y-3 mb-4">
-                                    {warnings.filter(w => w.type === 'error').map(w => (
+                                    {complianceWarnings.map(w => (
                                         <li key={w.id} className="flex items-start gap-2">
                                             <div className="mt-1 w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
                                             <div>
@@ -216,7 +217,7 @@ const CreateResumePage: React.FC = () => {
                                     Fix Now
                                 </Link>
                                 <button 
-                                    onClick={() => handleGenerate(warnings, { ignoreCompliance: true })}
+                                    onClick={() => handleGenerate([], { ignoreCompliance: true })}
                                     className="w-full py-2 px-4 font-medium text-muted-foreground hover:text-foreground text-xs text-center transition-colors underline decoration-border underline-offset-4"
                                 >
                                     Force generation anyway (Not Recommended)

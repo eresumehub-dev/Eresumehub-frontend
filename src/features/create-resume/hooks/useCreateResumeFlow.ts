@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createResume, pollJobStatus } from '../../../services/resume';
 import { useUserProfileQuery } from '../../../hooks/queries/useUserProfileQuery';
 import { trackEvent } from '../../../services/event_tracking';
-import { ComplianceWarning } from '../../../utils/compliance_check';
+import { ComplianceWarning, checkMarketCompliance } from '../../../utils/compliance_check';
 
 export const useCreateResumeFlow = () => {
     const navigate = useNavigate();
@@ -80,35 +80,33 @@ export const useCreateResumeFlow = () => {
     });
 
     const [showComplianceWarning, setShowComplianceWarning] = useState(false);
+    const [complianceWarnings, setComplianceWarnings] = useState<ComplianceWarning[]>([]);
 
     const handleGenerate = async (_activeWarnings: any[] = [], override: any = {}) => {
-        // 🧪 DEBUG: v3.2.0 Hardened Generation Entry
-        console.warn("🚨 handleGenerate triggered (v3.2.0 Hardened)", {
-             profileExists: !!profile,
-             loadingProfile,
+        // 🧪 DEBUG: v3.3.0 Final Synchronous Gate
+        console.warn("🚨 handleGenerate triggered (v3.3.0 Synchronous Gate)", {
              country: formData.country,
              ignoreCompliance: !!override.ignoreCompliance
         });
 
         // 1. HARD GUARD: Profile Must Exist
         if (!profile || loadingProfile) {
-            console.error("❌ Profile missing or loading. Blocking generation.");
             setError("Profile data is still synchronizing. Please wait a moment.");
             return;
         }
 
         if (isGenerating || cooldown > 0) return;
 
-        // 2. COMPLIANCE GATE
-        // We rely on _activeWarnings passed from the UI layer, which now evaluates dynamic schemas asynchronously.
-        // The UI guarantees that 'isEvaluatingRules' is false before this button is clickable.
-        const errorWarnings = _activeWarnings.filter((w: ComplianceWarning) => w.type === 'error');
+        // 2. COMPLIANCE GATE (Synchronous Implementation)
+        // We no longer rely on _activeWarnings from the UI state to avoid race conditions.
+        const warnings = checkMarketCompliance(profile, formData.country);
+        const errors = warnings.filter((w: ComplianceWarning) => w.type === 'error');
         
-        console.log("ALL ACTIVE WARNINGS:", _activeWarnings);
-        console.log("ERROR WARNINGS:", errorWarnings);
+        console.log("SYNCHRONOUS COMPLIANCE CHECK:", { warnings, errors });
 
-        if (errorWarnings.length > 0 && !override.ignoreCompliance) {
+        if (errors.length > 0 && !override.ignoreCompliance) {
             console.warn(`[useCreateResumeFlow] 🛑 Compliance barrier triggered via Synchronous Gate.`);
+            setComplianceWarnings(warnings);
             setShowComplianceWarning(true);
             return;
         }
@@ -198,6 +196,7 @@ export const useCreateResumeFlow = () => {
         isGenerating, generationStep, generationProgress,
         cooldown, error, setError,
         showComplianceWarning, setShowComplianceWarning,
+        complianceWarnings,
         handleGenerate
     };
 };

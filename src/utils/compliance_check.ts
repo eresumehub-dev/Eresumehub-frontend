@@ -131,3 +131,47 @@ export const evaluateMarketRules = (profile: UserProfile | null, schema: any): C
 
     return warnings;
 };
+
+export const checkMarketCompliance = (profile: UserProfile | null, country: string): ComplianceWarning[] => {
+    if (!profile) return [];
+    const warnings: ComplianceWarning[] = [];
+    const c_lower = country.toLowerCase();
+
+    // 1. DACH Region (Germany, Switzerland, Austria)
+    if (c_lower === 'germany' || c_lower === 'dach') {
+        if (!profile.date_of_birth?.trim()) {
+            warnings.push({
+                id: 'compliance-dob', type: 'error', title: 'Date of Birth Required',
+                message: 'German standard CVs strictly require a Date of Birth for identification.',
+                actionLabel: 'Add', actionLink: '/profile'
+            });
+        }
+        if (!profile.nationality?.trim()) {
+            warnings.push({
+                id: 'compliance-nat', type: 'error', title: 'Nationality Required',
+                message: 'Nationality is mandatory in Germany to clarify work permit and visa status.',
+                actionLabel: 'Add', actionLink: '/profile'
+            });
+        }
+    }
+
+    // 2. Japanese Market
+    if (c_lower === 'japan') {
+        if (!profile.professional_summary?.trim() && !(profile as any).self_pr?.trim()) {
+            warnings.push({
+                id: 'compliance-selfpr', type: 'error', title: 'Self-PR Required',
+                message: 'A Self-PR section is mandatory for Japanese Rirekisho/Shokumukeirekisho formats.',
+                actionLabel: 'Add', actionLink: '/profile'
+            });
+        }
+        if (!(profile as any).motivation?.trim()) {
+            warnings.push({
+                id: 'compliance-motivation', type: 'error', title: 'Motivation Required',
+                message: 'Motivation for applying (志望動機) is a critical requirement in Japan.',
+                actionLabel: 'Add', actionLink: '/profile'
+            });
+        }
+    }
+
+    return warnings;
+};
