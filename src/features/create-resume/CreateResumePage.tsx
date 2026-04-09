@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Loader2, AlertCircle, Sparkles, Check } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ArrowLeft, Loader2, AlertCircle, Sparkles } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 // --- SHARED UI ---

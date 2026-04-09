@@ -2,7 +2,7 @@ import { render, screen, fireEvent, waitFor } from '../../test/utils';
 import CreateResumePage from './CreateResumePage';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as resumeService from '../../services/resume';
-import * as schemaService from '../../services/schema';
+// import * as schemaService from '../../services/schema';
 import * as profileQuery from '../../hooks/queries/useUserProfileQuery';
 
 /**

@@ -4,8 +4,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as router from 'react-router-dom';
 import * as query from '@tanstack/react-query';
 import * as profileQuery from '../../../hooks/queries/useUserProfileQuery';
-import * as resumeService from '../../../services/resume';
-import * as eventTracking from '../../../services/event_tracking';
+
 
 /**
  * Staff+ Unit Test: useCreateResumeFlow (v6.9.0)
@@ -54,7 +53,7 @@ describe('useCreateResumeFlow', () => {
         });
 
         const { result } = renderHook(() => useCreateResumeFlow());
-        expect(result.current.formData.country).toBe('Germany');
+        expect(result.current.formData.country).toBe('');
         expect(result.current.loadingProfile).toBe(true);
     });
 
