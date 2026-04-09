@@ -25,7 +25,7 @@ const Sidebar: React.FC<SidebarProps> = ({ user, userProfile, resumeCount, total
     ];
 
     return (
-        <aside className="w-64 bg-white border-r border-slate-200 hidden lg:flex flex-col sticky top-16 lg:top-20 h-[calc(100vh-64px)] lg:h-[calc(100vh-80px)]">
+        <aside className="w-64 bg-white border-r border-slate-200 hidden lg:flex flex-col sticky top-16 lg:top-20 h-[calc(100vh-64px)] lg:h-[calc(100vh-80px)] self-start transition-all duration-300">
             <div className="p-4 border-b border-slate-100 mb-2">
                 <Link
                     to="/create"
