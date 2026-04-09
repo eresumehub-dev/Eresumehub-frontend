@@ -23,7 +23,7 @@ export const useCreateResumeFlow = () => {
     const [formData, setFormData] = useState({
         jobTitle: '',
         jobDescription: '',
-        country: 'Germany',
+        country: '',
         language: 'English',
         template: 'executive'
     });
@@ -183,7 +183,7 @@ export const useCreateResumeFlow = () => {
             
             // Phase 4: Backend Enforcement Interceptor
             const responseData = err?.response?.data;
-            const actionStatus = responseData?.status || responseData?.detail?.status;
+            const actionStatus = responseData?.status || responseData?.detail?.status || responseData?.error?.status;
             if (err?.response?.status === 422 && actionStatus === 'requires_user_action') {
                 console.warn("⚠️ Backend requested compliance action. Re-triggering modal.");
                 setShowComplianceWarning(true);

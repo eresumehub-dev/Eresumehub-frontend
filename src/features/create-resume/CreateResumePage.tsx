@@ -143,7 +143,7 @@ const CreateResumePage: React.FC = () => {
                         generationStep={generationStep}
                         generationProgress={generationProgress}
                         onGenerate={() => handleGenerate()}
-                        canGenerate={formData.jobTitle.trim().length > 3 && !loadingProfile}
+                        canGenerate={formData.jobTitle.trim().length > 3 && formData.country !== '' && !loadingProfile}
                         isEvaluatingRules={isEvaluatingRules}
                     />
                 </div>
@@ -161,7 +161,7 @@ const CreateResumePage: React.FC = () => {
                     </button>
                 ) : (
                     <button
-                        disabled={isGenerating || isEvaluatingRules || !formData.jobTitle.trim() || loadingProfile}
+                        disabled={isGenerating || isEvaluatingRules || !formData.jobTitle.trim() || !formData.country || loadingProfile}
                         onClick={() => handleGenerate()}
                         className={`
                             w-full p-4 rounded-2xl shadow-2xl flex items-center justify-center gap-3 font-bold transition-all

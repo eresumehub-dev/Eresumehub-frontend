@@ -75,7 +75,7 @@ const FormSections: React.FC<FormSectionsProps> = ({ currentStep, formData, setF
                     <Select 
                         label="Target Market"
                         value={formData.country}
-                        options={countries.map(c => ({ value: c, label: c }))}
+                        options={[{ value: '', label: 'Select Target Market' }, ...countries.map(c => ({ value: c, label: c }))]}
                         onChange={(e) => setFormData({ ...formData, country: e.target.value })}
                     />
                     <Select 
