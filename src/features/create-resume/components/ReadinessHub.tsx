@@ -1,14 +1,13 @@
 import React from 'react';
 import {
-    Zap, Shield, AlertCircle, Check,
-    Sparkles, Loader2, BarChart3
+    Shield, Check,
+    Sparkles, Loader2, PenLine, Info
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ComplianceWarning } from '../../../utils/compliance_check';
 
 interface ReadinessHubProps {
     score: number;
-    atsScore: number;
     interpretation: { label: string; color: string; guidance: string };
     warnings: ComplianceWarning[];
     isGenerating: boolean;
@@ -20,100 +19,107 @@ interface ReadinessHubProps {
 }
 
 const ReadinessHub: React.FC<ReadinessHubProps> = ({
-    score, atsScore, interpretation, warnings,
+    score, interpretation, warnings,
     isGenerating, generationStep, generationProgress,
     onGenerate, canGenerate, isEvaluatingRules
 }) => {
     
-    const hasError = warnings.some(w => w.type === 'error');
+    const errors = warnings.filter(w => w.type === 'error');
+    const tips = warnings.filter(w => w.type === 'warning' || w.type === 'info');
 
     return (
-        <aside className="w-[320px] bg-slate-50 border-l border-slate-200 flex flex-col h-full flex-shrink-0 relative">
+        <aside className="w-[360px] bg-slate-50 border-l border-slate-100 flex flex-col h-full flex-shrink-0 relative overflow-hidden">
             
-            {/* 1. Readiness Diagnostic (Professional Meter) */}
-            <div className="p-6 border-b border-slate-200">
-                <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                        Launch Integrity
+            {/* 1. Friendly Score Diagnostic */}
+            <div className="p-8 pb-6">
+                <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                        Your Readiness
                     </h3>
-                    <div className="px-2 py-0.5 bg-slate-200 rounded text-[9px] font-black uppercase tracking-tighter text-slate-600">
+                    <div className="text-xl font-black text-slate-900 pr-1">
                         {score}%
                     </div>
                 </div>
 
                 <div className="space-y-4">
-                    <div className="h-1 w-full bg-slate-200 rounded-full overflow-hidden">
+                    <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
                         <motion.div 
-                            className="h-full bg-[#0A2A6B]"
+                            className="h-full bg-slate-900"
                             initial={{ width: 0 }}
                             animate={{ width: `${score}%` }}
-                            transition={{ duration: 0.8, ease: "circOut" }}
+                            transition={{ duration: 1, ease: "circOut" }}
                         />
                     </div>
                     
-                    <div className="flex items-start gap-3 p-3 bg-white border border-slate-100 rounded">
-                        <BarChart3 className="w-3.5 h-3.5 text-slate-400 mt-0.5" />
-                        <div>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-[#0A2A6B] mb-0.5">{interpretation.label}</p>
-                            <p className="text-[9px] text-slate-500 leading-tight font-medium italic">{interpretation.guidance}</p>
+                    <div className="p-4 bg-white border border-slate-100 rounded-2xl shadow-sm">
+                        <div className="flex items-center gap-2 mb-1">
+                            <Sparkles className="w-3.5 h-3.5 text-slate-900" />
+                            <p className="text-sm font-bold text-slate-900">{interpretation.label}</p>
                         </div>
+                        <p className="text-xs text-slate-500 leading-normal font-normal">{interpretation.guidance}</p>
                     </div>
                 </div>
             </div>
 
-            {/* 2. Intelligence Metrics (High Density) */}
-            <div className="p-6 border-b border-slate-200 space-y-4">
-                <div className="grid grid-cols-2 gap-2">
-                    <div className="p-3 bg-white border border-slate-100 rounded">
-                        <div className="flex items-center gap-1.5 mb-1">
-                            <Shield className="w-3 h-3 text-slate-300" />
-                            <span className="text-[8px] font-black uppercase tracking-widest text-slate-400">ATS Opt.</span>
-                        </div>
-                        <p className="text-xl font-black text-slate-900 tracking-tighter">~{atsScore}%</p>
-                    </div>
-                    <div className="p-3 bg-white border border-slate-100 rounded">
-                        <div className="flex items-center gap-1.5 mb-1">
-                            <Zap className="w-3 h-3 text-slate-300" />
-                            <span className="text-[8px] font-black uppercase tracking-widest text-slate-400">AI Power</span>
-                        </div>
-                        <p className="text-xl font-black text-slate-900 tracking-tighter">MAX</p>
-                    </div>
-                </div>
-            </div>
-
-            {/* 3. Global Compliance Scan */}
-            <div className="flex-1 overflow-y-auto p-6 custom-scrollbar space-y-4">
-                <div className="flex items-center justify-between">
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                        Validation Log
+            {/* 2. Unified Action Checklist (Replaces Modal) */}
+            <div className="flex-1 overflow-y-auto px-8 py-2 custom-scrollbar">
+                
+                <div className="flex items-center justify-between py-4 border-b border-slate-100">
+                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                        Checklist
                     </h3>
-                    <span className="text-[9px] font-bold text-slate-300">v16.4</span>
+                    {warnings.length === 0 && (
+                        <span className="text-[10px] font-bold text-emerald-500 flex items-center gap-1">
+                            <Check className="w-3 h-3" />
+                            Everything looks good
+                        </span>
+                    )}
                 </div>
 
-                {warnings.length === 0 ? (
-                    <div className="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-100 rounded">
-                        <Check className="w-3 h-3 text-emerald-500" />
-                        <span className="text-[9px] font-black uppercase tracking-widest text-emerald-700">Verification Successful</span>
-                    </div>
-                ) : (
-                    <div className="space-y-2">
-                        {warnings.map((w) => (
-                            <div key={w.id} className={`p-3 border rounded transition-colors group ${w.type === 'error' ? 'bg-red-50/50 border-red-100' : 'bg-white border-slate-100'}`}>
-                                <div className="flex items-start gap-2.5">
-                                    <AlertCircle className={`w-3 h-3 shrink-0 mt-0.5 ${w.type === 'error' ? 'text-red-500' : 'text-slate-300'}`} />
-                                    <div className="flex-1 min-w-0">
-                                        <p className={`text-[10px] uppercase tracking-widest font-black leading-tight ${w.type === 'error' ? 'text-red-800' : 'text-slate-600'}`}>{w.title}</p>
-                                        <p className="text-[9px] text-slate-400 mt-1 leading-normal font-medium">{w.message}</p>
+                <div className="space-y-2 mt-4">
+                    {warnings.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center pt-8 text-center opacity-40">
+                            <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center mb-4">
+                                <Check className="w-6 h-6 text-emerald-500" />
+                            </div>
+                            <p className="text-xs font-medium text-slate-500 max-w-[180px]">You're all set! Your profile matches the target market standards.</p>
+                        </div>
+                    ) : (
+                        <>
+                            {errors.map((w) => (
+                                <div key={w.id} className="p-4 bg-white border border-slate-100 rounded-2xl group transition-all hover:border-slate-300">
+                                    <div className="flex items-start gap-3">
+                                        <div className="mt-0.5 bg-amber-50 p-1 rounded-md">
+                                            <Info className="w-3 h-3 text-amber-600" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-xs font-bold text-slate-900 leading-tight mb-1">{w.title}</p>
+                                            <p className="text-[11px] text-slate-500 leading-normal font-normal">{w.message}</p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
+                            ))}
+                            
+                            {tips.length > 0 && (
+                                <div className="mt-8 pt-4 border-t border-slate-100">
+                                    <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest mb-4">Recommended Tips</p>
+                                    <div className="space-y-2">
+                                        {tips.map((w) => (
+                                            <div key={w.id} className="flex items-start gap-3 opacity-60 hover:opacity-100 transition-opacity">
+                                                <div className="mt-1 w-1.5 h-1.5 rounded-full bg-slate-300" />
+                                                <p className="text-[11px] text-slate-500 leading-normal">{w.message}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    )}
+                </div>
             </div>
 
-            {/* 4. Executive Control Panel (Pinned Bottom) */}
-            <div className="p-6 bg-white border-t border-slate-200">
+            {/* 3. Refined Command Panel */}
+            <div className="p-8 bg-white border-t border-slate-100">
                 <AnimatePresence mode="wait">
                     {isGenerating ? (
                         <motion.div 
@@ -123,20 +129,16 @@ const ReadinessHub: React.FC<ReadinessHubProps> = ({
                             className="space-y-4"
                         >
                             <div className="flex items-center justify-between">
-                                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 animate-pulse">{generationStep || "Neural Processing"}</span>
-                                <span className="text-[9px] font-bold text-[#0A2A6B]">{generationProgress}%</span>
+                                <span className="text-xs font-medium text-slate-400 animate-pulse">{generationStep}</span>
+                                <span className="text-sm font-black text-slate-900">{generationProgress}%</span>
                             </div>
-                            <div className="h-0.5 w-full bg-slate-50 rounded-full overflow-hidden">
+                            <div className="h-1 w-full bg-slate-50 rounded-full overflow-hidden">
                                 <motion.div 
-                                    className="h-full bg-[#0A2A6B]"
+                                    className="h-full bg-slate-900"
                                     initial={{ width: 0 }}
                                     animate={{ width: `${generationProgress}%` }}
                                 />
                             </div>
-                            <button disabled className="w-full h-11 bg-slate-100 text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-inner">
-                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                Processing Sequence
-                            </button>
                         </motion.div>
                     ) : (
                         <div className="space-y-4">
@@ -144,27 +146,26 @@ const ReadinessHub: React.FC<ReadinessHubProps> = ({
                                 disabled={!canGenerate || isEvaluatingRules}
                                 onClick={onGenerate}
                                 className={`
-                                    w-full h-12 flex items-center justify-center gap-2 transition-all group
+                                    w-full h-14 flex items-center justify-center gap-3 transition-all rounded-2xl
                                     ${!canGenerate || isEvaluatingRules 
-                                        ? 'bg-slate-50 border border-slate-200 text-slate-300 cursor-not-allowed' 
-                                        : hasError
-                                            ? 'bg-red-600 text-white shadow-[0_8px_16px_rgba(220,38,38,0.2)] hover:bg-red-700'
-                                            : 'bg-[#0A2A6B] text-white shadow-[0_8px_16px_rgba(10,42,107,0.2)] hover:bg-slate-900'
+                                        ? 'bg-slate-50 text-slate-300 cursor-not-allowed' 
+                                        : 'bg-slate-900 text-white hover:bg-black shadow-xl shadow-slate-900/10 active:scale-[0.98]'
                                     }
                                 `}
                             >
                                 {isEvaluatingRules ? (
-                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                    <Loader2 className="w-4 h-4 animate-spin" />
                                 ) : (
-                                    <Sparkles className="w-3.5 h-3.5 transition-transform group-hover:scale-110" />
+                                    <PenLine className="w-4 h-4" />
                                 )}
-                                <span className="text-[10px] font-black uppercase tracking-[0.2em]">
-                                    {isEvaluatingRules ? 'Recalculating...' : hasError ? `Action Required (${warnings.filter(w => w.type === 'error').length})` : 'Generate Resume'}
+                                <span className="text-sm font-bold">
+                                    {isEvaluatingRules ? 'Checking Market...' : 'Create My Resume'}
                                 </span>
                             </button>
-                            <p className="text-[8px] text-center text-slate-400 font-bold uppercase tracking-widest opacity-50">
-                                Standard-compliant neural architecture
-                            </p>
+                            <div className="flex items-center justify-center gap-2">
+                                <Shield className="w-3 h-3 text-slate-300" />
+                                <span className="text-[10px] text-slate-400 font-medium">Standard Compliance Guaranteed</span>
+                            </div>
                         </div>
                     )}
                 </AnimatePresence>
