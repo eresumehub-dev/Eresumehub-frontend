@@ -70,7 +70,7 @@ export const evaluateMarketRules = (profile: UserProfile | null, schema: any): C
 
     // Date of Birth
     if (checkRequired('date of birth') || checkRequired('dob')) {
-        const dob = profile.date_of_birth || (profile as any).date_of_birth;
+        const dob = profile.date_of_birth;
         if (!dob || dob.trim() === "") {
             warnings.push({
                 id: 'dob-missing', type: 'error', title: 'Date of Birth Required',
@@ -92,10 +92,10 @@ export const evaluateMarketRules = (profile: UserProfile | null, schema: any): C
         }
     }
 
-    // Professional Photo (Warning only, not a hard block error usually)
+    // Professional Photo
     if (checkRequired('photo') && !profile.photo_url) {
         warnings.push({
-            id: 'photo-missing', type: 'warning', title: 'Professional Photo',
+            id: 'photo-missing', type: 'warning', title: 'Professional Photo Recommended',
             message: `${country} employers typically expect a professional headshot.`,
             actionLabel: 'Upload', actionLink: '/profile'
         });
@@ -107,10 +107,10 @@ export const evaluateMarketRules = (profile: UserProfile | null, schema: any): C
     const requiresMotivation = order.some(o => o.toLowerCase().includes('motivation') || o.includes('志望動機'));
 
     if (requiresSelfPr) {
-        if (!profile.professional_summary?.trim() && !(profile as any).self_pr?.trim()) {
+        if (!profile.professional_summary?.trim()) {
             warnings.push({
-                id: 'self-pr-missing', type: 'error', title: 'Self-PR Required',
-                message: `A Self-PR section is mandatory for ${country} market resumes.`,
+                id: 'self-pr-missing', type: 'error', title: 'Summary Required',
+                message: `A Professional Summary is mandatory for ${country} market resumes.`,
                 actionLabel: 'Add', actionLink: '/profile'
             });
         }
@@ -124,24 +124,23 @@ export const evaluateMarketRules = (profile: UserProfile | null, schema: any): C
         });
     }
 
-    // 4. Required Languages Check
+    // 4. Required Languages Check (Mirroring Backend Logic)
     const requiredLanguages: string[] = schema.required_languages || [];
+    const userLangs = (profile.languages || []).map((l: any) => 
+        (typeof l === 'string' ? l : (l.name || l.language || '')).toLowerCase()
+    );
+
     requiredLanguages.forEach(langReq => {
-        const languages = (profile.languages || []) as any[];
-        const hasLang = languages.find(l => {
-            const name = typeof l === 'string' ? l : (l.name || l.language || '');
-            return name.toLowerCase().includes(langReq.toLowerCase());
-        });
+        const hasLang = userLangs.some(ul => ul.includes(langReq.toLowerCase()));
 
         if (!hasLang) {
             warnings.push({
                 id: `language-missing-${langReq.toLowerCase()}`, type: 'error', title: `${langReq} Required`,
-                message: `${langReq} language proficiency is strictly required in ${country}.`,
-                actionLabel: 'Add', actionLink: '/profile#languages'
+                message: `${langReq} language proficiency is required in ${country}. Please add it to your profile.`,
+                actionLabel: 'Add', actionLink: '/profile'
             });
         }
     });
 
     return warnings;
 };
-

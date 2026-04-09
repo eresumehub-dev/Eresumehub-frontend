@@ -112,16 +112,16 @@ export const useCreateResumeFlow = () => {
 
         if (isGenerating || cooldown > 0) return;
 
-        // Compliance check (Now purely illustrative for the sidebar in the new design)
-        if (!override.ignoreCompliance) {
-            const warnings = evaluateMarketRules(profile, schema);
-            const errors = warnings.filter((w: ComplianceWarning) => w.type === 'error');
-            
-            if (errors.length > 0 && !override.bypassCheck) {
-                setComplianceWarnings(warnings);
-                // In the new design, we don't block with a modal, but we'll still set state for the sidebar
-                // setShowComplianceWarning(true); // Redesign: replacing modal with inline
-            }
+        // 2. COMPLIANCE GATE (Synchronous Implementation)
+        const warnings = evaluateMarketRules(profile, schema);
+        const errors = warnings.filter((w: ComplianceWarning) => w.type === 'error');
+        
+        if (errors.length > 0 && !override.ignoreCompliance) {
+            setComplianceWarnings(warnings);
+            setError(`Please fix the missing requirements for ${formData.country} in the sidebar checklist before generating.`);
+            // Scroll to top or highlight sidebar
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
         }
         
         setIsGenerating(true);

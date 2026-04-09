@@ -47,9 +47,7 @@ export const useReadinessScore = (
     const generateComplianceWarnings = useCallback((userProfile: UserProfile, schemaData: any) => {
         if (!schemaData) return [];
         const newWarnings = evaluateMarketRules(userProfile, schemaData);
-        
         const filtered = newWarnings.filter(w => !dismissedWarnings.has(w.id));
-        
         return filtered;
     }, [dismissedWarnings]);
 
@@ -65,6 +63,7 @@ export const useReadinessScore = (
         };
 
         const activeWarnings = generateComplianceWarnings(profile, schema);
+        const hasErrors = activeWarnings.some(w => w.type === 'error');
 
         // Readiness Score
         let rScore = 100;
@@ -74,6 +73,12 @@ export const useReadinessScore = (
         if ((profile.skills?.length || 0) === 0) rScore -= 15;
         if ((profile.educations?.length || 0) === 0) rScore -= 10;
         rScore -= (activeWarnings.length * 5);
+        
+        // --- v3.5.0 Hard Compliance Cap ---
+        if (hasErrors) {
+            rScore = Math.min(60, rScore);
+        }
+        
         rScore = Math.max(0, Math.min(100, rScore));
 
         // ATS Score
@@ -86,25 +91,32 @@ export const useReadinessScore = (
 
         if (!profile.professional_summary) ats -= 10;
 
-        if (jobDescription.trim().length > 20) { // Lowered threshold for meaningful matching
+        if (jobDescription.trim().length > 20) {
             const jdLower = jobDescription.toLowerCase();
             const profileSkills = (profile.skills || []).map(s => s.toLowerCase());
             let matches = 0;
             profileSkills.forEach(skill => { if (jdLower.includes(skill)) matches++; });
             const matchRatio = Math.min(1, matches / 5); 
-            // Scale dynamically between 60 (bad match) and 95 (hub match)
             ats = 60 + (matchRatio * 35);
         }
         
-        if (activeWarnings.some(w => w.type === 'error')) ats -= 20;
-        if (activeWarnings.some(w => w.type === 'warning')) ats -= 5;
+        if (hasErrors) ats -= 20;
         ats = Math.floor(Math.max(0, Math.min(99, ats)));
 
-        // Interpretation
+        // Interpretation (High Priority for Errors)
         let interpretation = { label: 'Incomplete', color: 'slate', guidance: 'Define your role to start.' };
-        if (rScore > 40) interpretation = { label: 'Needs Focus', color: 'amber', guidance: 'Add a job description to improve matching.' };
-        if (rScore > 70) interpretation = { label: 'Ready to Launch', color: 'blue', guidance: 'Good — ready for a standard application.' };
-        if (rScore > 85) interpretation = { label: 'Elite Match', color: 'emerald', guidance: 'Optimized for maximum ATS performance.' };
+        
+        if (hasErrors) {
+            interpretation = { 
+                label: 'Market Alert', 
+                color: 'amber', 
+                guidance: `Missing mandatory sections for ${country}. Check the checklist.` 
+            };
+        } else {
+            if (rScore > 40) interpretation = { label: 'Needs Focus', color: 'amber', guidance: 'Add a job description to improve matching.' };
+            if (rScore > 70) interpretation = { label: 'Ready to Launch', color: 'blue', guidance: 'Good — ready for a standard application.' };
+            if (rScore > 85) interpretation = { label: 'Elite Match', color: 'emerald', guidance: 'Optimized for maximum ATS performance.' };
+        }
 
         return {
             readinessScore: rScore,
@@ -114,7 +126,7 @@ export const useReadinessScore = (
             isEvaluatingRules: isLoadingRules,
             schema
         };
-    }, [profile, schema, isLoadingRules, jobTitle, jobDescription, generateComplianceWarnings]);
+    }, [profile, schema, isLoadingRules, jobTitle, jobDescription, country, generateComplianceWarnings]);
 
     return result;
 };
