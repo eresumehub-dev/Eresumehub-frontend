@@ -50,14 +50,27 @@ export const evaluateMarketRules = (profile: UserProfile | null, schema: any): C
     const warnings: ComplianceWarning[] = [];
     const country = schema.country || 'Target market';
 
-    // 1. Parse Mandatory Personal Info
-    const requiredPersonalInfo: string[] = schema.cv_structure?.mandatory_sections?.personal_info?.required || [];
+    // 1. Basic Identity Check (Mandatory for all RAG-enabled countries)
+    if (!profile.full_name?.trim()) {
+        warnings.push({
+            id: 'basic-name', type: 'error', title: 'Name Required',
+            message: 'Your full name is required for any resume.',
+            actionLabel: 'Add', actionLink: '/profile'
+        });
+    }
+
+    // 2. Parse Mandatory Personal Info from RAG
+    const cvStructure = schema.cv_structure || {};
+    const mandatorySections = cvStructure.mandatory_sections || {};
+    const personalInfo = mandatorySections.personal_info || {};
+    const requiredPersonalInfo: string[] = personalInfo.required || [];
+
     const checkRequired = (keyword: string) => 
         requiredPersonalInfo.some(req => req.toLowerCase().includes(keyword.toLowerCase()));
 
     // Date of Birth
     if (checkRequired('date of birth') || checkRequired('dob')) {
-        const dob = profile.date_of_birth || (profile as any).dob;
+        const dob = profile.date_of_birth || (profile as any).date_of_birth;
         if (!dob || dob.trim() === "") {
             warnings.push({
                 id: 'dob-missing', type: 'error', title: 'Date of Birth Required',
@@ -79,7 +92,7 @@ export const evaluateMarketRules = (profile: UserProfile | null, schema: any): C
         }
     }
 
-    // Professional Photo
+    // Professional Photo (Warning only, not a hard block error usually)
     if (checkRequired('photo') && !profile.photo_url) {
         warnings.push({
             id: 'photo-missing', type: 'warning', title: 'Professional Photo',
@@ -88,8 +101,8 @@ export const evaluateMarketRules = (profile: UserProfile | null, schema: any): C
         });
     }
 
-    // 2. Structural Content Parsing
-    const order: string[] = schema.cv_structure?.order || [];
+    // 3. Structural Content Parsing
+    const order: string[] = cvStructure.order || [];
     const requiresSelfPr = order.some(o => o.toLowerCase().includes('self-pr') || o.includes('自己PR'));
     const requiresMotivation = order.some(o => o.toLowerCase().includes('motivation') || o.includes('志望動機'));
 
@@ -97,7 +110,7 @@ export const evaluateMarketRules = (profile: UserProfile | null, schema: any): C
         if (!profile.professional_summary?.trim() && !(profile as any).self_pr?.trim()) {
             warnings.push({
                 id: 'self-pr-missing', type: 'error', title: 'Self-PR Required',
-                message: `A Self-PR section is required for ${country} market resumes.`,
+                message: `A Self-PR section is mandatory for ${country} market resumes.`,
                 actionLabel: 'Add', actionLink: '/profile'
             });
         }
@@ -106,12 +119,12 @@ export const evaluateMarketRules = (profile: UserProfile | null, schema: any): C
     if (requiresMotivation && !(profile as any).motivation?.trim()) {
         warnings.push({
             id: 'motivation-missing', type: 'error', title: 'Motivation Required',
-            message: `A Motivation section is critical for ${country} employers.`,
+            message: `A Motivation section (志望動機) is a critical requirement for ${country}.`,
             actionLabel: 'Add', actionLink: '/profile'
         });
     }
 
-    // 3. Required Languages Check
+    // 4. Required Languages Check
     const requiredLanguages: string[] = schema.required_languages || [];
     requiredLanguages.forEach(langReq => {
         const languages = (profile.languages || []) as any[];
@@ -132,60 +145,3 @@ export const evaluateMarketRules = (profile: UserProfile | null, schema: any): C
     return warnings;
 };
 
-export const checkMarketCompliance = (profile: UserProfile | null, country: string): ComplianceWarning[] => {
-    if (!profile) return [];
-    const warnings: ComplianceWarning[] = [];
-    const c_lower = country.toLowerCase();
-
-    console.log(`[Compliance] Authoritative Check starting for: ${country}`, { 
-        profileId: profile.id,
-        hasDob: !!(profile.date_of_birth || (profile as any).dob),
-        hasNat: !!profile.nationality
-    });
-
-    // 1. DACH Region (Germany, Switzerland, Austria)
-    if (c_lower === 'germany' || c_lower === 'dach' || c_lower === 'austria' || c_lower === 'switzerland') {
-        const dob = profile.date_of_birth || (profile as any).dob;
-        if (!dob || (typeof dob === 'string' && !dob.trim())) {
-            warnings.push({
-                id: 'compliance-dob', type: 'error', title: 'Date of Birth Required',
-                message: `${country} standard CVs strictly require a Date of Birth for identification.`,
-                actionLabel: 'Add', actionLink: '/profile'
-            });
-        }
-        if (!profile.nationality?.trim()) {
-            warnings.push({
-                id: 'compliance-nat', type: 'error', title: 'Nationality Required',
-                message: `Nationality is mandatory in ${country} to clarify work permit and visa status.`,
-                actionLabel: 'Add', actionLink: '/profile'
-            });
-        }
-    }
-
-    // 2. Japanese Market
-    if (c_lower === 'japan') {
-        const hasSelfPr = profile.professional_summary?.trim() || (profile as any).self_pr?.trim();
-        if (!hasSelfPr) {
-            warnings.push({
-                id: 'compliance-selfpr', type: 'error', title: 'Self-PR Required',
-                message: 'A Self-PR section is mandatory for Japanese Rirekisho/Shokumukeirekisho formats.',
-                actionLabel: 'Add', actionLink: '/profile'
-            });
-        }
-        if (!(profile as any).motivation?.trim()) {
-            warnings.push({
-                id: 'compliance-motivation', type: 'error', title: 'Motivation Required',
-                message: 'Motivation for applying (志望動機) is a critical requirement in Japan.',
-                actionLabel: 'Add', actionLink: '/profile'
-            });
-        }
-    }
-
-    if (warnings.length > 0) {
-        console.warn(`[Compliance] 🛑 Gate triggered for ${country}. Issues:`, warnings.map(w => w.id));
-    } else {
-        console.info(`[Compliance] ✅ Gate cleared for ${country}.`);
-    }
-
-    return warnings;
-};

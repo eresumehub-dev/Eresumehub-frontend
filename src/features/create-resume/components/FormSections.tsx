@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Target, FileText, Globe, Sparkles, Check } from 'lucide-react';
 import Input from '../../../components/shared/ui/Input';
 import Textarea from '../../../components/shared/ui/Textarea';
@@ -13,7 +13,7 @@ interface FormSectionsProps {
     countries: string[];
 }
 
-const FormSections: React.FC<FormSectionsProps> = ({ currentStep, formData, setFormData, countries }) => {
+const FormSections: React.FC<FormSectionsProps> = ({ formData, setFormData, countries }) => {
     
     // Step 0: Role
     const RoleSection = (
@@ -126,27 +126,32 @@ const FormSections: React.FC<FormSectionsProps> = ({ currentStep, formData, setF
     );
 
     return (
-        <div className="max-w-xl mx-auto py-8">
-            <AnimatePresence mode="wait">
-                {currentStep === 0 && RoleSection}
-                {currentStep === 1 && ContextSection}
-                {currentStep === 2 && CustomizeSection}
-            </AnimatePresence>
+        <div className="max-w-xl mx-auto py-8 transition-all duration-500">
+            <div className="space-y-16">
+                {/* 1. Target Role Section */}
+                <div className="p-8 bg-white/40 backdrop-blur-sm rounded-[32px] border border-slate-200/50 shadow-sm transition-all hover:bg-white/60">
+                    {RoleSection}
+                </div>
+
+                {/* 2. Market & Localization Section */}
+                <div className="p-8 bg-white/40 backdrop-blur-sm rounded-[32px] border border-slate-200/50 shadow-sm transition-all hover:bg-white/60">
+                    {CustomizeSection}
+                </div>
+
+                {/* 3. Competitive Context (Optional) */}
+                <div className="p-8 bg-white/40 backdrop-blur-sm rounded-[32px] border border-slate-200/50 shadow-sm transition-all hover:bg-white/60">
+                    {ContextSection}
+                </div>
+            </div>
             
-            {/* Step Guidance Footer */}
-            <div className="mt-12 flex items-center justify-center gap-4">
-               {currentStep < 2 && formData.jobTitle.trim() && (
-                   <motion.p 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-xs text-muted-foreground flex items-center gap-2"
-                    >
-                        Ready to proceed? Click the indicator or use the sidebar.
-                   </motion.p>
-               )}
+            <div className="mt-16 text-center">
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#0A2A6B]/40">
+                    Intelligence Engine Active v16.4.9
+                </p>
             </div>
         </div>
     );
+
 };
 
 export default FormSections;

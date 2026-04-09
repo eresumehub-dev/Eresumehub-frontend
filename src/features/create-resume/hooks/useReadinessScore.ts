@@ -13,6 +13,7 @@ export interface ReadinessScoreResult {
     };
     warnings: ComplianceWarning[];
     isEvaluatingRules?: boolean;
+    schema: any;
 }
 
 
@@ -59,7 +60,8 @@ export const useReadinessScore = (
             projectedAtsScore: 0, 
             interpretation: { label: 'Incomplete', color: 'gray', guidance: 'Define your role to start.' }, 
             warnings: [],
-            isEvaluatingRules: false
+            isEvaluatingRules: false,
+            schema: null
         };
 
         const activeWarnings = generateComplianceWarnings(profile, schema);
@@ -109,7 +111,8 @@ export const useReadinessScore = (
             projectedAtsScore: ats,
             interpretation,
             warnings: activeWarnings,
-            isEvaluatingRules: isLoadingRules
+            isEvaluatingRules: isLoadingRules,
+            schema
         };
     }, [profile, schema, isLoadingRules, jobTitle, jobDescription, generateComplianceWarnings]);
 

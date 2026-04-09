@@ -11,7 +11,8 @@ type EventName =
     | 'generation_succeeded'
     | 'generation_failed'
     | 'pdf_downloaded'
-    | 'ats_check_performed';
+    | 'ats_check_performed'
+    | 'compliance_bypassed';
 
 export const trackEvent = (eventName: EventName, metadata: Record<string, any> = {}) => {
     // In a real FAANG environment, this would send to Sentry, Mixpanel, or custom ELK stack.

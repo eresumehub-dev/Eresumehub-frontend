@@ -7,14 +7,13 @@ import { AnimatePresence, motion } from 'framer-motion';
 import Card from '../../components/shared/ui/Card';
 
 // --- FEATURE COMPONENTS ---
-import StepIndicator from './components/StepIndicator';
 import ReadinessHub from './components/ReadinessHub';
 import FormSections from './components/FormSections';
 
 // --- FEATURE HOOKS ---
 import { useCreateResumeFlow } from './hooks/useCreateResumeFlow';
 import { useReadinessScore } from './hooks/useReadinessScore';
-
+import { ComplianceWarning } from '../../utils/compliance_check';
 // --- SERVICES ---
 import { getAvailableCountries } from '../../services/schema';
 
@@ -43,21 +42,15 @@ const CreateResumePage: React.FC = () => {
     });
 
     const {
-        readinessScore, projectedAtsScore, interpretation, warnings, isEvaluatingRules
+        readinessScore, projectedAtsScore, interpretation, warnings, isEvaluatingRules, schema
     } = useReadinessScore(
         profile, formData.jobTitle, formData.jobDescription, formData.country, new Set()
     );
 
-    // Step logic: Progressive disclosure
-    const steps = ['Role', 'Context', 'Customize'];
-    const [currentStep, setCurrentStep] = useState(0);
-
-    // Effect: Auto-advance context if jobTitle is filled
+    // Fetch countries
     useEffect(() => {
-        if (formData.jobTitle.trim().length > 3 && currentStep === 0) {
-            // Lightest friction: don't auto-jump but allow manual
-        }
-    }, [formData.jobTitle, currentStep]);
+        getAvailableCountries().then(setAvailableCountries);
+    }, []);
 
     // Fetch countries
     useEffect(() => {
@@ -77,24 +70,25 @@ const CreateResumePage: React.FC = () => {
         <div className="min-h-screen bg-background text-foreground overflow-hidden">
             <div className="max-w-6xl mx-auto h-screen flex flex-col">
                 
-                {/* 1. Header (Interactive Step Navigator) */}
-                <header className="border-b border-border bg-background z-10">
+                {/* 1. Header (Simplified Intelligence Branding) */}
+                <header className="border-b border-border bg-background/80 backdrop-blur-md z-10">
                     <div className="flex items-center justify-between px-6 py-4">
                         <Link 
                             to="/dashboard" 
                             className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-all group"
                         >
                             <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
-                            Back
+                            Back to Command Center
                         </Link>
                         
-                        <StepIndicator 
-                            currentStep={currentStep} 
-                            steps={steps} 
-                            onStepClick={setCurrentStep} 
-                        />
+                        <div className="flex items-center gap-3">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/40">
+                                Global Market Engine v16.4.9
+                            </span>
+                        </div>
 
-                        <div className="w-[60px]" /> {/* Spacer for balance */}
+                        <div className="w-[100px]" /> {/* Spacer for balance */}
                     </div>
                 </header>
 
@@ -126,7 +120,7 @@ const CreateResumePage: React.FC = () => {
                             </div>
 
                             <FormSections 
-                                currentStep={currentStep}
+                                currentStep={0}
                                 formData={formData}
                                 setFormData={setFormData}
                                 countries={availableCountries}
@@ -142,7 +136,7 @@ const CreateResumePage: React.FC = () => {
                         isGenerating={isGenerating}
                         generationStep={generationStep}
                         generationProgress={generationProgress}
-                        onGenerate={() => handleGenerate()}
+                        onGenerate={() => handleGenerate(schema)}
                         canGenerate={formData.jobTitle.trim().length > 3 && formData.country !== '' && !loadingProfile}
                         isEvaluatingRules={isEvaluatingRules}
                     />
@@ -174,55 +168,69 @@ const CreateResumePage: React.FC = () => {
                 )}
             </div>
 
-            {/* Compliance Modal */}
+            {/* Compliance Modal - PREMIUM GLASSMORPHIC REDESIGN (v3.4.0) */}
             <AnimatePresence>
                 {showComplianceWarning && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-xl">
                         <motion.div 
-                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            initial={{ opacity: 0, scale: 0.9, y: 40 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="bg-background border border-border shadow-2xl rounded-2xl p-6 max-w-md w-full overflow-hidden"
+                            exit={{ opacity: 0, scale: 0.9, y: 40 }}
+                            className="relative bg-white border border-slate-200 shadow-[0_32px_128px_-12px_rgba(0,0,0,0.2)] rounded-[40px] max-w-lg w-full overflow-hidden"
                         >
-                            <div className="flex items-center gap-3 mb-4">
-                                <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0">
-                                    <AlertCircle className="w-5 h-5 text-amber-500" />
+                            {/* Accent Background Gradient */}
+                            <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-br from-amber-50 to-transparent -z-10" />
+
+                            <div className="p-10">
+                                <div className="flex items-start justify-between mb-8">
+                                    <div className="p-4 bg-amber-50 rounded-[24px] border border-amber-100 shadow-inner">
+                                        <AlertCircle className="w-8 h-8 text-amber-600" />
+                                    </div>
+                                    <div className="px-4 py-2 bg-slate-50 border border-slate-100 rounded-full text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">
+                                        Compliance Delta Detected
+                                    </div>
                                 </div>
-                                <div>
-                                    <h2 className="text-lg font-bold text-foreground">Mandatory Market Requirements</h2>
-                                    <p className="text-sm text-muted-foreground">Required for {formData.country} Compliance</p>
+
+                                <div className="mb-8">
+                                    <h2 className="text-3xl font-black text-slate-900 tracking-tight leading-none mb-3">
+                                        Market Integrity Gaps
+                                    </h2>
+                                    <p className="text-slate-500 font-medium">
+                                        Standard protocols for <span className="text-slate-900 font-black">{formData.country}</span> require the following data points for optimal ATS ranking and recruiter trust.
+                                    </p>
                                 </div>
-                            </div>
-                            
-                            <div className="bg-amber-50/50 border border-amber-100 rounded-xl p-4 mb-6">
-                                <p className="text-sm text-amber-900 mb-3 font-medium">To proceed with generation, we recommend fixing these gaps:</p>
-                                <ul className="space-y-3 mb-4">
-                                    {complianceWarnings.map(w => (
-                                        <li key={w.id} className="flex items-start gap-2">
-                                            <div className="mt-1 w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                                
+                                <div className="space-y-4 mb-10">
+                                    {complianceWarnings.map((w: ComplianceWarning) => (
+                                        <div key={w.id} className="p-5 bg-slate-50/50 rounded-[28px] border border-slate-100/50 flex gap-4 transition-all hover:bg-white hover:border-slate-200 hover:shadow-lg hover:shadow-slate-200/20 group">
+                                            <div className="shrink-0 w-3 h-3 rounded-full bg-amber-500 mt-2 shadow-[0_0_12px_rgba(245,158,11,0.5)] group-hover:scale-125 transition-transform" />
                                             <div>
-                                                <p className="text-sm font-bold text-amber-900">{w.title}</p>
-                                                <p className="text-xs text-amber-800/70 leading-relaxed">{w.message}</p>
+                                                <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-1">{w.title}</h4>
+                                                <p className="text-sm text-slate-500 font-medium leading-relaxed">{w.message}</p>
                                             </div>
-                                        </li>
+                                        </div>
                                     ))}
-                                </ul>
-                                <p className="text-xs font-bold text-amber-900 uppercase tracking-widest bg-amber-100/50 p-2 rounded-lg text-center">
-                                    Generative AI works best with full identification data.
-                                </p>
+                                </div>
+
+                                <div className="grid grid-cols-1 gap-4">
+                                    <Link 
+                                        to="/profile" 
+                                        className="w-full py-5 px-6 rounded-[24px] font-black bg-[#0A2A6B] text-white text-xs uppercase tracking-[0.2em] text-center shadow-xl shadow-[#0A2A6B]/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                                    >
+                                        Optimize Profile Now
+                                    </Link>
+                                    <button 
+                                        onClick={() => handleGenerate(schema, { ignoreCompliance: true })}
+                                        className="w-full py-4 px-6 font-bold text-slate-400 hover:text-slate-900 text-[10px] uppercase tracking-[0.15em] text-center transition-all flex items-center justify-center gap-2 group"
+                                    >
+                                        Proceed with missing data
+                                        <div className="w-1.5 h-1.5 rounded-full bg-slate-300 group-hover:bg-slate-900" />
+                                    </button>
+                                </div>
                             </div>
 
-                            <div className="flex flex-col gap-3">
-                                <Link to="/profile" className="w-full py-3 px-4 rounded-xl font-bold bg-foreground text-background text-sm text-center">
-                                    Fix Now
-                                </Link>
-                                <button 
-                                    onClick={() => handleGenerate([], { ignoreCompliance: true })}
-                                    className="w-full py-2 px-4 font-medium text-muted-foreground hover:text-foreground text-xs text-center transition-colors underline decoration-border underline-offset-4"
-                                >
-                                    Force generation anyway (Not Recommended)
-                                </button>
-                            </div>
+                            {/* Decorative Bottom Bar */}
+                            <div className="h-2 bg-gradient-to-r from-amber-200 via-amber-500 to-amber-200" />
                         </motion.div>
                     </div>
                 )}

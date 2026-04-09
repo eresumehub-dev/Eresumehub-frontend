@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createResume, pollJobStatus } from '../../../services/resume';
 import { useUserProfileQuery } from '../../../hooks/queries/useUserProfileQuery';
 import { trackEvent } from '../../../services/event_tracking';
-import { ComplianceWarning, checkMarketCompliance } from '../../../utils/compliance_check';
+import { ComplianceWarning, evaluateMarketRules } from '../../../utils/compliance_check';
 
 export const useCreateResumeFlow = () => {
     const navigate = useNavigate();
@@ -27,13 +27,6 @@ export const useCreateResumeFlow = () => {
         language: 'English',
         template: 'executive'
     });
-
-    // Sync country from profile when loaded
-    useEffect(() => {
-        if (profile?.country) {
-            setFormData(prev => ({ ...prev, country: profile.country! }));
-        }
-    }, [profile]);
 
     // 2. Cooldown Timer
     useEffect(() => {
@@ -82,12 +75,13 @@ export const useCreateResumeFlow = () => {
     const [showComplianceWarning, setShowComplianceWarning] = useState(false);
     const [complianceWarnings, setComplianceWarnings] = useState<ComplianceWarning[]>([]);
 
-    const handleGenerate = async (_deprecatedWarnings: any[] = [], override: any = {}) => {
-        // 🧬 v3.3.1 - Authoritative Synchronous Gate
-        console.warn("🔥 [v3.3.1] handleGenerate EXECUTING", {
+    const handleGenerate = async (schema: any = null, override: any = {}) => {
+        // 🧬 v3.4.0 - Auth RAG-Dynamic Synchronous Gate
+        console.warn("🔥 [v3.4.0] handleGenerate EXECUTING", {
              country: formData.country,
              profileId: profile?.id,
-             isGenerating
+             isGenerating,
+             hasSchema: !!schema
         });
 
         // 1. HARD GUARD: Profile Must Exist
@@ -98,22 +92,25 @@ export const useCreateResumeFlow = () => {
 
         if (isGenerating || cooldown > 0) return;
 
-        // 2. COMPLIANCE GATE (Synchronous Implementation)
-        // We no longer rely on _activeWarnings from the UI state to avoid race conditions.
-        const warnings = checkMarketCompliance(profile, formData.country);
-        const errors = warnings.filter((w: ComplianceWarning) => w.type === 'error');
-        
-        console.log(`🔥 [handleGenerate] Compliance Assessment for ${formData.country}:`, { 
-            totalWarnings: warnings.length,
-            errorsFound: errors.length,
-            ignoreCompliance: !!override.ignoreCompliance
-        });
+        // 2. COMPLIANCE GATE (Synchronous Implementation using Schema)
+        if (!override.ignoreCompliance) {
+            const warnings = evaluateMarketRules(profile, schema);
+            const errors = warnings.filter((w: ComplianceWarning) => w.type === 'error');
+            
+            console.log(`🔥 [handleGenerate] RAG Assessment for ${formData.country}:`, { 
+                totalWarnings: warnings.length,
+                errorsFound: errors.length
+            });
 
-        if (errors.length > 0 && !override.ignoreCompliance) {
-            console.warn(`[useCreateResumeFlow] 🛑 Compliance barrier triggered via Synchronous Gate.`);
-            setComplianceWarnings(warnings);
-            setShowComplianceWarning(true);
-            return;
+            if (errors.length > 0) {
+                console.warn(`[useCreateResumeFlow] 🛑 Compliance barrier triggered via Synchronous RAG Gate.`);
+                setComplianceWarnings(warnings);
+                setShowComplianceWarning(true);
+                return;
+            }
+        } else {
+            // Track Bypass Analytics
+            trackEvent('compliance_bypassed', { country: formData.country });
         }
         
         setShowComplianceWarning(false);
@@ -121,6 +118,7 @@ export const useCreateResumeFlow = () => {
         setError(null);
         setGenerationStep('Initializing...');
         setGenerationProgress(5);
+
 
         // 1. Sanitization Helper: Strip DB internal metadata
         const sanitize = (items?: any[]) => (items || []).map(({ 
