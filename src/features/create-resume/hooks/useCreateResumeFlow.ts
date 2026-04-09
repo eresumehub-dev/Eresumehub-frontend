@@ -120,28 +120,44 @@ export const useCreateResumeFlow = () => {
         setGenerationProgress(5);
 
 
-        // 1. Sanitization Helper: Strip DB internal metadata
-        const sanitize = (items?: any[]) => (items || []).map(({ 
-            id, profile_id, user_id, created_at, updated_at, display_order, ...rest 
-        }: any) => rest);
 
         // 2. Map user data - Aligning with backend 'UserData' schema
         const p = profile!; 
         const userData = {
-            full_name: p.full_name,
+            full_name: p.full_name || '',
+            headline: p.headline || '',
             date_of_birth: p.date_of_birth,
             nationality: p.nationality,
             contact: {
-                email: p.email,
-                phone: p.phone,
+                email: p.email || '',
+                phone: p.phone || '',
                 linkedin: p.linkedin_url,
-                city: p.city
+                city: p.city,
+                country: p.country
             },
             summary: p.professional_summary,
             skills: p.skills || [],
-            experience: sanitize(p.work_experiences),
-            education: sanitize(p.educations),
-            projects: sanitize(p.projects),
+            experience: (p.work_experiences || []).map((exp: any) => ({
+                title: exp.job_title || 'Position',
+                company: exp.company || 'Company',
+                city: exp.location || '',
+                start_date: exp.start_date || '',
+                end_date: exp.end_date,
+                description: Array.isArray(exp.achievements) ? exp.achievements.join('\n') : (exp.achievements || '')
+            })),
+            education: (p.educations || []).map((edu: any) => ({
+                degree: edu.degree || 'Degree',
+                institution: edu.institution || 'Institution',
+                city: edu.location || '',
+                graduation_date: edu.graduation_date || ''
+            })),
+            projects: (p.projects || []).map((proj: any) => ({
+                title: proj.title || 'Project',
+                role: proj.role,
+                link: proj.link,
+                description: proj.description || '',
+                technologies: Array.isArray(proj.technologies) ? proj.technologies : []
+            })),
             languages: (p.languages || []).map((l: any) => {
                 const name = typeof l === 'string' ? l : (l.name || l.language || '');
                 const level = typeof l === 'string' ? 'Native' : (l.level || l.proficiency_cefr || 'Native');
