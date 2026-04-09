@@ -1,7 +1,10 @@
 import React from 'react';
-import {
-    Shield, Check,
-    Sparkles, Loader2, PenLine, Info
+import { 
+    Sparkles, 
+    AlertCircle, 
+    Loader2,
+    CheckCircle2,
+    ArrowUpRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ComplianceWarning } from '../../../utils/compliance_check';
@@ -28,113 +31,114 @@ const ReadinessHub: React.FC<ReadinessHubProps> = ({
     const tips = warnings.filter(w => w.type === 'warning' || w.type === 'info');
 
     return (
-        <aside className="w-[360px] bg-slate-50 border-l border-slate-100 flex flex-col h-full flex-shrink-0 relative overflow-hidden">
-            
-            {/* 1. Friendly Score Diagnostic */}
-            <div className="p-8 pb-6">
-                <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                        Your Readiness
-                    </h3>
-                    <div className="text-xl font-black text-slate-900 pr-1">
-                        {score}%
+        <div className="h-full flex flex-col p-8 md:p-10 bg-[#F5F5F7] backdrop-blur-3xl overflow-y-auto custom-scrollbar">
+            <div className="flex-1">
+                {/* Header Context */}
+                <div className="flex items-center gap-3 mb-10">
+                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
+                        <Sparkles className="w-5 h-5 text-[#1D1D1F]" strokeWidth={1.5} />
+                    </div>
+                    <div>
+                        <h3 className="text-[17px] font-semibold tracking-tight text-[#1D1D1F]">
+                            Resume Intelligence
+                        </h3>
+                        <p className="text-[12px] text-[#86868B] font-medium uppercase tracking-widest">Diagnostic Engine</p>
                     </div>
                 </div>
 
-                <div className="space-y-4">
-                    <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
-                        <motion.div 
-                            className="h-full bg-slate-900"
-                            initial={{ width: 0 }}
-                            animate={{ width: `${score}%` }}
-                            transition={{ duration: 1, ease: "circOut" }}
+                {/* Score Circular Visualizer */}
+                <div className="bg-white rounded-[2.5rem] p-10 flex flex-col items-center justify-center border border-black/[0.03] shadow-[0_8px_32px_rgba(0,0,0,0.02)] mb-10 relative overflow-hidden">
+                    <svg className="w-36 h-36 transform -rotate-90">
+                        <circle cx="72" cy="72" r="64" fill="none" stroke="#F5F5F7" strokeWidth="6" />
+                        <motion.circle 
+                            cx="72" cy="72" r="64" 
+                            fill="none" 
+                            stroke="#1D1D1F" 
+                            strokeWidth="6"
+                            strokeLinecap="round"
+                            initial={{ strokeDasharray: "402", strokeDashoffset: "402" }}
+                            animate={{ strokeDashoffset: 402 - (402 * score) / 100 }}
+                            transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
                         />
-                    </div>
-                    
-                    <div className="p-4 bg-white border border-slate-100 rounded-2xl shadow-sm">
-                        <div className="flex items-center gap-2 mb-1">
-                            <Sparkles className="w-3.5 h-3.5 text-slate-900" />
-                            <p className="text-sm font-bold text-slate-900">{interpretation.label}</p>
-                        </div>
-                        <p className="text-xs text-slate-500 leading-normal font-normal">{interpretation.guidance}</p>
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center mt-2">
+                        <motion.span 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="text-[3.25rem] font-medium text-[#1D1D1F] tracking-tighter leading-none"
+                        >
+                            {score}
+                        </motion.span>
+                        <span className="text-[11px] font-bold text-[#86868B] uppercase tracking-[0.2em] mt-2">Readiness</span>
                     </div>
                 </div>
-            </div>
 
-            {/* 2. Unified Action Checklist (Replaces Modal) */}
-            <div className="flex-1 overflow-y-auto px-8 py-2 custom-scrollbar">
-                
-                <div className="flex items-center justify-between py-4 border-b border-slate-100">
-                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                        Checklist
-                    </h3>
-                    {warnings.length === 0 && (
-                        <span className="text-[10px] font-bold text-emerald-500 flex items-center gap-1">
-                            <Check className="w-3 h-3" />
-                            Everything looks good
-                        </span>
-                    )}
-                </div>
-
-                <div className="space-y-2 mt-4">
-                    {warnings.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center pt-8 text-center opacity-40">
-                            <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center mb-4">
-                                <Check className="w-6 h-6 text-emerald-500" />
+                {/* Interpretations & Analysis */}
+                <div className="space-y-4 mb-8">
+                    <div className="p-5 rounded-[1.5rem] bg-white border border-black/[0.04] shadow-sm">
+                        <div className="flex items-start gap-3">
+                            <CheckCircle2 className="w-5 h-5 text-[#34C759] shrink-0 mt-0.5" strokeWidth={1.5}/>
+                            <div>
+                                <h4 className="text-[15px] font-semibold text-[#1D1D1F] mb-1">{interpretation.label}</h4>
+                                <p className="text-[14px] text-[#86868B] leading-relaxed">
+                                    {interpretation.guidance}
+                                </p>
                             </div>
-                            <p className="text-xs font-medium text-slate-500 max-w-[180px]">You're all set! Your profile matches the target market standards.</p>
                         </div>
-                    ) : (
-                        <>
-                            {errors.map((w) => (
-                                <div key={w.id} className="p-4 bg-white border border-slate-100 rounded-2xl group transition-all hover:border-slate-300">
-                                    <div className="flex items-start gap-3">
-                                        <div className="mt-0.5 bg-amber-50 p-1 rounded-md">
-                                            <Info className="w-3 h-3 text-amber-600" />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-xs font-bold text-slate-900 leading-tight mb-1">{w.title}</p>
-                                            <p className="text-[11px] text-slate-500 leading-normal font-normal">{w.message}</p>
-                                        </div>
+                    </div>
+
+                    <AnimatePresence>
+                        {errors.map((w) => (
+                            <motion.div 
+                                key={w.id}
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                className="p-5 rounded-[1.5rem] bg-amber-50/50 border border-amber-100 text-amber-900"
+                            >
+                                <div className="flex items-start gap-3">
+                                    <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" strokeWidth={1.5}/>
+                                    <div>
+                                        <p className="text-[14px] font-semibold leading-relaxed mb-0.5">{w.title}</p>
+                                        <p className="text-[13px] opacity-80 leading-snug">{w.message}</p>
                                     </div>
                                 </div>
-                            ))}
-                            
-                            {tips.length > 0 && (
-                                <div className="mt-8 pt-4 border-t border-slate-100">
-                                    <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest mb-4">Recommended Tips</p>
-                                    <div className="space-y-2">
-                                        {tips.map((w) => (
-                                            <div key={w.id} className="flex items-start gap-3 opacity-60 hover:opacity-100 transition-opacity">
-                                                <div className="mt-1 w-1.5 h-1.5 rounded-full bg-slate-300" />
-                                                <p className="text-[11px] text-slate-500 leading-normal">{w.message}</p>
-                                            </div>
-                                        ))}
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+                    
+                    {tips.length > 0 && (
+                        <div className="pt-2">
+                            <h4 className="text-[11px] font-bold text-[#86868B] uppercase tracking-widest mb-4 ml-1">Optimization Tips</h4>
+                            <div className="space-y-3">
+                                {tips.slice(0, 3).map((w) => (
+                                    <div key={w.id} className="flex items-start gap-3 ml-1 group cursor-default">
+                                        <div className="w-1 h-1 rounded-full bg-[#1D1D1F] mt-2 group-hover:scale-150 transition-transform" />
+                                        <p className="text-[13px] text-[#86868B] leading-relaxed group-hover:text-[#1D1D1F] transition-colors">{w.message}</p>
                                     </div>
-                                </div>
-                            )}
-                        </>
+                                ))}
+                            </div>
+                        </div>
                     )}
                 </div>
             </div>
 
-            {/* 3. Refined Command Panel */}
-            <div className="p-8 bg-white border-t border-slate-100">
+            {/* Action Panel */}
+            <div className="pt-8 border-t border-black/[0.04]">
                 <AnimatePresence mode="wait">
                     {isGenerating ? (
                         <motion.div 
-                            key="generating"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="space-y-4"
+                            key="gen"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="bg-[#F5F5F7] rounded-2xl p-6 border border-black/[0.02] flex flex-col items-center gap-4"
                         >
-                            <div className="flex items-center justify-between">
-                                <span className="text-xs font-medium text-slate-400 animate-pulse">{generationStep}</span>
-                                <span className="text-sm font-black text-slate-900">{generationProgress}%</span>
+                            <div className="flex items-center gap-3">
+                                <Loader2 className="w-5 h-5 animate-spin text-[#1D1D1F]" strokeWidth={1.5} />
+                                <span className="text-[15px] font-medium text-[#1D1D1F]">{generationStep}</span>
                             </div>
-                            <div className="h-1 w-full bg-slate-50 rounded-full overflow-hidden">
+                            <div className="w-full h-1.5 bg-black/[0.04] rounded-full overflow-hidden">
                                 <motion.div 
-                                    className="h-full bg-slate-900"
+                                    className="h-full bg-[#1D1D1F]"
                                     initial={{ width: 0 }}
                                     animate={{ width: `${generationProgress}%` }}
                                 />
@@ -146,31 +150,23 @@ const ReadinessHub: React.FC<ReadinessHubProps> = ({
                                 disabled={!canGenerate || isEvaluatingRules}
                                 onClick={onGenerate}
                                 className={`
-                                    w-full h-14 flex items-center justify-center gap-3 transition-all rounded-2xl
-                                    ${!canGenerate || isEvaluatingRules 
-                                        ? 'bg-slate-50 text-slate-300 cursor-not-allowed' 
-                                        : 'bg-slate-900 text-white hover:bg-black shadow-xl shadow-slate-900/10 active:scale-[0.98]'
+                                    w-full py-4 rounded-2xl font-medium text-[16px] tracking-tight transition-all duration-300 flex items-center justify-center gap-2
+                                    ${(!canGenerate || isEvaluatingRules)
+                                        ? 'bg-white text-[#86868B] border border-black/[0.04] cursor-not-allowed'
+                                        : 'bg-[#1D1D1F] text-white hover:bg-black shadow-[0_4px_14px_rgba(0,0,0,0.1)] active:scale-[0.98]'
                                     }
                                 `}
                             >
-                                {isEvaluatingRules ? (
-                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                ) : (
-                                    <PenLine className="w-4 h-4" />
-                                )}
-                                <span className="text-sm font-bold">
-                                    {isEvaluatingRules ? 'Checking Market...' : 'Create My Resume'}
-                                </span>
+                                {isEvaluatingRules ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
+                                {isEvaluatingRules ? 'Identifying Market Rules...' : errors.length > 0 ? 'Proceed Anyway' : 'Generate Perfect Resume'}
+                                {!isEvaluatingRules && <ArrowUpRight className="w-4 h-4" />}
                             </button>
-                            <div className="flex items-center justify-center gap-2">
-                                <Shield className="w-3 h-3 text-slate-300" />
-                                <span className="text-[10px] text-slate-400 font-medium">Standard Compliance Guaranteed</span>
-                            </div>
+                            <p className="text-[11px] text-[#86868B] text-center font-medium">Precision alignment with target RAG schemas. <span className="text-[#1D1D1F]">v16.4.17</span></p>
                         </div>
                     )}
                 </AnimatePresence>
             </div>
-        </aside>
+        </div>
     );
 };
 
