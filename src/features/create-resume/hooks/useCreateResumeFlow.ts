@@ -103,7 +103,11 @@ export const useCreateResumeFlow = () => {
         const warnings = checkMarketCompliance(profile, formData.country);
         const errors = warnings.filter((w: ComplianceWarning) => w.type === 'error');
         
-        console.log("SYNCHRONOUS COMPLIANCE CHECK:", { warnings, errors });
+        console.log(`🔥 [handleGenerate] Compliance Assessment for ${formData.country}:`, { 
+            totalWarnings: warnings.length,
+            errorsFound: errors.length,
+            ignoreCompliance: !!override.ignoreCompliance
+        });
 
         if (errors.length > 0 && !override.ignoreCompliance) {
             console.warn(`[useCreateResumeFlow] 🛑 Compliance barrier triggered via Synchronous Gate.`);
@@ -179,7 +183,8 @@ export const useCreateResumeFlow = () => {
             
             // Phase 4: Backend Enforcement Interceptor
             const responseData = err?.response?.data;
-            if (err?.response?.status === 422 && responseData?.status === 'requires_user_action') {
+            const actionStatus = responseData?.status || responseData?.detail?.status;
+            if (err?.response?.status === 422 && actionStatus === 'requires_user_action') {
                 console.warn("⚠️ Backend requested compliance action. Re-triggering modal.");
                 setShowComplianceWarning(true);
                 setIsGenerating(false);

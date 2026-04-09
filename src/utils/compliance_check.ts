@@ -137,19 +137,26 @@ export const checkMarketCompliance = (profile: UserProfile | null, country: stri
     const warnings: ComplianceWarning[] = [];
     const c_lower = country.toLowerCase();
 
+    console.log(`[Compliance] Authoritative Check starting for: ${country}`, { 
+        profileId: profile.id,
+        hasDob: !!(profile.date_of_birth || (profile as any).dob),
+        hasNat: !!profile.nationality
+    });
+
     // 1. DACH Region (Germany, Switzerland, Austria)
-    if (c_lower === 'germany' || c_lower === 'dach') {
-        if (!profile.date_of_birth?.trim()) {
+    if (c_lower === 'germany' || c_lower === 'dach' || c_lower === 'austria' || c_lower === 'switzerland') {
+        const dob = profile.date_of_birth || (profile as any).dob;
+        if (!dob || (typeof dob === 'string' && !dob.trim())) {
             warnings.push({
                 id: 'compliance-dob', type: 'error', title: 'Date of Birth Required',
-                message: 'German standard CVs strictly require a Date of Birth for identification.',
+                message: `${country} standard CVs strictly require a Date of Birth for identification.`,
                 actionLabel: 'Add', actionLink: '/profile'
             });
         }
         if (!profile.nationality?.trim()) {
             warnings.push({
                 id: 'compliance-nat', type: 'error', title: 'Nationality Required',
-                message: 'Nationality is mandatory in Germany to clarify work permit and visa status.',
+                message: `Nationality is mandatory in ${country} to clarify work permit and visa status.`,
                 actionLabel: 'Add', actionLink: '/profile'
             });
         }
@@ -157,7 +164,8 @@ export const checkMarketCompliance = (profile: UserProfile | null, country: stri
 
     // 2. Japanese Market
     if (c_lower === 'japan') {
-        if (!profile.professional_summary?.trim() && !(profile as any).self_pr?.trim()) {
+        const hasSelfPr = profile.professional_summary?.trim() || (profile as any).self_pr?.trim();
+        if (!hasSelfPr) {
             warnings.push({
                 id: 'compliance-selfpr', type: 'error', title: 'Self-PR Required',
                 message: 'A Self-PR section is mandatory for Japanese Rirekisho/Shokumukeirekisho formats.',
@@ -171,6 +179,12 @@ export const checkMarketCompliance = (profile: UserProfile | null, country: stri
                 actionLabel: 'Add', actionLink: '/profile'
             });
         }
+    }
+
+    if (warnings.length > 0) {
+        console.warn(`[Compliance] 🛑 Gate triggered for ${country}. Issues:`, warnings.map(w => w.id));
+    } else {
+        console.info(`[Compliance] ✅ Gate cleared for ${country}.`);
     }
 
     return warnings;
