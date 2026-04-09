@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 import { Linkedin, Instagram } from 'lucide-react';
+import ScrollToTop from './shared/ScrollToTop';
 
 const Layout = () => {
     return (
@@ -9,13 +10,14 @@ const Layout = () => {
             <main className="flex-grow">
                 <Outlet />
             </main>
+            <ScrollToTop />
             <footer className="bg-white border-t border-zinc-50 py-6 mt-auto">
                 <div className="w-full px-6 lg:px-12 flex flex-col md:flex-row justify-between items-center gap-4">
                     <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
                         © {new Date().getFullYear()} EresumeHub. All assets verified.
                     </p>
                     <div className="flex items-center space-x-6">
-                        <a href="#" className="text-[#0077B5] hover:opacity-80 transition-opacity">
+                        <a href="https://www.linkedin.com/company/eresumehub" target="_blank" rel="noopener noreferrer" className="text-[#0077B5] hover:opacity-80 transition-opacity">
                             <span className="sr-only">LinkedIn</span>
                             <Linkedin className="h-4 w-4 fill-current" />
                         </a>
