@@ -152,9 +152,8 @@ export const useCreateResumeFlow = () => {
 
             if (result.success) {
                 setGenerationProgress(100);
-                const resumeId = (result as any).id;
                 setTimeout(() => {
-                    navigate(resumeId ? `/resume/edit/${resumeId}` : '/dashboard');
+                    navigate('/dashboard');
                 }, 1000);
             }
         } catch (err) {
