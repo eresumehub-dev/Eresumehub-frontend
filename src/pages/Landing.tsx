@@ -110,7 +110,6 @@ const Landing = () => {
                         variants={staggerContainer}
                         className="space-y-8 w-full"
                     >
-
                         <motion.h1 variants={fadeUp} className="text-[3.5rem] md:text-[5.5rem] lg:text-[6.5rem] font-medium leading-[1.0] tracking-tight text-[#1D1D1F]">
                             Stop guessing.<br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1D1D1F] via-[#434345] to-[#86868B]">
@@ -202,16 +201,18 @@ const Landing = () => {
             </section>
 
             {/* --- SECTION 2: SOCIAL PROOF --- */}
-            <section className="py-12 border-y border-black/[0.04] bg-white">
-                <div className="max-w-[1800px] mx-auto px-6 lg:px-12 flex flex-col md:flex-row items-center justify-between gap-8">
-                    <p className="text-[13px] font-semibold text-[#86868B] uppercase tracking-widest whitespace-nowrap">
-                        Trusted by people who landed jobs at
-                    </p>
-                    <div className="flex flex-wrap justify-center items-center gap-x-16 gap-y-8 opacity-60 grayscale transition-all hover:opacity-100 hover:grayscale-0">
-                        <img src={LifeLogo} alt="Life Interactive" className="h-8 object-contain" />
-                        <img src={PromptLogo} alt="WhatToPrompt" className="h-10 object-contain" />
-                        <img src={CozaintLogo} alt="Cozaint" className="h-10 object-contain" />
-                        <img src={SecurityLogo} alt="Security World" className="h-12 object-contain" />
+            <section className="py-24 border-y border-black/[0.04] bg-white">
+                <div className="max-w-[1800px] mx-auto px-6 lg:px-12">
+                    <div className="flex flex-col items-center gap-12">
+                        <p className="text-[12px] font-bold text-[#86868B] uppercase tracking-[0.2em] text-center">
+                            Trusted by people who landed jobs at
+                        </p>
+                        <div className="flex flex-wrap justify-center items-center gap-x-20 gap-y-12 transition-all">
+                            <img src={LifeLogo} alt="Life Interactive" className="h-9 md:h-10 object-contain hover:scale-105 transition-transform duration-300" />
+                            <img src={PromptLogo} alt="WhatToPrompt" className="h-10 md:h-12 object-contain hover:scale-105 transition-transform duration-300" />
+                            <img src={CozaintLogo} alt="Cozaint" className="h-10 md:h-12 object-contain hover:scale-105 transition-transform duration-300" />
+                            <img src={SecurityLogo} alt="Security World" className="h-12 md:h-14 object-contain hover:scale-105 transition-transform duration-300" />
+                        </div>
                     </div>
                 </div>
             </section>
