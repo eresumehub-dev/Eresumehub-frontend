@@ -6,7 +6,7 @@ import {
     ChevronLeft, Clock, Check, AlertCircle,
     Copy, Archive, GitBranch, Star, Sparkles, MoreVertical,
     Eye, FileText, ArrowUpRight, TrendingUp, Wand2, Plus, X, AlignLeft, 
-    Loader2, User, Briefcase, GraduationCap, Globe, ZoomIn, ZoomOut
+    Loader2, User, Briefcase, GraduationCap, Globe
 } from 'lucide-react';
 
 import {
@@ -886,15 +886,9 @@ const ResumeEditor: React.FC = () => {
                     <div className="h-12 bg-[#323639] border-b border-black/20 flex items-center justify-between px-4 shadow-sm z-20 shrink-0 text-white/80">
                         <div className="flex items-center gap-3">
                             <FileText className="w-4 h-4 text-white/60" />
-                            <span className="text-[13px] font-medium truncate max-w-[200px]">{resumeContent?.full_name || 'Resume'}_Preview.pdf</span>
+                            <span className="text-[13px] font-medium truncate max-w-[200px]">{resume?.title || 'Resume'}_Preview.pdf</span>
                         </div>
                         <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-2">
-                                <button className="p-1.5 hover:bg-white/10 rounded-md transition-colors focus:outline-none"><ZoomOut className="w-4 h-4"/></button>
-                                <span className="text-[12px] font-medium w-10 text-center">100%</span>
-                                <button className="p-1.5 hover:bg-white/10 rounded-md transition-colors focus:outline-none"><ZoomIn className="w-4 h-4"/></button>
-                            </div>
-                            <div className="w-[1px] h-4 bg-white/20"></div>
                             <button 
                                 onClick={() => {
                                     const url = viewMode === 'original' ? resume?.resume_data?.original_pdf_url : resume?.pdf_url;
