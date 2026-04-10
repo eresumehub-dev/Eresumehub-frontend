@@ -490,14 +490,6 @@ const Landing = () => {
 
                 </div>
             </footer>
-
-            {/* --- SCROLL TO TOP (Repositioned further up) --- */}
-            <button 
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                className="fixed bottom-28 right-8 w-12 h-12 bg-white/80 backdrop-blur-md rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-black/[0.04] flex items-center justify-center text-[#1D1D1F] z-[100] active:scale-95 transition-all"
-            >
-                <ChevronRight className="w-5 h-5 -rotate-90" />
-            </button>
         </div>
     );
 };
