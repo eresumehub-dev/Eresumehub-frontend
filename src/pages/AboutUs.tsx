@@ -28,7 +28,7 @@ const AboutUs = () => {
         <div className="bg-[#F5F5F7] min-h-screen font-['Inter',-apple-system,BlinkMacSystemFont,sans-serif] text-[#1D1D1F] selection:bg-[#1D1D1F] selection:text-white flex flex-col overflow-x-hidden">
 
             {/* --- CINEMATIC HERO SECTION --- */}
-            <section className="relative pt-8 md:pt-12 px-4 md:px-6 lg:px-8 max-w-[1800px] mx-auto w-full">
+            <section className="relative pt-12 md:pt-20 px-4 md:px-6 lg:px-8 max-w-[1800px] mx-auto w-full">
                 <div className="bg-[#1D1D1F] rounded-[2.5rem] md:rounded-[3rem] overflow-hidden relative min-h-[80vh] flex flex-col justify-center px-6 md:px-12 lg:px-20 py-20 lg:py-24 shadow-2xl">
                     
                     {/* Abstract Technical Grid */}
