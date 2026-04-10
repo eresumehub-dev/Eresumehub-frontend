@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Lock, AlertCircle, ArrowRight, Loader2, User } from 'lucide-react';
+import { Mail, Lock, User, AlertCircle, ArrowRight, Loader2 } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { register } from '../services/auth';
 
-const SignUp: React.FC = () => {
+const SignUp = () => {
+    const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [fullName, setFullName] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const { signInWithGoogle } = useAuth();
@@ -16,17 +16,18 @@ const SignUp: React.FC = () => {
 
     const handleEmailSignUp = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!email || !password || !fullName) {
+        if (!fullName || !email || !password) {
             setError('Please fill in all fields.');
             return;
         }
-        setError('');
         setLoading(true);
+        setError('');
+        
         try {
             await register(email, password, fullName);
             navigate('/dashboard');
         } catch (err: any) {
-            setError(err.response?.data?.detail || 'Failed to sign up');
+            setError(err.response?.data?.detail || 'Failed to sign up. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -52,7 +53,7 @@ const SignUp: React.FC = () => {
 
     const containerVariants = {
         hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+        visible: { opacity: 1, transition: { staggerChildren: 0.08 } }
     };
 
     return (
@@ -74,7 +75,7 @@ const SignUp: React.FC = () => {
 
             {/* Main Content Area */}
             <main className="flex-1 flex flex-col justify-center items-center p-6 relative z-10">
-                {/* SignUp Card */}
+                {/* Sign Up Card */}
                 <motion.div 
                     variants={containerVariants}
                     initial="hidden"
@@ -83,13 +84,13 @@ const SignUp: React.FC = () => {
                 >
                     <motion.div variants={fadeUp} className="mb-6 text-center">
                         <div className="w-14 h-14 bg-[#F5F5F7] rounded-[1rem] flex items-center justify-center mx-auto mb-4">
-                            <ArrowRight className="w-6 h-6 text-[#1D1D1F] -rotate-45" strokeWidth={1.5} />
+                            <User className="w-6 h-6 text-[#1D1D1F]" strokeWidth={1.5} />
                         </div>
                         <h2 className="text-[1.75rem] font-medium text-[#1D1D1F] tracking-tight leading-tight mb-1.5">
                             Create workspace.
                         </h2>
                         <p className="text-[14px] text-[#86868B] font-light">
-                            Join thousands of professionals landing dream jobs.
+                            Enter your details to get started.
                         </p>
                     </motion.div>
 
@@ -105,7 +106,7 @@ const SignUp: React.FC = () => {
                                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.84z" fill="#FBBC05" />
                                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                             </svg>
-                            Join with Google
+                            Continue with Google
                         </button>
                     </motion.div>
 
@@ -114,7 +115,7 @@ const SignUp: React.FC = () => {
                             <div className="w-full border-t border-black/[0.06]" />
                         </div>
                         <div className="relative flex justify-center text-[12px]">
-                            <span className="px-4 bg-white text-[#86868B] font-medium tracking-wide uppercase">Or use your email</span>
+                            <span className="px-4 bg-white text-[#86868B] font-medium tracking-wide uppercase">Or register with email</span>
                         </div>
                     </motion.div>
 
@@ -149,7 +150,7 @@ const SignUp: React.FC = () => {
                                     value={fullName}
                                     onChange={(e) => setFullName(e.target.value)}
                                     className="block w-full pl-10 pr-4 py-3 bg-[#F5F5F7] border border-transparent rounded-xl text-[14px] text-[#1D1D1F] placeholder-[#86868B]/60 focus:bg-white focus:border-black/[0.08] focus:ring-4 focus:ring-black/5 outline-none transition-all duration-300"
-                                    placeholder="Jane Doe"
+                                    placeholder="John Doe"
                                 />
                             </div>
                         </div>
@@ -202,7 +203,7 @@ const SignUp: React.FC = () => {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="relative flex w-full justify-center items-center gap-2 rounded-xl bg-[#1D1D1F] px-4 py-3.5 text-[15px] font-medium text-white shadow-[0_8px_20_rgba(0,0,0,0.12)] hover:bg-black active:scale-[0.98] transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed overflow-hidden"
+                                className="relative flex w-full justify-center items-center gap-2 rounded-xl bg-[#1D1D1F] px-4 py-3.5 text-[15px] font-medium text-white shadow-[0_8px_20px_rgba(0,0,0,0.12)] hover:bg-black active:scale-[0.98] transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed overflow-hidden"
                             >
                                 {loading ? (
                                     <motion.div 
@@ -211,7 +212,7 @@ const SignUp: React.FC = () => {
                                         className="flex items-center gap-2"
                                     >
                                         <Loader2 className="w-4 h-4 animate-spin" />
-                                        <span>Creating workspace...</span>
+                                        <span>Creating account...</span>
                                     </motion.div>
                                 ) : (
                                     <motion.div 
@@ -219,7 +220,7 @@ const SignUp: React.FC = () => {
                                         animate={{ opacity: 1 }} 
                                         className="flex items-center gap-2"
                                     >
-                                        Get Started <ArrowRight className="w-4 h-4" />
+                                        Create Account <ArrowRight className="w-4 h-4" />
                                     </motion.div>
                                 )}
                             </button>
@@ -229,7 +230,7 @@ const SignUp: React.FC = () => {
                     <motion.p variants={fadeUp} className="mt-6 text-center text-[13px] text-[#86868B] font-medium">
                         Already have an account?{' '}
                         <Link to="/login" className="text-[#1D1D1F] hover:underline underline-offset-4 transition-all">
-                            Sign in instead
+                            Log in
                         </Link>
                     </motion.p>
                 </motion.div>

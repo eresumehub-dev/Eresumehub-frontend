@@ -3,9 +3,10 @@ import RefineTooltip from '../components/RefineTooltip';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    ChevronLeft, Download, Clock, Check, AlertCircle,
+    ChevronLeft, Clock, Check, AlertCircle,
     Copy, Archive, GitBranch, Star, Sparkles, MoreVertical,
-    Eye, FileText, ArrowUpRight, TrendingUp
+    Eye, FileText, ArrowUpRight, TrendingUp, Wand2, Plus, X, AlignLeft, 
+    Loader2, User, Briefcase, GraduationCap, Globe, ZoomIn, ZoomOut
 } from 'lucide-react';
 
 import {
@@ -43,7 +44,6 @@ const ResumeEditor: React.FC = () => {
     const location = useLocation();
     const incomingSuggestion = location.state?.suggestion;
 
-
     // Resume state
     const [resume, setResume] = useState<Resume | null>(null);
     const [resumeContent, setResumeContent] = useState<any>(null);
@@ -61,7 +61,7 @@ const ResumeEditor: React.FC = () => {
     // UI state
     const [showActions, setShowActions] = useState(false);
     const [previewTimestamp, setPreviewTimestamp] = useState<number>(Date.now());
-    const [viewMode, setViewMode] = useState<'enhanced' | 'original'>('enhanced');
+    const [viewMode] = useState<'enhanced' | 'original'>('enhanced');
     const [mobileTab, setMobileTab] = useState<'editor' | 'preview'>('editor');
 
     // Debounced content for auto-save
@@ -100,7 +100,6 @@ const ResumeEditor: React.FC = () => {
         const saveChanges = async () => {
             try {
                 setSaveStatus('saving');
-                // Auto-save silently updates data without regenerating PDF
                 await updateResume(resume.id, {
                     resume_data: debouncedContent,
                     regenerate_pdf: false
@@ -113,14 +112,14 @@ const ResumeEditor: React.FC = () => {
             }
         };
 
-        saveChanges();
+        const timeoutId = setTimeout(saveChanges, 100);
+        return () => clearTimeout(timeoutId);
     }, [debouncedContent, resume?.id]);
 
     const handleManualSave = async () => {
         if (!resume || !resumeContent) return;
         try {
             setSaveStatus('saving');
-            // Manual save triggers PDF regeneration
             await updateResume(resume.id, {
                 resume_data: resumeContent,
                 regenerate_pdf: true
@@ -129,7 +128,6 @@ const ResumeEditor: React.FC = () => {
             setLastSaved(new Date());
             setPreviewTimestamp(Date.now()); // Force preview refresh
 
-            // Refresh analytics/score
             setTimeout(async () => {
                 if (!resume.id) return;
                 const scores = await getScoreHistory(resume.id);
@@ -145,7 +143,13 @@ const ResumeEditor: React.FC = () => {
         }
     };
 
-    // Actions
+    const handleContentChange = (field: string, value: any) => {
+        setResumeContent((prev: any) => ({
+            ...prev,
+            [field]: value
+        }));
+    };
+
     const handleClone = async () => {
         if (!resume) return;
         try {
@@ -178,29 +182,6 @@ const ResumeEditor: React.FC = () => {
         }
     };
 
-    // Enhance with AI
-    const handleEnhanceWithAI = async () => {
-        if (!resume) return;
-        try {
-            setSaveStatus('saving'); // Reuse saving spinner for UI feedback
-            const enhancedResume = await enhanceResume(resume.id);
-
-            // Update local state with optimized data
-            setResume(enhancedResume);
-            setResumeContent(enhancedResume.resume_data);
-            setCurrentScore(enhancedResume.resume_data.score || 0);
-
-            setSaveStatus('saved');
-            setLastSaved(new Date());
-            setPreviewTimestamp(Date.now()); // Refresh preview
-            alert("Resume Enhanced with AI!");
-        } catch (error: any) {
-            console.error('Enhancement failed:', error);
-            setSaveStatus('error');
-            alert(`Enhancement Failed: ${error.message || "Unknown error"}`);
-        }
-    };
-
     const handleSetDefault = async () => {
         if (!resume) return;
         try {
@@ -211,9 +192,26 @@ const ResumeEditor: React.FC = () => {
         }
     };
 
-    // ==========================================
-    // AI REFINEMENT LOGIC
-    // ==========================================
+    const handleEnhanceWithAI = async () => {
+        if (!resume) return;
+        try {
+            setSaveStatus('saving');
+            const enhancedResume = await enhanceResume(resume.id);
+            setResume(enhancedResume);
+            setResumeContent(enhancedResume.resume_data);
+            setCurrentScore(enhancedResume.resume_data.score || 0);
+            setSaveStatus('saved');
+            setLastSaved(new Date());
+            setPreviewTimestamp(Date.now());
+            alert("Resume Enhanced with AI!");
+        } catch (error: any) {
+            console.error('Enhancement failed:', error);
+            setSaveStatus('error');
+            alert(`Enhancement Failed: ${error.message || "Unknown error"}`);
+        }
+    };
+
+    // AI Refinement Logic
     const [refineState, setRefineState] = useState<{
         visible: boolean;
         position: { x: number; y: number };
@@ -233,15 +231,13 @@ const ResumeEditor: React.FC = () => {
 
         if (start !== null && end !== null && start !== end) {
             const text = target.value.substring(start, end);
-            // Only show for meaningful selections
             if (text.trim().length > 3) {
-                // Calculate position 
                 const rect = target.getBoundingClientRect();
                 setRefineState({
                     visible: true,
                     position: {
                         x: rect.left + (rect.width / 2),
-                        y: rect.top + window.scrollY - 100 // Adjust status bar offset
+                        y: rect.top + window.scrollY - 100
                     },
                     selectedText: text,
                     sectionId: sectionId
@@ -253,7 +249,6 @@ const ResumeEditor: React.FC = () => {
 
     const handleRefineSubmit = async (instruction: string, sectionId: string) => {
         if (!resume) return;
-
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/resume/refine`, {
                 method: 'POST',
@@ -270,7 +265,6 @@ const ResumeEditor: React.FC = () => {
             });
 
             const data = await response.json();
-
             if (data.success && data.updatedText) {
                 setResumeContent((prev: any) => {
                     const newState = JSON.parse(JSON.stringify(prev));
@@ -299,22 +293,12 @@ const ResumeEditor: React.FC = () => {
         }
     };
 
-    // ... (rest of component)
-    // ...
-
-    const handleContentChange = (field: string, value: any) => {
-        setResumeContent((prev: any) => ({
-            ...prev,
-            [field]: value
-        }));
-    };
-
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-screen bg-[#F8FAFC]">
-                <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-[#0A2A6B] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-slate-600 font-bold uppercase tracking-widest text-xs">Loading resume...</p>
+            <div className="flex items-center justify-center min-h-screen bg-[#F5F5F7] font-['IBM_Plex_Sans']">
+                <div className="flex flex-col items-center gap-4">
+                    <Loader2 className="w-8 h-8 text-[#1D1D1F] animate-spin" />
+                    <p className="text-[12px] font-bold text-[#86868B] uppercase tracking-widest">Opening Workspace</p>
                 </div>
             </div>
         );
@@ -322,18 +306,18 @@ const ResumeEditor: React.FC = () => {
 
     if (!resume) {
         return (
-            <div className="flex items-center justify-center h-screen bg-[#F8FAFC]">
-                <div className="text-center bg-white p-12 rounded-3xl shadow-xl border border-slate-200">
+            <div className="flex items-center justify-center h-screen bg-[#F5F5F7]">
+                <div className="text-center bg-white p-12 rounded-[2rem] shadow-xl border border-black/[0.04]">
                     <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-                    <p className="text-slate-600 font-bold">Resume not found</p>
-                    <button onClick={() => navigate('/dashboard')} className="mt-6 text-[#0A2A6B] font-bold hover:underline">Back to Dashboard</button>
+                    <p className="text-[#1D1D1F] font-bold">Resume not found</p>
+                    <button onClick={() => navigate('/dashboard')} className="mt-6 text-[#0066CC] font-bold hover:underline">Back to Dashboard</button>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="flex flex-col h-screen bg-[#F8FAFC]">
+        <div className="flex flex-col h-screen bg-[#F5F5F7] font-['IBM_Plex_Sans'] text-[#1D1D1F] selection:bg-[#1D1D1F] selection:text-white overflow-hidden">
             <RefineTooltip
                 visible={refineState.visible}
                 position={refineState.position}
@@ -342,157 +326,104 @@ const ResumeEditor: React.FC = () => {
                 onRefine={handleRefineSubmit}
                 onClose={() => setRefineState(prev => ({ ...prev, visible: false }))}
             />
-            {/* Header */}
-            <header className="h-16 bg-[#0A2A6B] text-white flex items-center justify-between px-6 shadow-lg z-50">
-                <div className="flex items-center gap-4">
+
+            {/* --- PREMIUM HEADER --- */}
+            <header className="h-20 bg-white/80 backdrop-blur-xl border-b border-black/[0.04] flex items-center justify-between px-6 md:px-10 z-50 shrink-0">
+                <div className="flex items-center gap-6">
                     <button
                         onClick={() => navigate('/dashboard')}
-                        className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                        className="w-10 h-10 flex items-center justify-center bg-[#F5F5F7] hover:bg-[#E8E8ED] rounded-full transition-colors group focus:outline-none"
                     >
-                        <ChevronLeft className="w-5 h-5" />
+                        <ChevronLeft className="w-5 h-5 text-[#1D1D1F] group-hover:-translate-x-0.5 transition-transform" />
                     </button>
                     <div className="flex flex-col">
                         <input
                             type="text"
                             value={resume.title}
                             onChange={(e) => setResume({ ...resume, title: e.target.value })}
-                            className="font-bold text-base bg-transparent border-none focus:ring-0 p-0 placeholder-white/50"
+                            className="font-bold text-[17px] bg-transparent border-none focus:ring-0 p-0 placeholder-black/20 tracking-tight"
                             placeholder="Untitled Resume"
                         />
-                        <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-white/60">
-                            {saveStatus === 'saving' && (
-                                <>
-                                    <Clock className="w-3 h-3 animate-spin" />
-                                    <span>Auto-saving...</span>
-                                </>
-                            )}
-                            {saveStatus === 'saved' && (
-                                <>
-                                    <Check className="w-3 h-3 text-emerald-400" />
+                        <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest leading-none mt-1">
+                            {saveStatus === 'saving' ? (
+                                <div className="flex items-center gap-1.5 text-[#0066CC]">
+                                    <Clock className="w-2.5 h-2.5 animate-spin" />
+                                    <span>Syncing...</span>
+                                </div>
+                            ) : (
+                                <div className="flex items-center gap-1.5 text-[#34C759]">
+                                    <Check className="w-2.5 h-2.5" />
                                     <span>Saved {lastSaved && `at ${lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}</span>
-                                </>
-                            )}
-                            {saveStatus === 'error' && (
-                                <>
-                                    <AlertCircle className="w-3 h-3 text-red-400" />
-                                    <span>Sync error</span>
-                                </>
+                                </div>
                             )}
                         </div>
                     </div>
                 </div>
 
-                {/* LOGIC WARNINGS BANNER */}
-                {resumeContent?.logic_warnings && resumeContent.logic_warnings.length > 0 && (
-                    <div className="absolute top-20 left-1/2 -translate-x-1/2 z-40 bg-amber-50 border border-amber-200 text-amber-900 px-6 py-3 rounded-xl shadow-lg flex items-center gap-4 animate-in fade-in slide-in-from-top-4 max-w-2xl">
-                        <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0" />
-                        <div className="flex flex-col">
-                            <span className="text-xs font-bold uppercase tracking-wider text-amber-600 mb-1">Timeline Logic Conflict</span>
-                            <div className="text-sm font-medium space-y-1">
-                                {resumeContent.logic_warnings.map((w: string, i: number) => (
-                                    <div key={i}>• {w}</div>
-                                ))}
-                            </div>
-                        </div>
-                        <button
-                            onClick={() => {
-                                const newContent = { ...resumeContent };
-                                delete newContent.logic_warnings;
-                                setResumeContent(newContent);
-                            }}
-                            className="p-1 hover:bg-amber-100 rounded-full ml-4"
-                        >
-                            <span className="sr-only">Dismiss</span>
-                            <Check className="w-4 h-4 text-amber-600" />
-                        </button>
-                    </div>
-                )}
-
-                <div className="flex items-center gap-3">
-                    <div className="hidden md:flex items-center gap-6 mr-6 text-right">
-                        <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest leading-tight">ATS Power Score</span>
-                            <div className="flex items-center gap-2 justify-end">
-                                <span className={`text-sm font-bold ${currentScore >= 70 ? 'text-emerald-400' : 'text-amber-400'}`}>{currentScore}/100</span>
-                                {scoreHistory.length > 1 && (
-                                    <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-white/10 text-[9px] font-black">
-                                        {currentScore > scoreHistory[1].score ? (
-                                            <>
-                                                <TrendingUp className="w-2.5 h-2.5 text-emerald-400" />
-                                                <span className="text-emerald-400">+{currentScore - scoreHistory[1].score}</span>
-                                            </>
-                                        ) : (
-                                            <span className="text-white/40">STABLE</span>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
+                <div className="flex items-center gap-4">
+                    {/* Score Analytics */}
+                    <div className="hidden lg:flex flex-col items-end mr-6">
+                        <span className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest leading-none mb-1">ATS Power Score</span>
+                        <div className="flex items-center gap-2">
+                             <span className={`text-[19px] font-bold tracking-tighter ${currentScore >= 70 ? 'text-[#34C759]' : 'text-[#FF9F0A]'}`}>{currentScore}/100</span>
+                             {scoreHistory.length > 1 && (
+                                <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-black/5 text-[10px] font-bold">
+                                    {currentScore > scoreHistory[1].score ? (
+                                        <>
+                                            <TrendingUp className="w-2.5 h-2.5 text-[#34C759]" />
+                                            <span className="text-[#34C759]">+{currentScore - scoreHistory[1].score}</span>
+                                        </>
+                                    ) : (
+                                        <span className="text-[#86868B]">OPT.</span>
+                                    )}
+                                </div>
+                             )}
                         </div>
                     </div>
-
-
 
                     <button
                         onClick={handleEnhanceWithAI}
                         disabled={saveStatus === 'saving'}
-                        className={`hidden md:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-full text-sm font-bold shadow-lg border border-white/20 hover:shadow-purple-500/30 transition-all hover:scale-105 mr-2 ${saveStatus === 'saving' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        className="hidden md:flex items-center gap-2 px-5 py-2.5 bg-[#AF52DE] text-white rounded-full text-[13px] font-semibold shadow-[0_8px_20px_rgba(175,82,222,0.3)] hover:bg-[#9741C4] active:scale-95 transition-all disabled:opacity-50"
                     >
-                        <Sparkles className="w-4 h-4" />
-                        Enhance with AI
+                        <Sparkles className="w-4 h-4" /> Enhance with AI
                     </button>
 
                     <button
                         onClick={handleManualSave}
-                        className="flex items-center gap-2 px-6 py-2 bg-white text-[#0A2A6B] rounded-full text-sm font-bold shadow-xl hover:scale-105 transition-all"
                         disabled={saveStatus === 'saving'}
+                        className="flex items-center gap-2 px-6 py-2.5 bg-[#1D1D1F] text-white rounded-full text-[13px] font-semibold hover:bg-black active:scale-95 transition-all shadow-[0_8px_20px_rgba(0,0,0,0.12)]"
                     >
-                        {saveStatus === 'saving' ? (
-                            <Clock className="w-4 h-4 animate-spin" />
-                        ) : (
-                            <Sparkles className="w-4 h-4" />
-                        )}
+                        {saveStatus === 'saving' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
                         Save & Refresh
-                    </button>
-
-                    <button
-                        onClick={() => {
-                            if (resume.pdf_url) {
-                                window.open(resume.pdf_url, '_blank');
-                            }
-                        }}
-                        className="p-2.5 bg-[#0D368A] text-white/80 hover:text-white rounded-full transition-all"
-                        title="Download PDF"
-                    >
-                        <Download className="w-5 h-5" />
                     </button>
 
                     <div className="relative">
                         <button
                             onClick={() => setShowActions(!showActions)}
-                            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                            className="w-10 h-10 flex items-center justify-center bg-[#F5F5F7] hover:bg-[#E8E8ED] rounded-full transition-colors focus:outline-none"
                         >
-                            <MoreVertical className="w-5 h-5" />
+                            <MoreVertical className="w-5 h-5 text-[#1D1D1F]" />
                         </button>
-
                         <AnimatePresence>
                             {showActions && (
                                 <motion.div
-                                    initial={{ opacity: 0, y: -10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -10 }}
-                                    className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-slate-100 py-2 z-50 text-slate-700"
+                                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                    className="absolute right-0 mt-3 w-56 bg-white/90 backdrop-blur-xl rounded-[1.25rem] shadow-[0_20px_40px_rgba(0,0,0,0.08)] border border-black/[0.04] py-2.5 z-[100] overflow-hidden"
                                 >
-                                    <button onClick={handleClone} className="w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center gap-3 text-sm font-medium">
-                                        <Copy className="w-4 h-4 text-slate-400" /> Clone
+                                    <button onClick={handleClone} className="w-full text-left px-5 py-3 hover:bg-black/[0.03] flex items-center gap-3 text-[14px] font-medium text-[#1D1D1F]">
+                                        <Copy className="w-4 h-4 text-[#86868B]" /> Clone Resume
                                     </button>
-                                    <button onClick={handleCreateVersion} className="w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center gap-3 text-sm font-medium">
-                                        <GitBranch className="w-4 h-4 text-slate-400" /> Save Version
+                                    <button onClick={handleCreateVersion} className="w-full text-left px-5 py-3 hover:bg-black/[0.03] flex items-center gap-3 text-[14px] font-medium text-[#1D1D1F]">
+                                        <GitBranch className="w-4 h-4 text-[#86868B]" /> Save Version
                                     </button>
-                                    <button onClick={handleSetDefault} className="w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center gap-3 text-sm font-medium">
-                                        <Star className="w-4 h-4 text-slate-400" /> Set Default
+                                    <button onClick={handleSetDefault} className="w-full text-left px-5 py-3 hover:bg-black/[0.03] flex items-center gap-3 text-[14px] font-medium text-[#1D1D1F]">
+                                        <Star className="w-4 h-4 text-[#86868B]" /> Set as Default
                                     </button>
-                                    <div className="h-px bg-slate-100 my-2"></div>
-                                    <button onClick={handleArchive} className="w-full text-left px-4 py-2.5 hover:bg-red-50 flex items-center gap-3 text-sm font-medium text-red-600">
+                                    <div className="h-px bg-black/[0.04] my-2 mx-5"></div>
+                                    <button onClick={handleArchive} className="w-full text-left px-5 py-3 hover:bg-red-50 flex items-center gap-3 text-[14px] font-medium text-[#FF3B30]">
                                         <Archive className="w-4 h-4" /> Archive
                                     </button>
                                 </motion.div>
@@ -502,351 +433,359 @@ const ResumeEditor: React.FC = () => {
                 </div>
             </header>
 
-            {/* Mobile Tabs */}
-            <div className="flex lg:hidden bg-white border-b border-slate-200 shrink-0 shadow-sm z-40 relative">
-                <button 
-                    onClick={() => setMobileTab('editor')}
-                    className={`flex-1 py-3 text-[11px] font-black uppercase tracking-widest transition-colors ${mobileTab === 'editor' ? 'text-[#0A2A6B] border-b-2 border-[#0A2A6B] bg-slate-50' : 'text-slate-500 bg-white hover:bg-slate-50'}`}
-                >
-                    Edit Details
-                </button>
-                <div className="w-px bg-slate-100"></div>
-                <button 
-                    onClick={() => setMobileTab('preview')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 text-[11px] font-black uppercase tracking-widest transition-colors ${mobileTab === 'preview' ? 'text-[#0A2A6B] border-b-2 border-[#0A2A6B] bg-slate-50' : 'text-slate-500 bg-white hover:bg-slate-50'}`}
-                >
-                    <Eye className="w-3.5 h-3.5" /> View Resumé
-                </button>
+            {/* --- MOBILE IOS-STYLE TABS --- */}
+            <div className="lg:hidden p-4 bg-white border-b border-black/[0.04] shrink-0 z-40">
+                <div className="flex bg-[#F5F5F7] p-1 rounded-[1rem]">
+                    <button 
+                        onClick={() => setMobileTab('editor')}
+                        className={`flex-1 py-2 text-[13px] font-medium rounded-[12px] transition-all duration-300 ${mobileTab === 'editor' ? 'bg-white text-[#1D1D1F] shadow-sm' : 'text-[#86868B]'}`}
+                    >
+                        Editor
+                    </button>
+                    <button 
+                        onClick={() => setMobileTab('preview')}
+                        className={`flex-1 flex items-center justify-center gap-2 py-2 text-[13px] font-medium rounded-[12px] transition-all duration-300 ${mobileTab === 'preview' ? 'bg-white text-[#1D1D1F] shadow-sm' : 'text-[#86868B]'}`}
+                    >
+                        <Eye className="w-4 h-4" /> PDF Preview
+                    </button>
+                </div>
             </div>
 
-            {/* Main Content Side-by-Side */}
+            {/* --- MAIN WORKSPACE --- */}
             <div className="flex-1 flex overflow-hidden">
-                {/* Editor Pane */}
-                <main className={`w-full lg:w-1/2 overflow-y-auto p-4 sm:p-8 bg-white relative ${mobileTab === 'editor' ? 'block' : 'hidden lg:block'} border-r border-slate-200`}>
-                    {incomingSuggestion && showSuggestion && (
-                        <div className="mb-8 p-6 bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl border border-orange-100 shadow-sm animate-in slide-in-from-top duration-500">
-                            <div className="flex items-start gap-4">
-                                <div className="p-2 bg-orange-600 text-white rounded-lg shadow-lg shrink-0">
-                                    <Sparkles className="w-4 h-4" />
-                                </div>
-                                <div className="flex-1">
-                                    <h4 className="text-sm font-bold text-slate-900 mb-1">AI Fix Recommendation</h4>
-                                    <p className="text-xs text-slate-600 mb-3 leading-relaxed">
-                                        Replace <span className="p-0.5 bg-white rounded border border-orange-200 text-orange-700 italic">"{incomingSuggestion.current}"</span> with <span className="p-1 bg-emerald-100 rounded border border-emerald-200 text-emerald-800 font-bold">"{incomingSuggestion.suggested}"</span> to potentially boost your score by <span className="text-orange-600 font-black">+{incomingSuggestion.points}</span>.
-                                    </p>
-                                    <div className="flex items-center gap-3">
-                                        <button
-                                            onClick={() => setShowSuggestion(false)}
-                                            className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-slate-600"
-                                        >
-                                            Dismiss Tip
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                    <div className="max-w-2xl mx-auto space-y-10">
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Personal Information</h2>
-                            <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-bold uppercase tracking-widest">
-                                <Sparkles className="w-3 h-3" /> AI Enhanced
-                            </div>
-                        </div>
-
-                        {/* Profile Section */}
-                        <div className="grid grid-cols-2 gap-6">
-                            <div className="col-span-2">
-                                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Full Name</label>
-                                <input
-                                    type="text"
-                                    value={resumeContent?.full_name || ''}
-                                    onChange={(e) => handleContentChange('full_name', e.target.value)}
-                                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#0A2A6B] focus:bg-white transition-all text-sm font-medium"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Email Address</label>
-                                <input
-                                    type="email"
-                                    value={resumeContent?.contact?.email || ''}
-                                    onChange={(e) => handleContentChange('contact', { ...resumeContent.contact, email: e.target.value })}
-                                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#0A2A6B] focus:bg-white transition-all text-sm font-medium"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Phone Number</label>
-                                <input
-                                    type="text"
-                                    value={resumeContent?.contact?.phone || ''}
-                                    onChange={(e) => handleContentChange('contact', { ...resumeContent.contact, phone: e.target.value })}
-                                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#0A2A6B] focus:bg-white transition-all text-sm font-medium"
-                                />
-                            </div>
-                        </div>
-
-                        <section className="space-y-4">
-                            <div className="flex items-center justify-between mb-2">
-                                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                                    {resume?.country === 'India' && (resumeContent?.work_experiences?.length || 0) <= 1 ? 'Career Objective' : 'Professional Summary'}
-                                </h3>
-                                <button
-                                    onClick={() => {
-                                        navigator.clipboard.writeText(resumeContent?.professional_summary || '');
-                                        alert("Summary copied to clipboard!");
-                                    }}
-                                    className="flex items-center gap-1 text-[10px] font-bold text-[#0A2A6B] uppercase tracking-widest hover:underline"
-                                    title="Copy text to paste into your original document"
+                
+                {/* LEFT PANE: Editor */}
+                <main className={`w-full lg:w-[50%] overflow-y-auto bg-white relative custom-scrollbar ${mobileTab === 'editor' ? 'block' : 'hidden lg:block'} border-r border-black/[0.04]`}>
+                    <div className="max-w-[700px] mx-auto p-6 md:p-10 space-y-12 pb-32">
+                        
+                        {/* Premium AI Suggestion Card */}
+                        <AnimatePresence>
+                            {showSuggestion && incomingSuggestion && (
+                                <motion.div 
+                                    initial={{ opacity: 0, height: 0, y: -20 }}
+                                    animate={{ opacity: 1, height: 'auto', y: 0 }}
+                                    exit={{ opacity: 0, height: 0, y: -20 }}
+                                    className="bg-[#FFF9F0] border border-[#FF9F0A]/20 rounded-[1.5rem] p-6 shadow-sm overflow-hidden"
                                 >
-                                    <Copy className="w-3 h-3" /> Copy Text
+                                    <div className="flex items-start gap-4">
+                                        <div className="w-10 h-10 bg-[#FF9F0A]/10 text-[#FF9F0A] rounded-[10px] flex items-center justify-center shrink-0 mt-1">
+                                            <Wand2 className="w-5 h-5" strokeWidth={2} />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center justify-between mb-1">
+                                                <h4 className="text-[15px] font-semibold text-[#1D1D1F]">AI Refinement Found</h4>
+                                                <button onClick={() => setShowSuggestion(false)} className="text-[#86868B] hover:text-[#1D1D1F] transition-colors"><X className="w-4 h-4"/></button>
+                                            </div>
+                                            <p className="text-[14px] text-[#86868B] leading-relaxed font-light mb-4 text-justify">
+                                                Replace <span className="line-through decoration-[#FF3B30]/40 text-[#1D1D1F]">"{incomingSuggestion.current}"</span> with <span className="font-medium text-[#34C759]">"{incomingSuggestion.suggested}"</span> to boost ATS impact.
+                                            </p>
+                                            <button 
+                                                onClick={() => {
+                                                    // Logic to apply the specific suggestion would go here
+                                                    setShowSuggestion(false);
+                                                }}
+                                                className="px-4 py-2 bg-white border border-black/[0.06] rounded-[10px] text-[13px] font-medium text-[#1D1D1F] hover:bg-[#F5F5F7] shadow-sm transition-all"
+                                            >
+                                                Apply Suggestion (+{incomingSuggestion.points} PTS)
+                                            </button>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
+                        {/* SECTION: Personal Info */}
+                        <section className="space-y-5">
+                            <h3 className="text-[12px] font-bold text-[#86868B] uppercase tracking-widest flex items-center gap-2">
+                                <User className="w-4 h-4" /> Personal Information
+                            </h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div className="md:col-span-2">
+                                    <label className="block text-[13px] font-medium text-[#1D1D1F] mb-1.5 pl-1">Full Name</label>
+                                    <input
+                                        type="text"
+                                        value={resumeContent?.full_name || ''}
+                                        onChange={(e) => handleContentChange('full_name', e.target.value)}
+                                        className="w-full px-4 py-3.5 bg-[#F5F5F7] border border-transparent rounded-[1rem] focus:bg-white focus:border-black/[0.08] focus:ring-4 focus:ring-black/5 transition-all outline-none text-[15px] font-medium text-[#1D1D1F] placeholder-[#86868B]/50"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-[13px] font-medium text-[#1D1D1F] mb-1.5 pl-1">Email Address</label>
+                                    <input
+                                        type="email"
+                                        value={resumeContent?.contact?.email || ''}
+                                        onChange={(e) => handleContentChange('contact', { ...resumeContent.contact, email: e.target.value })}
+                                        className="w-full px-4 py-3.5 bg-[#F5F5F7] border border-transparent rounded-[1rem] focus:bg-white focus:border-black/[0.08] focus:ring-4 focus:ring-black/5 transition-all outline-none text-[15px] font-medium text-[#1D1D1F] placeholder-[#86868B]/50"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-[13px] font-medium text-[#1D1D1F] mb-1.5 pl-1">Phone Number</label>
+                                    <input
+                                        type="tel"
+                                        value={resumeContent?.contact?.phone || ''}
+                                        onChange={(e) => handleContentChange('contact', { ...resumeContent.contact, phone: e.target.value })}
+                                        className="w-full px-4 py-3.5 bg-[#F5F5F7] border border-transparent rounded-[1rem] focus:bg-white focus:border-black/[0.08] focus:ring-4 focus:ring-black/5 transition-all outline-none text-[15px] font-medium text-[#1D1D1F] placeholder-[#86868B]/50"
+                                    />
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* SECTION: Executive Summary */}
+                        <section className="space-y-5">
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-[12px] font-bold text-[#86868B] uppercase tracking-widest flex items-center gap-2">
+                                    <AlignLeft className="w-4 h-4" /> {resume?.country === 'India' && (resumeContent?.work_experiences?.length || 0) <= 1 ? 'Career Objective' : 'Professional Summary'}
+                                </h3>
+                                <button 
+                                    onClick={() => alert('AI is generating an optimized summary...')}
+                                    className="text-[12px] font-semibold text-[#AF52DE] bg-[#AF52DE]/10 hover:bg-[#AF52DE]/20 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors focus:outline-none"
+                                >
+                                    <Sparkles className="w-3.5 h-3.5" /> Rewrite with AI
                                 </button>
                             </div>
                             <textarea
                                 value={resumeContent?.professional_summary || ''}
                                 onChange={(e) => handleContentChange('professional_summary', e.target.value)}
                                 onSelect={(e) => handleTextSelect(e, 'professional_summary')}
-                                rows={6}
-                                className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-[#0A2A6B] focus:bg-white transition-all text-sm font-medium leading-relaxed"
-                                placeholder="Describe your professional achievements..."
+                                rows={5}
+                                className="w-full px-5 py-4 bg-[#F5F5F7] border border-transparent rounded-[1rem] focus:bg-white focus:border-black/[0.08] focus:ring-4 focus:ring-black/5 transition-all outline-none text-[15px] text-[#1D1D1F] leading-relaxed resize-none placeholder-[#86868B]/50"
+                                placeholder="..."
                             />
                         </section>
 
-                        {/* Experience Section */}
-                        <section className="space-y-6">
-                            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-                                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Work Experience</h3>
-                                <button className="text-[10px] font-bold text-[#0A2A6B] uppercase tracking-widest hover:underline">+ Add Entry</button>
+                        {/* SECTION: Experience */}
+                        <section className="space-y-5">
+                            <div className="flex items-center justify-between border-b border-black/[0.04] pb-3">
+                                <h3 className="text-[12px] font-bold text-[#86868B] uppercase tracking-widest flex items-center gap-2">
+                                    <Briefcase className="w-4 h-4" /> Experience
+                                </h3>
+                                <button 
+                                    onClick={() => {
+                                        const newExp = [...(resumeContent.work_experiences || []), { job_title: '', company: '', start_date: '', end_date: '', description: [''] }];
+                                        handleContentChange('work_experiences', newExp);
+                                    }}
+                                    className="text-[12px] font-semibold text-[#1D1D1F] hover:opacity-70 flex items-center gap-1 transition-opacity focus:outline-none"
+                                >
+                                    <Plus className="w-3.5 h-3.5" /> Add Role
+                                </button>
                             </div>
+                            
                             <div className="space-y-6">
                                 {resumeContent?.work_experiences?.map((exp: any, idx: number) => (
-                                    <div key={idx} className="group relative p-6 bg-slate-50 rounded-2xl border border-slate-200 hover:border-[#0A2A6B]/30 hover:shadow-md transition-all">
-                                        <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button
-                                                onClick={() => {
-                                                    const text = `${exp.job_title} at ${exp.company}\n${(exp.description || []).join('\n')}`;
-                                                    navigator.clipboard.writeText(text);
-                                                    alert("Experience entry copied!");
-                                                }}
-                                                className="p-1.5 bg-white text-[#0A2A6B] rounded-lg shadow-sm border border-slate-200 hover:bg-slate-50"
-                                                title="Copy Entry"
-                                            >
-                                                <Copy className="w-3.5 h-3.5" />
-                                            </button>
-                                        </div>
-                                        <div className="grid gap-4">
-                                            <input
-                                                className="bg-transparent font-bold text-lg text-slate-900 border-none p-0 focus:ring-0 w-full pr-8"
-                                                value={exp.job_title}
-                                                onChange={(e) => {
-                                                    const newExp = [...resumeContent.work_experiences];
-                                                    newExp[idx].job_title = e.target.value;
-                                                    handleContentChange('work_experiences', newExp);
-                                                }}
-                                                onSelect={(e) => handleTextSelect(e, `work_experiences[${idx}].job_title`)}
-                                                placeholder="Job Title"
-                                            />
-                                            <input
-                                                className="bg-transparent text-sm font-bold text-[#0A2A6B] border-none p-0 focus:ring-0 w-full"
-                                                value={exp.company}
-                                                onChange={(e) => {
-                                                    const newExp = [...resumeContent.work_experiences];
-                                                    newExp[idx].company = e.target.value;
-                                                    handleContentChange('work_experiences', newExp);
-                                                }}
-                                                onSelect={(e) => handleTextSelect(e, `work_experiences[${idx}].company`)}
-                                                placeholder="Company Name"
-                                            />
-                                            <div className="flex gap-4">
-                                                <input
-                                                    className="bg-transparent text-xs text-slate-500 border-none p-0 focus:ring-0"
-                                                    value={exp.start_date}
-                                                    onChange={(e) => {
-                                                        const newExp = [...resumeContent.work_experiences];
-                                                        newExp[idx].start_date = e.target.value;
-                                                        handleContentChange('work_experiences', newExp);
-                                                    }}
-                                                    placeholder="Start Date"
-                                                />
-                                                <span className="text-slate-300">-</span>
-                                                <input
-                                                    className="bg-transparent text-xs text-slate-500 border-none p-0 focus:ring-0"
-                                                    value={exp.end_date || 'Present'}
-                                                    onChange={(e) => {
-                                                        const newExp = [...resumeContent.work_experiences];
-                                                        newExp[idx].end_date = e.target.value;
-                                                        handleContentChange('work_experiences', newExp);
-                                                    }}
-                                                    placeholder="End Date"
-                                                />
-                                            </div>
+                                    <div key={idx} className="group p-6 bg-white border border-black/[0.06] rounded-[1.5rem] shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all relative">
+                                        
+                                        <button 
+                                            onClick={() => {
+                                                const newExp = resumeContent.work_experiences.filter((_: any, i: number) => i !== idx);
+                                                handleContentChange('work_experiences', newExp);
+                                            }}
+                                            className="absolute -top-3 -right-3 bg-white border border-black/[0.08] text-[#86868B] hover:text-[#FF3B30] rounded-full p-1.5 opacity-0 group-hover:opacity-100 shadow-sm transition-all focus:outline-none"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
 
-                                            {/* Description Bullets */}
-                                            <div className="space-y-3 mt-2">
-                                                {(exp.description || []).map((desc: string, descIdx: number) => (
-                                                    <div key={descIdx} className="flex gap-2">
-                                                        <div className="mt-2.5 w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0" />
+                                        <div className="flex justify-between items-start mb-4">
+                                            <div className="w-full space-y-2">
+                                                <input
+                                                    className="w-full bg-transparent font-medium text-[18px] text-[#1D1D1F] border-none p-0 focus:ring-0 outline-none placeholder-[#86868B]/50"
+                                                    value={exp.job_title}
+                                                    onSelect={(e) => handleTextSelect(e, `work_experiences[${idx}].job_title`)}
+                                                    onChange={(e) => {
+                                                        const newExp = [...resumeContent.work_experiences];
+                                                        newExp[idx].job_title = e.target.value;
+                                                        handleContentChange('work_experiences', newExp);
+                                                    }}
+                                                    placeholder="Job Title"
+                                                />
+                                                <input
+                                                    className="w-full bg-transparent text-[15px] text-[#0066CC] font-medium border-none p-0 focus:ring-0 outline-none placeholder-[#86868B]/50"
+                                                    value={exp.company}
+                                                    onSelect={(e) => handleTextSelect(e, `work_experiences[${idx}].company`)}
+                                                    onChange={(e) => {
+                                                        const newExp = [...resumeContent.work_experiences];
+                                                        newExp[idx].company = e.target.value;
+                                                        handleContentChange('work_experiences', newExp);
+                                                    }}
+                                                    placeholder="Company"
+                                                />
+                                                <div className="flex items-center gap-2 text-[13px] text-[#86868B]">
+                                                    <input
+                                                        className="bg-transparent border-none p-0 focus:ring-0 outline-none w-20"
+                                                        value={exp.start_date}
+                                                        onChange={(e) => {
+                                                            const newExp = [...resumeContent.work_experiences];
+                                                            newExp[idx].start_date = e.target.value;
+                                                            handleContentChange('work_experiences', newExp);
+                                                        }}
+                                                        placeholder="Start"
+                                                    />
+                                                    <span>—</span>
+                                                    <input
+                                                        className="bg-transparent border-none p-0 focus:ring-0 outline-none w-20"
+                                                        value={exp.end_date || 'Present'}
+                                                        onChange={(e) => {
+                                                            const newExp = [...resumeContent.work_experiences];
+                                                            newExp[idx].end_date = e.target.value;
+                                                            handleContentChange('work_experiences', newExp);
+                                                        }}
+                                                        placeholder="End"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-3 pt-2">
+                                            {(exp.description || []).map((desc: string, descIdx: number) => (
+                                                <div key={descIdx} className="flex gap-3 relative group/bullet items-start">
+                                                    <div className="mt-2.5 w-1.5 h-1.5 rounded-full bg-[#1D1D1F]/20 shrink-0" />
+                                                    <div className="w-full flex flex-col gap-1.5">
                                                         <textarea
                                                             value={desc}
+                                                            onSelect={(e) => handleTextSelect(e, `work_experiences[${idx}].description[${descIdx}]`)}
                                                             onChange={(e) => {
                                                                 const newExp = [...resumeContent.work_experiences];
                                                                 newExp[idx].description[descIdx] = e.target.value;
                                                                 handleContentChange('work_experiences', newExp);
                                                             }}
-                                                            onSelect={(e) => handleTextSelect(e, `work_experiences[${idx}].description[${descIdx}]`)}
                                                             rows={2}
-                                                            className="w-full bg-transparent border-none p-0 text-sm text-slate-600 focus:ring-0 leading-relaxed resize-none"
-                                                            placeholder="• Achieved X by doing Y..."
+                                                            className="w-full bg-transparent border-none p-0 text-[14px] text-[#1D1D1F]/80 focus:ring-0 leading-relaxed resize-none outline-none"
+                                                            placeholder="• Achieved X..."
                                                         />
+                                                        <div className="flex justify-end opacity-0 group-hover/bullet:opacity-100 transition-opacity">
+                                                            <button 
+                                                                onClick={() => alert('AI is polishing this bullet...')}
+                                                                className="text-[11px] font-semibold text-[#AF52DE] bg-[#AF52DE]/10 hover:bg-[#AF52DE]/20 px-2 py-1 rounded-md flex items-center gap-1 transition-colors focus:outline-none"
+                                                            >
+                                                                <Sparkles className="w-3 h-3" /> Polish with AI
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => {
+                                                                    const newExp = [...resumeContent.work_experiences];
+                                                                    newExp[idx].description.splice(descIdx, 1);
+                                                                    handleContentChange('work_experiences', newExp);
+                                                                }}
+                                                                className="text-[#86868B] hover:text-[#FF3B30] p-1 ml-2 transition-colors focus:outline-none"
+                                                            >
+                                                                <X className="w-3 h-3" />
+                                                            </button>
+                                                        </div>
                                                     </div>
-                                                ))}
-                                                <button
-                                                    onClick={() => {
-                                                        const newExp = [...resumeContent.work_experiences];
-                                                        if (!newExp[idx].description) newExp[idx].description = [];
-                                                        newExp[idx].description.push("New achievement...");
-                                                        handleContentChange('work_experiences', newExp);
-                                                    }}
-                                                    className="ml-3.5 text-xs font-bold text-slate-400 hover:text-[#0A2A6B] flex items-center gap-1 transition-colors"
-                                                >
-                                                    + Add Bullet
-                                                </button>
-                                            </div>
+                                                </div>
+                                            ))}
+                                            <button 
+                                                onClick={() => {
+                                                    const newExp = [...resumeContent.work_experiences];
+                                                    if (!newExp[idx].description) newExp[idx].description = [];
+                                                    newExp[idx].description.push("");
+                                                    handleContentChange('work_experiences', newExp);
+                                                }}
+                                                className="text-[13px] font-medium text-[#86868B] hover:text-[#1D1D1F] flex items-center gap-1.5 mt-2 transition-colors focus:outline-none"
+                                            >
+                                                <Plus className="w-3.5 h-3.5" /> Add Bullet
+                                            </button>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         </section>
 
-                        {/* Projects Section */}
-                        {resumeContent?.projects && resumeContent.projects.length > 0 && (
-                            <section className="space-y-6">
-                                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-                                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Projects</h3>
-                                    <button className="text-[10px] font-bold text-[#0A2A6B] uppercase tracking-widest hover:underline">+ Add Project</button>
-                                </div>
-                                <div className="space-y-6">
-                                    {resumeContent.projects.map((proj: any, idx: number) => (
-                                        <div key={idx} className="p-6 bg-slate-50 rounded-2xl border border-slate-200 hover:border-[#0A2A6B]/30 hover:shadow-md transition-all">
-                                            <div className="grid gap-4">
-                                                <input
-                                                    className="bg-transparent font-bold text-lg text-slate-900 border-none p-0 focus:ring-0 w-full"
-                                                    value={proj.title}
-                                                    onChange={(e) => {
-                                                        const newProj = [...resumeContent.projects];
-                                                        newProj[idx].title = e.target.value;
-                                                        handleContentChange('projects', newProj);
-                                                    }}
-                                                    placeholder="Project Title"
-                                                />
-                                                <input
-                                                    className="bg-transparent text-sm font-bold text-[#0A2A6B] border-none p-0 focus:ring-0 w-full"
-                                                    value={proj.role}
-                                                    onChange={(e) => {
-                                                        const newProj = [...resumeContent.projects];
-                                                        newProj[idx].role = e.target.value;
-                                                        handleContentChange('projects', newProj);
-                                                    }}
-                                                    placeholder="Role (e.g. Developer)"
-                                                />
-                                                <div className="space-y-3 mt-2">
-                                                    {(proj.description || []).map((desc: string, descIdx: number) => (
-                                                        <div key={descIdx} className="flex gap-2">
-                                                            <div className="mt-2.5 w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0" />
-                                                            <textarea
-                                                                value={desc}
-                                                                onChange={(e) => {
-                                                                    const newProj = [...resumeContent.projects];
-                                                                    newProj[idx].description[descIdx] = e.target.value;
-                                                                    handleContentChange('projects', newProj);
-                                                                }}
-                                                                rows={2}
-                                                                className="w-full bg-transparent border-none p-0 text-sm text-slate-600 focus:ring-0 leading-relaxed resize-none"
-                                                                placeholder="Project details..."
-                                                            />
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </section>
-                        )}
-
-                        {/* Education Section */}
-                        <section className="space-y-6">
-                            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-                                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Education</h3>
+                        {/* SECTION: Academic Background */}
+                        <section className="space-y-5">
+                            <div className="flex items-center justify-between border-b border-black/[0.04] pb-3">
+                                <h3 className="text-[12px] font-bold text-[#86868B] uppercase tracking-widest flex items-center gap-2">
+                                    <GraduationCap className="w-4 h-4" /> Education
+                                </h3>
+                                <button 
+                                    onClick={() => {
+                                        const newEdu = [...(resumeContent.educations || []), { institution: '', degree: '', graduation_date: '' }];
+                                        handleContentChange('educations', newEdu);
+                                    }}
+                                    className="text-[12px] font-semibold text-[#1D1D1F] hover:opacity-70 flex items-center gap-1 transition-opacity focus:outline-none"
+                                >
+                                    <Plus className="w-3.5 h-3.5" /> Add Degree
+                                </button>
                             </div>
-                            <div className="space-y-4">
-                                {resumeContent?.educations?.map((edu: any, idx: number) => (
-                                    <div key={idx} className="p-5 bg-slate-50 rounded-xl border border-slate-200">
-                                        <input
-                                            className="w-full bg-transparent font-bold text-slate-900 border-none p-0 focus:ring-0 text-sm mb-1"
-                                            value={edu.institution}
-                                            onChange={(e) => {
-                                                const newEdu = [...resumeContent.educations];
-                                                newEdu[idx].institution = e.target.value;
+                            <div className="grid grid-cols-1 gap-4">
+                                {(resumeContent?.educations || []).map((edu: any, idx: number) => (
+                                    <div key={idx} className="group p-5 bg-white border border-black/[0.06] rounded-[1.25rem] shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all relative">
+                                        <button 
+                                            onClick={() => {
+                                                const newEdu = resumeContent.educations.filter((_: any, i: number) => i !== idx);
                                                 handleContentChange('educations', newEdu);
                                             }}
-                                            placeholder="Institution"
-                                        />
-                                        <div className="flex justify-between items-center text-xs">
-                                            <input
-                                                className="bg-transparent text-[#0A2A6B] font-medium border-none p-0 focus:ring-0 flex-1"
-                                                value={edu.degree}
-                                                onChange={(e) => {
+                                            className="absolute -top-2 -right-2 bg-white border border-black/[0.08] text-[#86868B] hover:text-[#FF3B30] rounded-full p-1 opacity-0 group-hover:opacity-100 shadow-sm transition-all focus:outline-none"
+                                        >
+                                            <X className="w-3.5 h-3.5" />
+                                        </button>
+                                        <div className="space-y-3">
+                                            <input 
+                                                className="w-full bg-transparent font-medium text-[16px] text-[#1D1D1F] border-none p-0 focus:ring-0 outline-none placeholder-[#86868B]/50" 
+                                                value={edu.institution} 
+                                                onChange={(e) => { 
                                                     const newEdu = [...resumeContent.educations];
-                                                    newEdu[idx].degree = e.target.value;
+                                                    newEdu[idx].institution = e.target.value;
                                                     handleContentChange('educations', newEdu);
                                                 }}
-                                                placeholder="Degree"
+                                                placeholder="Institution" 
                                             />
-                                            <input
-                                                className="bg-transparent text-slate-400 text-right border-none p-0 focus:ring-0 w-24"
-                                                value={edu.graduation_date}
-                                                onChange={(e) => {
-                                                    const newEdu = [...resumeContent.educations];
-                                                    newEdu[idx].graduation_date = e.target.value;
-                                                    handleContentChange('educations', newEdu);
-                                                }}
-                                                placeholder="Date"
-                                            />
+                                            <div className="flex items-center justify-between gap-4 text-[14px]">
+                                                <input 
+                                                    className="w-full bg-transparent text-[#0066CC] font-medium border-none p-0 focus:ring-0 outline-none placeholder-[#86868B]/50" 
+                                                    value={edu.degree} 
+                                                    onChange={(e) => { 
+                                                        const newEdu = [...resumeContent.educations];
+                                                        newEdu[idx].degree = e.target.value;
+                                                        handleContentChange('educations', newEdu);
+                                                    }}
+                                                    placeholder="Degree" 
+                                                />
+                                                <input 
+                                                    className="bg-transparent font-medium text-[#86868B] text-right border-none p-0 focus:ring-0 outline-none w-32 placeholder-[#86868B]/50" 
+                                                    value={edu.graduation_date} 
+                                                    onChange={(e) => { 
+                                                        const newEdu = [...resumeContent.educations];
+                                                        newEdu[idx].graduation_date = e.target.value;
+                                                        handleContentChange('educations', newEdu);
+                                                    }}
+                                                    placeholder="Year" 
+                                                />
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         </section>
 
-                        {/* Skills Section */}
+                        {/* SECTION: Skills */}
                         <section className="space-y-4">
-                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Technical Skills</h3>
-                            <div className="flex flex-wrap gap-2">
+                            <h3 className="text-[12px] font-bold text-[#86868B] uppercase tracking-widest flex items-center gap-2">
+                                <Sparkles className="w-3.5 h-3.5" /> Technical Arsenal
+                            </h3>
+                            <div className="flex flex-wrap gap-2.5 bg-white p-5 rounded-[1.5rem] border border-black/[0.04] shadow-sm">
                                 {(resumeContent?.skills || []).map((skill: string, idx: number) => (
-                                    <div key={idx} className="flex items-center bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-200">
+                                    <div key={idx} className="flex items-center bg-[#F5F5F7] text-[#1D1D1F] px-3.5 py-1.5 rounded-lg text-[13px] font-medium border border-black/[0.02]">
                                         {skill}
                                         <button
                                             onClick={() => {
                                                 const newSkills = resumeContent.skills.filter((_: any, i: number) => i !== idx);
                                                 handleContentChange('skills', newSkills);
                                             }}
-                                            className="ml-2 text-slate-400 hover:text-red-500"
+                                            className="ml-2 text-[#86868B] hover:text-[#FF3B30] transition-colors focus:outline-none"
                                         >
-                                            ×
+                                            <X className="w-3.5 h-3.5" />
                                         </button>
                                     </div>
                                 ))}
                                 <input
                                     type="text"
                                     placeholder="+ Add Skill"
-                                    className="bg-transparent border-none p-1 text-xs font-bold text-[#0A2A6B] focus:ring-0 w-24"
+                                    className="bg-transparent border-none px-2 py-1.5 text-[13px] font-medium text-[#86868B] placeholder-[#86868B]/50 focus:text-[#1D1D1F] outline-none min-w-[100px]"
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter') {
                                             const target = e.currentTarget;
-                                            const newSkill = target.value.trim();
-                                            if (newSkill) {
-                                                const newSkills = [...(resumeContent.skills || []), newSkill];
-                                                handleContentChange('skills', newSkills);
+                                            const val = target.value.trim();
+                                            if (val) {
+                                                handleContentChange('skills', [...(resumeContent.skills || []), val]);
                                                 target.value = '';
                                             }
                                         }
@@ -855,106 +794,132 @@ const ResumeEditor: React.FC = () => {
                             </div>
                         </section>
 
-                        {/* Languages Section */}
-                        <section className="space-y-4">
-                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Languages</h3>
-                            <div className="grid grid-cols-2 gap-4">
+                        {/* SECTION: Languages */}
+                        <section className="space-y-5">
+                            <div className="flex items-center justify-between border-b border-black/[0.04] pb-3">
+                                <h3 className="text-[12px] font-bold text-[#86868B] uppercase tracking-widest flex items-center gap-2">
+                                    <Globe className="w-4 h-4" /> Spoken Languages
+                                </h3>
+                                <button 
+                                    onClick={() => {
+                                        const newLangs = [...(resumeContent.languages || []), { language: '', proficiency: '' }];
+                                        handleContentChange('languages', newLangs);
+                                    }}
+                                    className="text-[12px] font-semibold text-[#1D1D1F] hover:opacity-70 flex items-center gap-1 transition-opacity focus:outline-none"
+                                >
+                                    <Plus className="w-3.5 h-3.5" /> Add Language
+                                </button>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 {(resumeContent?.languages || []).map((lang: any, idx: number) => (
-                                    <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200">
-                                        <input
-                                            className="bg-transparent text-sm font-bold text-slate-900 border-none p-0 focus:ring-0"
-                                            value={lang.language}
-                                            onChange={(e) => {
+                                    <div key={idx} className="group flex items-center bg-white border border-black/[0.06] rounded-[1rem] p-2 pl-4 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all">
+                                        <input 
+                                            className="flex-1 bg-transparent font-medium text-[14px] text-[#1D1D1F] border-none p-0 focus:ring-0 outline-none placeholder-[#86868B]/50" 
+                                            value={lang.language} 
+                                            onChange={(e) => { 
                                                 const newLangs = [...resumeContent.languages];
                                                 newLangs[idx].language = e.target.value;
                                                 handleContentChange('languages', newLangs);
                                             }}
+                                            placeholder="German" 
                                         />
-                                        <input
-                                            className="bg-transparent text-xs text-[#0A2A6B] font-medium border-none p-0 focus:ring-0 text-right w-24"
-                                            value={lang.proficiency}
-                                            onChange={(e) => {
+                                        <div className="w-[1px] h-6 bg-black/[0.06] mx-3 shrink-0"></div>
+                                        <input 
+                                            className="w-24 shrink-0 bg-transparent text-[13px] font-medium text-[#0066CC] border-none p-0 focus:ring-0 outline-none placeholder-[#86868B]/50 text-right" 
+                                            value={lang.proficiency} 
+                                            onChange={(e) => { 
                                                 const newLangs = [...resumeContent.languages];
                                                 newLangs[idx].proficiency = e.target.value;
                                                 handleContentChange('languages', newLangs);
                                             }}
+                                            placeholder="A2" 
                                         />
+                                        <button 
+                                            onClick={() => {
+                                                const newLangs = resumeContent.languages.filter((_: any, i: number) => i !== idx);
+                                                handleContentChange('languages', newLangs);
+                                            }}
+                                            className="text-[#86868B] hover:text-[#FF3B30] p-2 transition-colors focus:outline-none shrink-0"
+                                        >
+                                            <X className="w-3.5 h-3.5" />
+                                        </button>
                                     </div>
                                 ))}
                             </div>
                         </section>
 
-                        <div className="pb-12 text-center">
-                            <p className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.6em]">Document End</p>
+                        <div className="pb-10 pt-10 text-center">
+                            <p className="text-[12px] text-[#86868B] font-medium tracking-wide">WORKSPACE END</p>
+                            <p className="text-[11px] text-[#86868B]/60 mt-2">Changes save automatically to your cloud workspace.</p>
                         </div>
                     </div>
                 </main>
 
-                {/* Preview Pane */}
-                <aside className={`w-full lg:w-1/2 bg-slate-100 flex-col items-center p-4 sm:p-8 relative overflow-y-auto ${mobileTab === 'preview' ? 'flex' : 'hidden lg:flex'}`}>
-                    <div className="absolute top-6 left-6 right-6 flex items-center justify-between z-10">
-                        <div className="flex items-center gap-2">
-                            {resume?.resume_data?.original_pdf_url ? (
-                                <div className="flex bg-white/90 backdrop-blur rounded-full p-1 shadow-lg border border-white/20">
-                                    <button
-                                        onClick={() => setViewMode('enhanced')}
-                                        className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${viewMode === 'enhanced' ? 'bg-[#0A2A6B] text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                                    >
-                                        Enhanced
-                                    </button>
-                                    <button
-                                        onClick={() => setViewMode('original')}
-                                        className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${viewMode === 'original' ? 'bg-[#0A2A6B] text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                                    >
-                                        Original Upload
-                                    </button>
-                                </div>
-                            ) : (
-                                <div className="flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur rounded-full text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em] shadow-lg border border-white/20">
-                                    <Eye className="w-3 h-3 text-[#0A2A6B]" /> Live Preview
-                                </div>
-                            )}
+                {/* RIGHT PANE: Realistic PDF Viewer */}
+                <aside className={`w-full lg:w-[50%] bg-[#525659] flex-col relative overflow-hidden ${mobileTab === 'preview' ? 'flex' : 'hidden lg:flex'}`}>
+                    
+                    {/* PDF Viewer Top Toolbar */}
+                    <div className="h-12 bg-[#323639] border-b border-black/20 flex items-center justify-between px-4 shadow-sm z-20 shrink-0 text-white/80">
+                        <div className="flex items-center gap-3">
+                            <FileText className="w-4 h-4 text-white/60" />
+                            <span className="text-[13px] font-medium truncate max-w-[200px]">{resumeContent?.full_name || 'Resume'}_Preview.pdf</span>
                         </div>
-
-                        <div className="flex items-center gap-2">
-                            <a
-                                href={viewMode === 'original' ? resume?.resume_data?.original_pdf_url : resume?.pdf_url}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="p-2.5 bg-white/90 backdrop-blur hover:bg-white rounded-xl shadow-lg transition-all border border-white/20"
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2">
+                                <button className="p-1.5 hover:bg-white/10 rounded-md transition-colors focus:outline-none"><ZoomOut className="w-4 h-4"/></button>
+                                <span className="text-[12px] font-medium w-10 text-center">100%</span>
+                                <button className="p-1.5 hover:bg-white/10 rounded-md transition-colors focus:outline-none"><ZoomIn className="w-4 h-4"/></button>
+                            </div>
+                            <div className="w-[1px] h-4 bg-white/20"></div>
+                            <button 
+                                onClick={() => {
+                                    const url = viewMode === 'original' ? resume?.resume_data?.original_pdf_url : resume?.pdf_url;
+                                    if (url) window.open(url, '_blank');
+                                }}
+                                className="p-1.5 hover:bg-white/10 rounded-md transition-colors focus:outline-none" 
                                 title="Open in New Tab"
                             >
-                                <ArrowUpRight className="w-4 h-4 text-slate-600" />
-                            </a>
+                                <ArrowUpRight className="w-4 h-4" />
+                            </button>
                         </div>
                     </div>
 
-                    <div className="w-full max-w-[21cm] bg-white shadow-[0_32px_64px_-12px_rgba(0,0,0,0.15)] rounded-sm border border-slate-300 overflow-hidden aspect-[1/1.414]">
-                        {(() => {
-                            const urlToUse = viewMode === 'original' ? resume?.resume_data?.original_pdf_url : resume?.pdf_url;
-                            if (urlToUse) {
-                                return (
-                                    <iframe
-                                        src={`${urlToUse}?inline=true&t=${previewTimestamp}`}
-                                        className="w-full h-full border-none"
-                                        title="Resume Preview"
-                                    />
-                                );
-                            } else {
-                                return (
-                                    <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 gap-4">
-                                        <FileText className="w-12 h-12 opacity-20" />
-                                        <p className="text-xs font-bold uppercase tracking-widest text-center mt-4">
-                                            Preview not available.<br />
-                                            <span className="text-[#0A2A6B]">Click 'Save & Refresh' to generate.</span>
-                                        </p>
-                                    </div>
-                                );
-                            }
-                        })()}
+                    <div className="flex-1 w-full overflow-y-auto custom-scrollbar flex justify-center py-8 px-4">
+                        <div className="w-full max-w-[794px] min-h-[1123px] bg-white shadow-[0_4px_24px_rgba(0,0,0,0.4)] flex flex-col relative overflow-hidden">
+                             {/* Live PDF Iframe Rendering */}
+                             {(() => {
+                                const urlToUse = viewMode === 'original' ? resume?.resume_data?.original_pdf_url : resume?.pdf_url;
+                                if (urlToUse) {
+                                    return (
+                                        <iframe
+                                            src={`${urlToUse}?inline=true&t=${previewTimestamp}`}
+                                            className="w-full h-full border-none absolute inset-0"
+                                            title="Resume Preview"
+                                        />
+                                    );
+                                } else {
+                                    return (
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center text-[#86868B] gap-4">
+                                            <FileText className="w-12 h-12 opacity-20" />
+                                            <p className="text-[12px] font-bold uppercase tracking-widest text-center">
+                                                No PDF Preview Generated Yet.<br />
+                                                <span className="text-[#0066CC] cursor-pointer hover:underline" onClick={handleManualSave}>Click 'Save & Refresh' to generate.</span>
+                                            </p>
+                                        </div>
+                                    );
+                                }
+                            })()}
+                        </div>
                     </div>
                 </aside>
             </div>
+
+            <style dangerouslySetInnerHTML={{__html: `
+                .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.15); border-radius: 10px; }
+                .custom-scrollbar:hover::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.25); }
+            `}} />
         </div>
     );
 };
