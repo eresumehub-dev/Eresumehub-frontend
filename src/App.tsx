@@ -19,6 +19,7 @@ const PublicResume = lazy(() => import('./pages/PublicResume'))
 const ResumeEditor = lazy(() => import('./pages/ResumeEditor'))
 const AnalyticsDetail = lazy(() => import('./pages/AnalyticsDetail'))
 const Templates = lazy(() => import('./pages/Templates'))
+const AboutUs = lazy(() => import('./pages/AboutUs'))
 
 // Centralized Loading Component
 const PageLoader = () => (
@@ -39,6 +40,7 @@ function App() {
                     <Route path="signup" element={<SignUp />} />
                     <Route path="ats-checker" element={<ATSChecker />} />
                     <Route path="templates" element={<Templates />} />
+                    <Route path="about" element={<AboutUs />} />
 
                     <Route path="/:username/:slug" element={<PublicResume />} />
 
