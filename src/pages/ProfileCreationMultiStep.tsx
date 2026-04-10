@@ -930,9 +930,12 @@ const ProfileCreationMultiStep = () => {
                 )}
             </AnimatePresence>
 
-            <header className="sticky top-0 z-40 glass-panel border-b border-black/5">
-                <div className="max-w-7xl mx-auto px-4 md:px-6 py-2">
-                    <FlightStepper steps={STEPS} currentStep={currentStep} onStepClick={setCurrentStep} stepValidity={stepValidity} />
+            <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-black/5">
+                <div className="max-w-7xl mx-auto px-4 md:px-6 h-20 flex items-center justify-between">
+                    <span className="text-xl font-bold tracking-tight text-[#1D1D1F]">E-resumehub</span>
+                    <div className="flex-1 max-w-2xl">
+                        <FlightStepper steps={STEPS} currentStep={currentStep} onStepClick={setCurrentStep} stepValidity={stepValidity} />
+                    </div>
                 </div>
             </header>
             <main className="max-w-4xl mx-auto px-4 md:px-6 py-12 relative z-10">
