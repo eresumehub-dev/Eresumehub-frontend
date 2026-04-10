@@ -2,10 +2,10 @@ import React, { useState, forwardRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Plus, Upload, CheckCircle, ArrowLeft, ArrowRight,
-    User as UserIcon, Mail, Briefcase, GraduationCap, Award, Code, Globe, BookOpen, Star, MapPin, X, AlertTriangle, Linkedin, Loader2, Sparkles
+    User as UserIcon, Mail, Briefcase, GraduationCap, Award, Code, Globe, BookOpen, Star, MapPin, X, Linkedin, Loader2, Sparkles
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { motion, AnimatePresence, LayoutGroup, MotionProps } from 'framer-motion';
+import { motion, AnimatePresence, MotionProps } from 'framer-motion';
 
 // Real Imports
 import { useAuth } from '../context/AuthContext';
