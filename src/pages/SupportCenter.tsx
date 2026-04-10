@@ -15,6 +15,7 @@ import {
     CheckCircle2,
     X
 } from 'lucide-react';
+import Footer from '../components/shared/Footer';
 
 const SupportCenter = () => {
     const [searchQuery, setSearchQuery] = useState('');
@@ -340,6 +341,7 @@ const SupportCenter = () => {
 
                 </div>
             </section>
+            <Footer />
         </div>
     );
 };

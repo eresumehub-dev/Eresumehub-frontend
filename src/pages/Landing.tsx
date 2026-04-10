@@ -9,13 +9,12 @@ import {
     Target, 
     ShieldCheck,
     Globe,
-    Linkedin,
-    Instagram,
     Briefcase
 } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import Footer from '../components/shared/Footer';
 
 import CozaintLogo from '../../Logos/cozaint_logo.png';
 import LifeLogo from '../../Logos/lifeinteractive-logo.jpg';
@@ -112,6 +111,7 @@ const Landing = () => {
                         className="space-y-8 w-full"
                     >
                         <motion.div variants={fadeUp} className="inline-flex items-center gap-2.5 bg-white/70 backdrop-blur-md px-4 py-2 rounded-full border border-black/[0.05] shadow-sm">
+                            <input type="hidden" /> {/* Fix for some framer motion issues */}
                             <Sparkles className="w-4 h-4 text-[#AF52DE]" />
                             <span className="text-[12px] font-bold tracking-widest uppercase text-[#1D1D1F]">Smart Resume Builder</span>
                         </motion.div>
@@ -431,65 +431,7 @@ const Landing = () => {
 
                 </div>
             </section>
-
-            {/* --- FOOTER --- */}
-            <footer className="bg-white border-t border-black/[0.04] pt-20 pb-10 px-6 lg:px-12 mt-auto">
-                <div className="max-w-[1800px] mx-auto w-full">
-                    
-                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-20">
-                        <div className="col-span-2 lg:col-span-2 pr-12">
-                            <div className="flex items-center gap-2 mb-6">
-                                <span className="text-[22px] font-bold text-[#1D1D1F] tracking-tight">E-resumehub</span>
-                            </div>
-                            <p className="text-[15px] text-[#434345] font-light leading-relaxed max-w-sm mb-6">
-                                The intelligent resume builder designed to bypass occupational filters and help you land high-impact interviews faster.
-                            </p>
-                        </div>
-
-                        <div>
-                            <h4 className="text-[12px] font-bold uppercase tracking-widest text-[#1D1D1F] mb-8">Company</h4>
-                            <ul className="space-y-5 text-[14px]">
-                                <li><Link to="/about" className="text-[#434345] hover:text-[#1D1D1F] transition-colors font-medium">About Us</Link></li>
-                                <li><Link to="/careers" className="text-[#434345] hover:text-[#1D1D1F] transition-colors font-medium">Careers</Link></li>
-                                <li><Link to="/blog" className="text-[#434345] hover:text-[#1D1D1F] transition-colors font-medium">Blog</Link></li>
-                            </ul>
-                        </div>
-
-                        <div>
-                            <h4 className="text-[12px] font-bold uppercase tracking-widest text-[#1D1D1F] mb-8">Tools</h4>
-                            <ul className="space-y-5 text-[14px]">
-                                <li><Link to="/create" className="text-[#434345] hover:text-[#1D1D1F] transition-colors font-medium">AI Resume Builder</Link></li>
-                                <li><Link to="/templates" className="text-[#434345] hover:text-[#1D1D1F] transition-colors font-medium">Templates</Link></li>
-                                <li><Link to="/ats-checker" className="text-[#434345] hover:text-[#1D1D1F] transition-colors font-medium">ATS Checker</Link></li>
-                            </ul>
-                        </div>
-
-                        <div>
-                            <h4 className="text-[12px] font-bold uppercase tracking-widest text-[#1D1D1F] mb-8">Legal</h4>
-                            <ul className="space-y-5 text-[14px]">
-                                <li><Link to="/privacy" className="text-[#434345] hover:text-[#1D1D1F] transition-colors font-medium">Privacy Policy</Link></li>
-                                <li><Link to="/terms" className="text-[#434345] hover:text-[#1D1D1F] transition-colors font-medium">Terms of Service</Link></li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col md:flex-row justify-between items-center pt-10 border-t border-black/[0.04] gap-6">
-                        <p className="text-[14px] text-[#434345] font-medium">
-                            © 2026 E-ResumeHub. All rights reserved.
-                        </p>
-
-                        <div className="flex items-center gap-6">
-                            <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="text-[#434345] transition-all hover:scale-110" style={{ color: '#0A66C2' }}>
-                                <Linkedin className="w-5 h-5 fill-current" />
-                            </a>
-                            <a href="https://instagram.com" target="_blank" rel="noreferrer" className="text-[#434345] transition-all hover:scale-110" style={{ color: '#E4405F' }}>
-                                <Instagram className="w-5 h-5 fill-current" />
-                            </a>
-                        </div>
-                    </div>
-
-                </div>
-            </footer>
+            <Footer />
         </div>
     );
 };

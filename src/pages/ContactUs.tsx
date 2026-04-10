@@ -10,6 +10,7 @@ import {
     Instagram,
     Building2
 } from 'lucide-react';
+import Footer from '../components/shared/Footer';
 
 const ContactUs = () => {
     const [formState, setFormState] = useState<'idle' | 'loading' | 'success'>('idle');
@@ -250,6 +251,7 @@ const ContactUs = () => {
 
                 </div>
             </section>
+            <Footer />
         </div>
     );
 };
