@@ -1477,11 +1477,7 @@ const ProfileCreationMultiStep: React.FC = () => {
                 </motion.div>
             )}</AnimatePresence>
 
-            <header className="sticky top-0 z-40 glass-panel border-b border-black/5">
-                <div className="max-w-7xl mx-auto px-4 md:px-6 py-2">
-                    <FlightStepper steps={STEPS} currentStep={currentStep} onStepClick={setCurrentStep} stepValidity={stepValidity} />
-                </div>
-            </header>
+            {/* Header removed as per request */}
             <main className="max-w-4xl mx-auto px-4 md:px-6 py-12 relative z-10">
                 <GlassCard elevated className="min-h-[600px]">
                     <AnimatePresence mode="wait"><motion.div key={currentStep} className="h-full">{renderContent()}</motion.div></AnimatePresence>
