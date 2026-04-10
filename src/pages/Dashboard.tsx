@@ -10,7 +10,6 @@ import { useAuth } from '../context/AuthContext';
 import { useBootstrapQuery } from '../hooks/queries/useBootstrapQuery';
 import { useResumesQuery } from '../hooks/queries/useResumesQuery';
 import { useAnalyticsQuery } from '../hooks/queries/useAnalyticsQuery';
-import { getUserInitials } from '../hooks/queries/useUserProfileQuery';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 
 // Components
@@ -60,16 +59,11 @@ const Dashboard: React.FC = () => {
         visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } }
     };
 
-    if (bootLoading) return <div className="flex bg-[#F5F5F7] min-h-screen"><Sidebar user={user} userProfile={null} resumeCount={0} initials="..." /><main className="flex-1 p-12"><DashboardSkeleton /></main></div>;
+    if (bootLoading) return <div className="bg-[#F5F5F7] min-h-screen pt-[72px]"><Sidebar /><main className="flex-1 p-12 lg:ml-64"><DashboardSkeleton /></main></div>;
 
     return (
-        <div className="flex bg-[#F5F5F7] min-h-screen relative antialiased text-[#1D1D1F] pt-[72px]">
-            <Sidebar 
-                user={user} 
-                userProfile={userProfile || null} 
-                resumeCount={resumes.length}
-                initials={getUserInitials(userProfile?.full_name)} 
-            />
+        <div className="bg-[#F5F5F7] min-h-screen relative antialiased text-[#1D1D1F] pt-[72px]">
+            <Sidebar />
 
             <main className="flex-1 lg:ml-64 p-6 md:p-10 lg:p-12 xl:p-16 max-w-[1600px] mx-auto w-full overflow-y-auto">
                 <motion.div 

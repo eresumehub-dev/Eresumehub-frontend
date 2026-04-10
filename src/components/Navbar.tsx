@@ -68,8 +68,7 @@ const Navbar = () => {
         >
             <div className="flex items-center justify-between h-full px-6 md:px-10 lg:px-12 max-w-[1800px] mx-auto">
                 
-                {/* 1. Brand / Logo Area */}
-                <Link to="/" className="flex items-center cursor-pointer group w-48 shrink-0 focus:outline-none">
+                <Link to="/" className="flex items-center cursor-pointer group shrink-0 focus:outline-none">
                     <span className="text-[19px] font-bold text-[#1D1D1F] tracking-tight group-hover:opacity-70 transition-opacity duration-200">
                         E-resumehub
                     </span>
@@ -108,8 +107,7 @@ const Navbar = () => {
                     })}
                 </nav>
 
-                {/* 3. Utilities & Profile Dropdown */}
-                <div className="hidden lg:flex items-center justify-end w-48 shrink-0 relative h-full">
+                <div className="hidden lg:flex items-center justify-end shrink-0 relative h-full">
                     <button 
                         onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                         className="flex items-center gap-2 p-1.5 pr-3 rounded-full hover:bg-black/[0.04] transition-all duration-200 focus:outline-none"
