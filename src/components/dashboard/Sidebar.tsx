@@ -6,7 +6,8 @@ import {
     ShieldCheck,
     LayoutTemplate,
     User,
-    HelpCircle
+    HelpCircle,
+    Settings as SettingsIcon
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -24,7 +25,7 @@ const Sidebar: React.FC<SidebarProps> = () => {
         { to: "/templates", icon: LayoutTemplate, label: "Templates" },
         { to: "/profile", icon: User, label: "Profile Data" },
         { to: "/settings", icon: SettingsIcon, label: "Settings" },
-        { to: "/help", icon: HelpCircle, label: "Support" },
+        { to: "/support", icon: HelpCircle, label: "Support" },
     ];
 
     const isActive = (path: string) => {

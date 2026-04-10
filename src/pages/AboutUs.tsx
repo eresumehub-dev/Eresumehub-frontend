@@ -4,13 +4,9 @@ import {
     ArrowRight, 
     ShieldCheck, 
     Cpu, 
-    Globe,
-    Linkedin,
-    Instagram,
     Bot,
-    ImageOff,
     FileText,
-    Target
+    Globe
 } from 'lucide-react';
 import Footer from '../components/shared/Footer';
 
@@ -45,7 +41,7 @@ const AboutUs = () => {
                     <div className="relative z-10 grid lg:grid-cols-12 gap-12 items-center w-full">
                         {/* Left: Typography */}
                         <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="lg:col-span-7 space-y-6 md:space-y-8 mt-8 lg:mt-0">
-
+                            
                             <motion.h1 variants={fadeUp} className="text-[3rem] md:text-[4.5rem] lg:text-[5.5rem] font-medium leading-[1.05] tracking-tight text-white mb-6 max-w-3xl">
                                 Software shouldn't<br className="hidden sm:block" />
                                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-300 to-gray-500">
@@ -94,148 +90,77 @@ const AboutUs = () => {
                                     </div>
                                     <div className="space-y-2.5">
                                         <div className="w-full h-2.5 rounded-full bg-white/[0.08]"></div>
-                                        <div className="w-5/6 h-2.5 rounded-full bg-white/[0.08]"></div>
-                                    </div>
-                                    <div className="space-y-2.5">
-                                        <div className="w-[40%] h-8 rounded-xl bg-[#4DCFFF]/10 border border-[#4DCFFF]/20 mt-2"></div>
+                                        <div className="w-full h-2.5 rounded-full bg-white/[0.08]"></div>
                                     </div>
                                 </div>
 
-                                <motion.div 
-                                    initial={{ scale: 0 }} 
-                                    animate={{ scale: 1 }} 
-                                    transition={{ delay: 1, type: "spring", stiffness: 200, damping: 20 }} 
-                                    className="absolute bottom-6 right-[-1rem] lg:right-[-1.5rem] bg-[#34C759] text-[#1D1D1F] px-5 py-3.5 rounded-2xl font-bold text-[14px] shadow-[0_10px_40px_rgba(52,199,89,0.4)] flex items-center gap-2"
-                                >
-                                    <ShieldCheck className="w-5 h-5" /> 100% Match
-                                </motion.div>
+                                <div className="mt-auto flex justify-between items-end">
+                                    <div className="flex -space-x-3">
+                                        {[1, 2, 3].map(i => (
+                                            <div key={i} className="w-10 h-10 rounded-full border-2 border-[#1D1D1F] bg-gray-800"></div>
+                                        ))}
+                                    </div>
+                                    <Globe className="w-10 h-10 text-[#4DCFFF]/40" strokeWidth={1} />
+                                </div>
                             </motion.div>
                         </motion.div>
                     </div>
                 </div>
             </section>
 
-            {/* --- SECTION: THE ATS REALITY CHECK --- */}
-            <section className="py-20 px-6 lg:px-12 max-w-[1800px] mx-auto relative z-10">
-                <motion.div 
-                    initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeUp}
-                    className="mb-16 max-w-3xl"
-                >
-                    <h2 className="text-[2.5rem] md:text-[3.5rem] font-medium text-[#1D1D1F] tracking-tight leading-tight mb-4">
-                        The secret rules of the hiring machine.
-                    </h2>
-                    <p className="text-[1.125rem] text-[#86868B] font-light leading-relaxed">
-                        Over 98% of Fortune 500 companies use an Applicant Tracking System (ATS) to screen you. Most people are failing the test before a human ever looks at their name. Here is what they don't tell you:
-                    </p>
-                </motion.div>
-
-                <motion.div 
-                    initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={staggerContainer}
-                    className="grid grid-cols-1 md:grid-cols-3 gap-6"
-                >
-                    <motion.div variants={fadeUp} className="bg-white rounded-[2.5rem] p-10 md:p-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-[#FF3B30]/10 flex flex-col group transition-transform hover:-translate-y-1">
-                        <div className="w-16 h-16 bg-[#FFF0F0] rounded-[1.25rem] flex items-center justify-center mb-8">
-                            <ImageOff className="w-8 h-8 text-[#FF3B30]" strokeWidth={1.5} />
+            {/* --- VALUES SECTION --- */}
+            <section className="py-24 md:py-32 px-6 lg:px-12 max-w-[1800px] mx-auto w-full">
+                <div className="grid md:grid-cols-3 gap-12 lg:gap-20">
+                    <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="space-y-6">
+                        <div className="w-14 h-14 bg-white rounded-2xl shadow-sm border border-black/[0.04] flex items-center justify-center">
+                            <ShieldCheck className="w-6 h-6 text-[#1D1D1F]" />
                         </div>
-                        <h3 className="text-[1.75rem] font-medium text-[#1D1D1F] mb-4 tracking-tight leading-tight">Pretty designs kill your chances</h3>
-                        <p className="text-[15px] text-[#86868B] font-light leading-relaxed">
-                            Have a beautiful template with phone icons, progress bars, or two columns? The robot can't read it. ATS software reads text strictly left-to-right. Columns and graphics scramble your experience into unreadable gibberish.
+                        <h3 className="text-[1.5rem] font-medium tracking-tight">Radical Transparency</h3>
+                        <p className="text-[1rem] text-[#86868B] font-light leading-relaxed">
+                            We don't sell your data to recruiters. We don't hide your profile. You own your career narrative, period.
                         </p>
                     </motion.div>
 
-                    <motion.div variants={fadeUp} className="bg-white rounded-[2.5rem] p-10 md:p-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-black/[0.02] flex flex-col group transition-transform hover:-translate-y-1">
-                        <div className="w-16 h-16 bg-[#F5F5F7] rounded-[1.25rem] flex items-center justify-center mb-8">
-                            <Bot className="w-8 h-8 text-[#1D1D1F]" strokeWidth={1.5} />
+                    <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="space-y-6">
+                        <div className="w-14 h-14 bg-white rounded-2xl shadow-sm border border-black/[0.04] flex items-center justify-center">
+                            <Cpu className="w-6 h-6 text-[#1D1D1F]" />
                         </div>
-                        <h3 className="text-[1.75rem] font-medium text-[#1D1D1F] mb-4 tracking-tight leading-tight">The "Auto-Reject" Myth</h3>
-                        <p className="text-[15px] text-[#86868B] font-light leading-relaxed">
-                            Bots don't usually "auto-reject" you. Instead, they give you a score from 1 to 100 based on keywords. Recruiters only look at the top 10%. If you don't use the exact vocabulary, you are effectively invisible.
+                        <h3 className="text-[1.5rem] font-medium tracking-tight">AI for Equity</h3>
+                        <p className="text-[1rem] text-[#86868B] font-light leading-relaxed">
+                            We use advanced models to identify and remove subtle biases from your job descriptions, leveling the playing field for everyone.
                         </p>
                     </motion.div>
 
-                    <motion.div variants={fadeUp} className="bg-[#1D1D1F] text-white rounded-[2.5rem] p-10 md:p-12 shadow-[0_15px_40px_rgb(0,0,0,0.2)] flex flex-col relative overflow-hidden group transition-transform hover:-translate-y-1">
-                        <div className="absolute inset-0 bg-gradient-to-tr from-[#1D1D1F] to-[#434345] z-0" />
-                        <div className="relative z-10">
-                            <div className="w-16 h-16 bg-white/10 rounded-[1.25rem] flex items-center justify-center mb-8 backdrop-blur-md border border-white/10">
-                                <FileText className="w-8 h-8 text-[#4DCFFF]" strokeWidth={1.5} />
-                            </div>
-                            <h3 className="text-[1.75rem] font-medium mb-4 tracking-tight leading-tight">Expertise isn't enough</h3>
-                            <p className="text-[15px] text-white/70 font-light leading-relaxed">
-                                You might be the best person for the job, but if the job description asks for "Customer Relationship Management" and you only wrote "CRM," the system might fail you. The machine punishes those who don't know the exact keyword game.
-                            </p>
+                    <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="space-y-6">
+                        <div className="w-14 h-14 bg-white rounded-2xl shadow-sm border border-black/[0.04] flex items-center justify-center">
+                            <Bot className="w-6 h-6 text-[#1D1D1F]" />
                         </div>
+                        <h3 className="text-[1.5rem] font-medium tracking-tight">Human-Centric Design</h3>
+                        <p className="text-[1rem] text-[#86868B] font-light leading-relaxed">
+                            Our platform is built to make you sound like the best version of yourself, not a generated script.
+                        </p>
                     </motion.div>
-                </motion.div>
+                </div>
             </section>
 
-            {/* --- THE BENTO GRID (Our Story & Philosophy) --- */}
-            <section className="py-20 px-6 lg:px-12 max-w-[1800px] mx-auto relative z-10">
-                <motion.div 
-                    initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={staggerContainer}
-                    className="grid grid-cols-1 md:grid-cols-3 gap-6"
-                >
-                    <motion.div variants={fadeUp} className="md:col-span-2 bg-white rounded-[2.5rem] p-10 md:p-14 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-black/[0.02] flex flex-col justify-between group overflow-hidden relative">
-                        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#0066CC]/5 to-transparent rounded-bl-full pointer-events-none transform group-hover:scale-110 transition-transform duration-700" />
-                        <div className="relative z-10">
-                            <div className="w-16 h-16 bg-[#F5F5F7] rounded-[1.25rem] flex items-center justify-center mb-8">
-                                <Cpu className="w-8 h-8 text-[#1D1D1F]" strokeWidth={1.5} />
-                            </div>
-                            <h3 className="text-[2rem] md:text-[2.5rem] font-medium text-[#1D1D1F] mb-4 tracking-tight">The Antidote</h3>
-                            <p className="text-[1.125rem] text-[#86868B] font-light leading-relaxed max-w-xl">
-                                We realized the hiring process had become a game of keyword bingo. So, we engineered an AI that reverse-engineers the hiring filters. Our templates are guaranteed to be 100% machine-readable. We restructure your career narrative to ensure maximum impact.
-                            </p>
-                        </div>
-                    </motion.div>
-
-                    <motion.div variants={fadeUp} className="bg-white rounded-[2.5rem] p-10 md:p-14 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-black/[0.02] flex flex-col justify-between relative overflow-hidden group">
-                        <div>
-                            <div className="w-16 h-16 bg-[#F5F5F7] rounded-[1.25rem] flex items-center justify-center mb-8">
-                                <ShieldCheck className="w-8 h-8 text-[#34C759]" strokeWidth={1.5} />
-                            </div>
-                            <h3 className="text-[1.5rem] font-medium mb-4 tracking-tight text-[#1D1D1F]">Your Data is Yours</h3>
-                            <p className="text-[1rem] text-[#86868B] font-light leading-relaxed">
-                                You are not the product. We do not sell your career history, contact info, or data to third-party recruiters or data brokers. Ever. Period.
-                            </p>
-                        </div>
-                    </motion.div>
-
-                    <motion.div variants={fadeUp} className="md:col-span-3 bg-white rounded-[2.5rem] p-10 md:p-14 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-black/[0.02] flex flex-col justify-between relative overflow-hidden group">
-                        <div className="absolute right-0 bottom-0 opacity-5 group-hover:scale-110 group-hover:opacity-10 transition-all duration-700 pointer-events-none origin-bottom-right">
-                            <Globe className="w-96 h-96" />
-                        </div>
-                        <div className="relative z-10 max-w-2xl">
-                            <div className="inline-block bg-[#1D1D1F] text-white px-3.5 py-1.5 rounded-lg text-[11px] font-bold tracking-widest uppercase mb-6">
-                                Accessibility
-                            </div>
-                            <h3 className="text-[2rem] md:text-[2.5rem] font-medium text-[#1D1D1F] mb-4 tracking-tight">100% Free Core Engine</h3>
-                            <p className="text-[1.125rem] text-[#86868B] font-light leading-relaxed mb-8">
-                                We fundamentally believe that access to premium career tools shouldn't be hidden behind a paywall. That's why our core features are entirely free for everyone, anywhere in the world.
-                            </p>
-                        </div>
-                    </motion.div>
-
-                </motion.div>
+            {/* --- CTA SECTION --- */}
+            <section className="pb-32 px-6 lg:px-12 max-w-[1800px] mx-auto w-full">
+                <div className="bg-[#1D1D1F] rounded-[2.5rem] p-10 md:p-16 lg:p-20 text-center relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-gradient-to-tr from-[#0066CC]/20 to-[#AF52DE]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                    
+                    <div className="relative z-10 max-w-2xl mx-auto">
+                        <h2 className="text-[2.5rem] md:text-[3.5rem] font-medium text-white tracking-tight leading-tight mb-8">
+                            Join the next generation of job seekers.
+                        </h2>
+                        <button 
+                            onClick={() => navigate('/signup')} 
+                            className="inline-flex items-center gap-2 bg-white text-[#1D1D1F] px-10 py-5 rounded-[1.25rem] font-bold text-[16px] hover:bg-gray-100 transition-all shadow-xl active:scale-[0.98]"
+                        >
+                            Build Your Free Resume <ArrowRight className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
             </section>
-
-            {/* --- BOTTOM CTA --- */}
-            <section className="py-32 px-6 lg:px-12 max-w-[1800px] mx-auto w-full text-center">
-                <motion.div 
-                    initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeUp}
-                    className="max-w-3xl mx-auto"
-                >
-                    <h2 className="text-[3rem] md:text-[4rem] font-medium text-[#1D1D1F] tracking-tight leading-tight mb-8">
-                        Ready to level the playing field?
-                    </h2>
-                    <button 
-                        onClick={() => navigate('/signup')}
-                        className="inline-flex items-center gap-2 bg-[#1D1D1F] text-white px-10 py-5 rounded-[1.5rem] font-medium text-[17px] hover:bg-black active:scale-[0.98] transition-all shadow-[0_8px_20px_rgba(0,0,0,0.12)]"
-                    >
-                        Create your workspace <ArrowRight className="w-5 h-5" />
-                    </button>
-                </motion.div>
-            </section>
-
-            {/* --- FAT FOOTER --- */}
             <Footer />
         </div>
     );
