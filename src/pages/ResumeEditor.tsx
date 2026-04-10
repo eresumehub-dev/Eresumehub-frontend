@@ -400,6 +400,8 @@ const ResumeEditor: React.FC = () => {
                                 });
                                 setSaveStatus('saved');
                                 setLastSaved(new Date());
+                                // Navigate back to dashboard after save
+                                navigate('/dashboard');
                             } catch (error) {
                                 setSaveStatus('error');
                             }
@@ -408,7 +410,7 @@ const ResumeEditor: React.FC = () => {
                         className="flex items-center gap-2 px-6 py-2.5 bg-white border border-black/[0.08] text-[#1D1D1F] rounded-full text-[13px] font-semibold hover:bg-[#F5F5F7] active:scale-95 transition-all shadow-sm"
                     >
                         {saveStatus === 'saving' ? <Loader2 className="w-4 h-4 animate-spin text-[#0066CC]" /> : <Check className="w-4 h-4 text-[#34C759]" />}
-                        Save Changes
+                        Save & Finish
                     </button>
 
                     <button
