@@ -45,10 +45,6 @@ const AboutUs = () => {
                     <div className="relative z-10 grid lg:grid-cols-12 gap-12 items-center w-full">
                         {/* Left: Typography */}
                         <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="lg:col-span-7 space-y-6 md:space-y-8 mt-8 lg:mt-0">
-                            <motion.div variants={fadeUp} className="inline-flex items-center gap-2.5 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
-                                <Target className="w-4 h-4 text-[#4DCFFF]" />
-                                <span className="text-[12px] font-bold tracking-widest uppercase text-white shadow-sm">Our Mission</span>
-                            </motion.div>
 
                             <motion.h1 variants={fadeUp} className="text-[3rem] md:text-[4.5rem] lg:text-[5.5rem] font-medium leading-[1.05] tracking-tight text-white mb-6 max-w-3xl">
                                 Software shouldn't<br className="hidden sm:block" />

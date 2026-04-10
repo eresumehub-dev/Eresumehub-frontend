@@ -21,6 +21,7 @@ import DashboardSkeleton from '../components/dashboard/DashboardSkeleton';
 import ConfirmModal from '../components/dashboard/ConfirmModal';
 import ShareModal from '../components/ShareModal';
 import ForensicFixCard from '../components/ForensicFixCard';
+import Footer from '../components/shared/Footer';
 
 const Dashboard: React.FC = () => {
     const { user } = useAuth();
@@ -234,6 +235,7 @@ const Dashboard: React.FC = () => {
                     onUpdate={() => setIsShareModalOpen(false)}
                 />
             )}
+            <Footer />
         </div>
     );
 };

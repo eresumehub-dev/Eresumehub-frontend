@@ -110,11 +110,6 @@ const Landing = () => {
                         variants={staggerContainer}
                         className="space-y-8 w-full"
                     >
-                        <motion.div variants={fadeUp} className="inline-flex items-center gap-2.5 bg-white/70 backdrop-blur-md px-4 py-2 rounded-full border border-black/[0.05] shadow-sm">
-                            <input type="hidden" /> {/* Fix for some framer motion issues */}
-                            <Sparkles className="w-4 h-4 text-[#AF52DE]" />
-                            <span className="text-[12px] font-bold tracking-widest uppercase text-[#1D1D1F]">Smart Resume Builder</span>
-                        </motion.div>
 
                         <motion.h1 variants={fadeUp} className="text-[3.5rem] md:text-[5.5rem] lg:text-[6.5rem] font-medium leading-[1.0] tracking-tight text-[#1D1D1F]">
                             Stop guessing.<br />

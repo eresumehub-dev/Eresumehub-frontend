@@ -65,10 +65,6 @@ const PrivacyPolicy = () => {
             {/* --- HERO SECTION --- */}
             <section className="pt-36 pb-16 px-6 lg:px-12 max-w-[1800px] mx-auto w-full">
                 <motion.div initial="hidden" animate="visible" variants={fadeUp} className="max-w-4xl">
-                    <div className="inline-flex items-center gap-2.5 bg-white px-4 py-2 rounded-full border border-black/[0.05] shadow-sm mb-6">
-                        <ShieldCheck className="w-4 h-4 text-[#34C759]" />
-                        <span className="text-[12px] font-bold tracking-widest uppercase text-[#1D1D1F]">Legal / Professional Integrity</span>
-                    </div>
                     <h1 className="text-[3rem] md:text-[4.5rem] font-medium leading-[1.05] tracking-tight text-[#1D1D1F] mb-6">
                         Privacy Policy
                     </h1>

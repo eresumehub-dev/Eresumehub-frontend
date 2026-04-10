@@ -152,10 +152,6 @@ const ATSChecker: React.FC = () => {
                             initial="hidden" animate="visible" exit="exit" variants={fadeUp}
                             className="text-center max-w-2xl mx-auto mb-12 mt-8"
                         >
-                            <div className="inline-flex items-center gap-2 bg-[#0066CC]/10 px-3.5 py-1.5 rounded-lg mb-6">
-                                <BarChart3 className="w-4 h-4 text-[#0066CC]" />
-                                <span className="text-[11px] font-bold uppercase tracking-widest text-[#0066CC]">Precision Scanner</span>
-                            </div>
                             <h1 className="text-[2.5rem] md:text-[3.5rem] font-medium text-[#1D1D1F] tracking-tight leading-tight mb-4">
                                 Will your resume pass<br />the software?
                             </h1>
