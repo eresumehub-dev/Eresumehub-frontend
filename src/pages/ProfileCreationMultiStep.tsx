@@ -6,13 +6,13 @@ import {
 
     Plus, Upload, CheckCircle, ArrowLeft, ArrowRight,
 
-    User as UserIcon, Mail, Briefcase, GraduationCap, Award, Code, Globe, BookOpen, Star, MapPin, X, AlertTriangle, Linkedin, Loader2, Sparkles
+    User as UserIcon, Mail, Briefcase, GraduationCap, Award, Code, Globe, BookOpen, Star, MapPin, X, Linkedin, Loader2, Sparkles
 
 } from 'lucide-react';
 
 import { toast } from 'react-hot-toast';
 
-import { motion, AnimatePresence, LayoutGroup, MotionProps } from 'framer-motion';
+import { motion, AnimatePresence, MotionProps } from 'framer-motion';
 
 
 
@@ -244,8 +244,15 @@ const GlobalStyles = () => (
 
 
 
-// FlightStepper removed as per header simplification
+// --- COMMON CONFIG ---
+const springConfig = {
+    type: "spring" as const,
+    mass: 1,
+    stiffness: 80,
+    damping: 20,
+};
 
+// FlightStepper removed as per header simplification
 
 // --- COMPONENT: GLASS CARD ---
 
@@ -1179,25 +1186,7 @@ const ProfileCreationMultiStep: React.FC = () => {
 
 
 
-    const getStepValidityMap = () => {
-
-        const validity: Record<number, 'valid' | 'invalid'> = {};
-
-        const p = profile;
-
-        validity[1] = (p.full_name?.trim() && p.professional_summary?.trim()) ? 'valid' : 'invalid';
-
-        validity[2] = p.email?.trim() ? 'valid' : 'invalid';
-
-        validity[3] = p.work_experiences?.some((w: any) => !w.job_title?.trim() || !w.company?.trim()) ? 'invalid' : 'valid';
-
-        validity[4] = p.educations?.some((e: any) => !e.degree?.trim() || !e.institution?.trim()) ? 'invalid' : 'valid';
-
-        [5, 6, 7, 8, 9, 10].forEach(i => validity[i] = 'valid');
-
-        return validity;
-
-    };
+// Validation logic removed as per header simplification
 
 
 
