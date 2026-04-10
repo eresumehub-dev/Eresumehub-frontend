@@ -17,12 +17,10 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 
-// --- MOCKED LOGOS ---
-const TrustLogo = ({ text }: { text: string }) => (
-    <div className="font-bold text-[1.25rem] tracking-tight text-[#86868B] hover:text-[#1D1D1F] transition-colors cursor-default whitespace-nowrap">
-        {text}
-    </div>
-);
+import CozaintLogo from '../../Logos/cozaint_logo.png';
+import LifeLogo from '../../Logos/lifeinteractive-logo.jpg';
+import SecurityLogo from '../../Logos/security_world_logo-1.png';
+import PromptLogo from '../../Logos/whattoprompt.png';
 
 const Landing = () => {
     const { user } = useAuth();
@@ -79,8 +77,7 @@ const Landing = () => {
             {/* --- TOP NAVIGATION --- */}
             <nav className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-10 py-8 mx-auto w-full">
                 <Link to="/" className="flex items-center gap-2 group">
-                    <Sparkles className="w-5 h-5 text-[#1D1D1F] group-hover:rotate-12 transition-transform" />
-                    <span className="text-[19px] font-bold tracking-tight text-[#1D1D1F]">E-resumehub</span>
+                    <span className="text-[20px] font-bold tracking-tight text-[#1D1D1F]">E-resumehub</span>
                 </Link>
                 <div className="flex items-center gap-6">
                     {user ? (
@@ -215,11 +212,11 @@ const Landing = () => {
                     <p className="text-[13px] font-semibold text-[#86868B] uppercase tracking-widest whitespace-nowrap">
                         Trusted by people who landed jobs at
                     </p>
-                    <div className="flex flex-wrap justify-center gap-x-12 gap-y-6 opacity-50 transition-opacity hover:opacity-100">
-                        <TrustLogo text="Life Interactive" />
-                        <TrustLogo text="WhatToPrompt" />
-                        <TrustLogo text="Cozaint Corp" />
-                        <TrustLogo text="Security World" />
+                    <div className="flex flex-wrap justify-center items-center gap-x-16 gap-y-8 opacity-60 grayscale transition-all hover:opacity-100 hover:grayscale-0">
+                        <img src={LifeLogo} alt="Life Interactive" className="h-8 object-contain" />
+                        <img src={PromptLogo} alt="WhatToPrompt" className="h-10 object-contain" />
+                        <img src={CozaintLogo} alt="Cozaint" className="h-10 object-contain" />
+                        <img src={SecurityLogo} alt="Security World" className="h-12 object-contain" />
                     </div>
                 </div>
             </section>
@@ -493,6 +490,14 @@ const Landing = () => {
 
                 </div>
             </footer>
+
+            {/* --- SCROLL TO TOP (Repositioned further up) --- */}
+            <button 
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                className="fixed bottom-28 right-8 w-12 h-12 bg-white/80 backdrop-blur-md rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-black/[0.04] flex items-center justify-center text-[#1D1D1F] z-[100] active:scale-95 transition-all"
+            >
+                <ChevronRight className="w-5 h-5 -rotate-90" />
+            </button>
         </div>
     );
 };
