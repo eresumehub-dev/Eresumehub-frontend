@@ -58,6 +58,9 @@ const Navbar = () => {
         return location.pathname.startsWith(path);
     };
 
+    // Hide Navbar on the landing page so it doesn't overlap/double-up
+    if (location.pathname === '/') return null;
+
     return (
         <header 
             className={`

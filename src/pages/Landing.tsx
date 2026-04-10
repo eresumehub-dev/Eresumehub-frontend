@@ -1,476 +1,496 @@
-import { Link } from 'react-router-dom';
-import { ArrowRight, Sparkles, CheckCircle2, Star, ChevronLeft, ChevronRight, Zap, Target, FileText, BarChart3, Wand2, Download, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
+import { 
+    ArrowRight, 
+    Sparkles, 
+    CheckCircle2, 
+    Star, 
+    ChevronLeft, 
+    ChevronRight, 
+    Target, 
+    ShieldCheck,
+    Globe,
+    Linkedin,
+    Instagram,
+    Briefcase
+} from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 
-// Import logos
-import cozaintLogo from '../../Logos/cozaint_logo.png';
-import lifeInteractiveLogo from '../../Logos/lifeinteractive-logo.jpg';
-import whattopromptLogo from '../../Logos/whattoprompt.png';
-import securityWorldLogo from '../../Logos/security_world_logo-1.png';
+// --- MOCKED LOGOS ---
+const TrustLogo = ({ text }: { text: string }) => (
+    <div className="font-bold text-[1.25rem] tracking-tight text-[#86868B] hover:text-[#1D1D1F] transition-colors cursor-default whitespace-nowrap">
+        {text}
+    </div>
+);
 
 const Landing = () => {
+    const { user } = useAuth();
+    const navigate = useNavigate();
     const [jobSearch, setJobSearch] = useState('');
     const [currentTestimonial, setCurrentTestimonial] = useState(0);
-    const { user } = useAuth();
-
-    // Smart Navigation Target
-    const ctaTarget = user ? '/dashboard' : '/signup';
 
     const testimonials = [
         {
             initials: 'PS',
             name: 'Priya S.',
-            role: 'Data Analyst',
-            improvement: '+42%',
-            rating: 5,
-            quote: 'Landed my dream job in just 2 weeks with the AI-optimized resume. The ATS score went from 58% to 94%!'
+            role: 'Data Scientist',
+            company: 'Tier 1 Tech',
+            quote: 'I was struggling to write about my past jobs. The AI helped me rewrite everything to sound so much more professional. I got 3 interviews in my first week using it!'
         },
         {
             initials: 'MK',
             name: 'Michael K.',
-            role: 'Software Engineer',
-            improvement: '+38%',
-            rating: 5,
-            quote: 'The AI suggestions transformed my bullet points. Got interview calls from 3 top tech companies within days!'
+            role: 'Product Lead',
+            company: 'Fintech Startup',
+            quote: 'My resume kept getting rejected by automated systems. E-resumehub showed me exactly which keywords I was missing. It\'s like having a cheat code for job hunting.'
         },
         {
             initials: 'AL',
             name: 'Anna L.',
-            role: 'Product Manager',
-            improvement: '+45%',
-            rating: 5,
-            quote: 'Professional templates and smart keyword matching helped me stand out. Worth every penny!'
+            role: 'Senior Designer',
+            company: 'Global Agency',
+            quote: 'I used to spend hours designing my own resume. These templates look incredibly clean, professional, and took me seconds to fill out. Highly recommend.'
         }
     ];
 
-    const features = [
-        { icon: <Wand2 className="w-6 h-6" />, title: 'AI Resume Rewriting', desc: 'Transform your content with AI' },
-        { icon: <Target className="w-6 h-6" />, title: 'Keyword Matching', desc: 'Auto-match job descriptions' },
-        { icon: <BarChart3 className="w-6 h-6" />, title: 'Compatibility Score', desc: 'Resume-job fit analysis' },
-        { icon: <Sparkles className="w-6 h-6" />, title: 'Smart Formatting', desc: 'ATS-friendly layouts' },
-        { icon: <Zap className="w-6 h-6" />, title: 'Role Optimization', desc: 'Tailored to your position' },
-        { icon: <Download className="w-6 h-6" />, title: 'PDF Export', desc: 'Professional downloads' },
-        { icon: <TrendingUp className="w-6 h-6" />, title: 'Real-time Feedback', desc: 'Instant improvements' },
-        { icon: <FileText className="w-6 h-6" />, title: 'Bullet Improver', desc: 'Enhanced achievements' }
-    ];
+    // Animation Variants
+    const fadeUp = {
+        hidden: { opacity: 0, y: 40 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
+    };
+    
+    const staggerContainer = {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
+    };
+
+    const handleCta = () => {
+        if (user) {
+            navigate(jobSearch ? `/create?title=${encodeURIComponent(jobSearch)}` : '/create');
+        } else {
+            navigate(jobSearch ? `/signup?title=${encodeURIComponent(jobSearch)}` : '/signup');
+        }
+    };
 
     return (
-        <div className="bg-[#F8FAFC] overflow-hidden">
-            {/* SECTION 1: HERO */}
-            <div className="relative min-h-screen flex items-center px-6 lg:px-8 overflow-hidden">
-                {/* Background gradient */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[#0A2A6B] via-[#0A2A6B] to-[#1e3a8a] opacity-95"></div>
+        <div className="bg-[#F5F5F7] min-h-screen font-['IBM_Plex_Sans'] text-[#1D1D1F] overflow-x-hidden selection:bg-[#1D1D1F] selection:text-white flex flex-col">
+            
+            {/* --- TOP NAVIGATION --- */}
+            <nav className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-6 max-w-[1800px] mx-auto">
+                <Link to="/" className="flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-[#1D1D1F]" />
+                    <span className="text-[18px] font-bold tracking-tight">E-resumehub</span>
+                </Link>
+                <div className="flex items-center gap-6">
+                    {user ? (
+                        <Link to="/dashboard" className="bg-[#1D1D1F] text-white px-5 py-2.5 rounded-full text-[14px] font-medium hover:bg-black transition-all active:scale-95 shadow-md">
+                            Dashboard
+                        </Link>
+                    ) : (
+                        <>
+                            <Link to="/login" className="text-[14px] font-medium text-[#86868B] hover:text-[#1D1D1F] transition-colors hidden md:block">Log In</Link>
+                            <Link to="/signup" className="bg-[#1D1D1F] text-white px-5 py-2.5 rounded-full text-[14px] font-medium hover:bg-black transition-all active:scale-95 shadow-md">
+                                Sign Up
+                            </Link>
+                        </>
+                    )}
+                </div>
+            </nav>
 
-                {/* Animated background shapes */}
-                <div className="absolute top-20 right-20 w-96 h-96 bg-[#4DCFFF] rounded-full filter blur-3xl opacity-20 animate-pulse"></div>
-                <div className="absolute bottom-20 left-20 w-96 h-96 bg-[#A855F7] rounded-full filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '1s' }}></div>
+            {/* --- SECTION 1: THE "PRO" HERO --- */}
+            <section className="relative min-h-[95vh] flex flex-col justify-center px-6 lg:px-12 pt-20 overflow-hidden max-w-[1800px] mx-auto w-full">
+                
+                {/* Immersive AI Aura Background */}
+                <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-gradient-to-br from-[#0066CC]/20 to-[#AF52DE]/20 rounded-full filter blur-[120px] pointer-events-none animate-pulse" />
+                <div className="absolute bottom-[10%] left-[-10%] w-[500px] h-[500px] bg-gradient-to-tr from-[#34C759]/10 to-[#0066CC]/10 rounded-full filter blur-[100px] pointer-events-none animate-pulse" />
 
-                <div className="relative z-10 max-w-7xl mx-auto w-full grid lg:grid-cols-2 gap-12 items-center py-20">
-                    {/* Left: Content */}
-                    <div className="text-white space-y-8">
-                        <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/20">
-                            <Sparkles className="w-4 h-4 text-[#4DCFFF]" />
-                            <span className="text-sm font-medium">AI-Powered Resume Builder</span>
+                <div className="relative z-10 grid lg:grid-cols-2 gap-16 lg:gap-8 items-center w-full mt-10 lg:mt-0">
+                    
+                    {/* Left: Authoritative Typography */}
+                    <motion.div 
+                        initial="hidden"
+                        animate="visible"
+                        variants={staggerContainer}
+                        className="space-y-8 max-w-2xl"
+                    >
+                        <motion.div variants={fadeUp} className="inline-flex items-center gap-2.5 bg-white/60 backdrop-blur-md px-4 py-2 rounded-full border border-black/[0.05] shadow-sm">
+                            <Sparkles className="w-4 h-4 text-[#AF52DE]" />
+                            <span className="text-[12px] font-bold tracking-widest uppercase text-[#1D1D1F]">Smart Resume Builder</span>
+                        </motion.div>
+
+                        <motion.h1 variants={fadeUp} className="text-[3.5rem] md:text-[5.5rem] font-medium leading-[1.05] tracking-tight text-[#1D1D1F]">
+                            Stop guessing.<br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1D1D1F] via-[#434345] to-[#86868B]">
+                                Start getting interviews.
+                            </span>
+                        </motion.h1>
+
+                        <motion.p variants={fadeUp} className="text-[1.25rem] text-[#86868B] font-light leading-relaxed max-w-xl">
+                            We help you turn your everyday work experience into a powerful story that recruiters and hiring software actually want to read.
+                        </motion.p>
+
+                        {/* Premium Spotlight-style Input */}
+                        <motion.div variants={fadeUp} className="pt-4 pb-16">
+                            <div className="relative group max-w-xl">
+                                <div className="absolute inset-[-4px] bg-gradient-to-r from-[#0066CC]/20 to-[#AF52DE]/20 rounded-[2rem] blur-lg group-hover:blur-xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
+                                
+                                <div className="relative flex flex-col sm:flex-row items-center bg-white p-2.5 rounded-[1.75rem] border border-black/[0.06] shadow-[0_15px_40px_rgb(0,0,0,0.08)] gap-2">
+                                    <div className="w-full flex items-center pl-4 pr-2 text-[#86868B]">
+                                        <Briefcase className="w-5 h-5 shrink-0" />
+                                        <input
+                                            type="text"
+                                            value={jobSearch}
+                                            onChange={(e) => setJobSearch(e.target.value)}
+                                            placeholder="What job do you want? (e.g. UX Director)"
+                                            className="w-full bg-transparent px-3 py-4 text-[16px] text-[#1D1D1F] placeholder-[#86868B]/70 outline-none font-medium"
+                                        />
+                                    </div>
+                                    <button 
+                                        onClick={handleCta}
+                                        className="w-full sm:w-auto bg-[#1D1D1F] text-white px-8 py-4 rounded-[1.25rem] font-medium text-[15px] hover:bg-black active:scale-[0.98] transition-all shadow-md shrink-0 whitespace-nowrap flex items-center justify-center gap-2"
+                                    >
+                                        Build My Resume <ArrowRight className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+
+                    {/* Right: Elegant, Calm UI Representation */}
+                    <motion.div 
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                        className="relative hidden lg:flex justify-center items-center h-[600px]"
+                    >
+                        {/* Clean, minimalist resume card */}
+                        <motion.div 
+                            animate={{ y: [-8, 8, -8] }}
+                            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                            className="w-[380px] bg-white rounded-[2rem] shadow-[0_20px_40px_rgb(0,0,0,0.08)] border border-black/[0.04] p-8 relative z-10"
+                        >
+                            <div className="flex items-center gap-4 mb-8">
+                                <div className="w-12 h-12 bg-gradient-to-br from-[#1D1D1F] to-[#434345] rounded-full flex items-center justify-center shadow-inner">
+                                    <Sparkles className="w-5 h-5 text-white" />
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="h-4 w-32 bg-[#1D1D1F] rounded-md"></div>
+                                    <div className="h-3 w-24 bg-[#86868B]/30 rounded-md"></div>
+                                </div>
+                            </div>
+                            <div className="space-y-6">
+                                {[1, 2, 3].map(i => (
+                                    <div key={i} className="space-y-2.5">
+                                        <div className="h-3 w-full bg-[#F5F5F7] rounded-md"></div>
+                                        <div className="h-3 w-5/6 bg-[#F5F5F7] rounded-md"></div>
+                                        {i !== 3 && <div className="h-3 w-4/6 bg-[#F5F5F7] rounded-md"></div>}
+                                    </div>
+                                ))}
+                            </div>
+                        </motion.div>
+
+                        {/* Floating ATS Badge */}
+                        <motion.div 
+                            animate={{ y: [8, -8, 8] }}
+                            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                            className="absolute right-[5%] bottom-[25%] bg-white/90 backdrop-blur-xl rounded-[1.25rem] shadow-[0_15px_30px_rgb(0,0,0,0.12)] border border-white p-5 z-20 flex items-center gap-4"
+                        >
+                            <div className="w-12 h-12 rounded-full bg-[#34C759]/10 flex items-center justify-center">
+                                <CheckCircle2 className="w-6 h-6 text-[#34C759]" />
+                            </div>
+                            <div>
+                                <div className="text-[20px] font-bold text-[#1D1D1F] leading-none mb-1">94% Match</div>
+                                <div className="text-[11px] font-semibold text-[#86868B] uppercase tracking-wider">ATS Optimized</div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+
+                </div>
+            </section>
+
+            {/* --- SECTION 2: SOCIAL PROOF --- */}
+            <section className="py-12 border-y border-black/[0.04] bg-white">
+                <div className="max-w-[1800px] mx-auto px-6 lg:px-12 flex flex-col md:flex-row items-center justify-between gap-8">
+                    <p className="text-[13px] font-semibold text-[#86868B] uppercase tracking-widest whitespace-nowrap">
+                        Trusted by people who landed jobs at
+                    </p>
+                    <div className="flex flex-wrap justify-center gap-x-12 gap-y-6 opacity-50 transition-opacity hover:opacity-100">
+                        <TrustLogo text="Life Interactive" />
+                        <TrustLogo text="WhatToPrompt" />
+                        <TrustLogo text="Cozaint Corp" />
+                        <TrustLogo text="Security World" />
+                    </div>
+                </div>
+            </section>
+
+            {/* --- SECTION 3: THE BENTO GRID --- */}
+            <section className="py-32 px-6 lg:px-12 max-w-[1800px] mx-auto">
+                <motion.div 
+                    initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeUp}
+                    className="mb-20 text-center max-w-3xl mx-auto"
+                >
+                    <h2 className="text-[3rem] font-medium text-[#1D1D1F] tracking-tight leading-tight mb-6">
+                        Everything you need.<br/>Nothing you don't.
+                    </h2>
+                    <p className="text-[1.25rem] text-[#86868B] font-light leading-relaxed">
+                        Simple tools built to help you beat the resume filters and impress real hiring managers.
+                    </p>
+                </motion.div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Large Bento Item 1 */}
+                    <motion.div 
+                        initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
+                        className="md:col-span-2 bg-white rounded-[2.5rem] p-10 md:p-14 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-black/[0.02] flex flex-col justify-between group overflow-hidden relative"
+                    >
+                        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#0066CC]/5 to-transparent rounded-bl-full pointer-events-none transform group-hover:scale-110 transition-transform duration-700" />
+                        <div className="relative z-10">
+                            <div className="w-16 h-16 bg-[#F5F5F7] rounded-[1.25rem] flex items-center justify-center mb-8">
+                                <Sparkles className="w-8 h-8 text-[#1D1D1F]" strokeWidth={1.5} />
+                            </div>
+                            <h3 className="text-[2rem] font-medium text-[#1D1D1F] mb-4 tracking-tight">Smart AI Rewriting</h3>
+                            <p className="text-[1.125rem] text-[#86868B] font-light leading-relaxed max-w-lg">
+                                Not great at writing? No problem. Our AI helps you rewrite your everyday tasks into strong, professional achievements that stand out to employers.
+                            </p>
+                        </div>
+                    </motion.div>
+
+                    {/* Small Bento Item 1 */}
+                    <motion.div 
+                        initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
+                        className="bg-white rounded-[2.5rem] p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-black/[0.02] flex flex-col justify-between group"
+                    >
+                        <div>
+                            <div className="w-16 h-16 bg-[#F5F5F7] rounded-[1.25rem] flex items-center justify-center mb-8 group-hover:bg-[#34C759]/10 transition-colors duration-500">
+                                <ShieldCheck className="w-8 h-8 text-[#1D1D1F] group-hover:text-[#34C759] transition-colors duration-500" strokeWidth={1.5} />
+                            </div>
+                            <h3 className="text-[1.5rem] font-medium text-[#1D1D1F] mb-4 tracking-tight">Beat the Resume Filters</h3>
+                            <p className="text-[1rem] text-[#86868B] font-light leading-relaxed">
+                                We make sure your resume can easily be read by the software companies use to screen applicants.
+                            </p>
+                        </div>
+                    </motion.div>
+
+                    {/* Small Bento Item 2 */}
+                    <motion.div 
+                        initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
+                        className="bg-white rounded-[2.5rem] p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-black/[0.02] flex flex-col justify-between group"
+                    >
+                        <div>
+                            <div className="w-16 h-16 bg-[#F5F5F7] rounded-[1.25rem] flex items-center justify-center mb-8 group-hover:bg-[#AF52DE]/10 transition-colors duration-500">
+                                <Target className="w-8 h-8 text-[#1D1D1F] group-hover:text-[#AF52DE] transition-colors duration-500" strokeWidth={1.5} />
+                            </div>
+                            <h3 className="text-[1.5rem] font-medium text-[#1D1D1F] mb-4 tracking-tight">Match the Job Perfectly</h3>
+                            <p className="text-[1rem] text-[#86868B] font-light leading-relaxed">
+                                Paste the link to the job you want, and we'll help you tailor your resume to match exactly what they are looking for.
+                            </p>
+                        </div>
+                    </motion.div>
+
+                    {/* Large Bento Item 2 */}
+                    <motion.div 
+                        initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
+                        className="md:col-span-2 bg-[#1D1D1F] rounded-[2.5rem] p-10 md:p-14 shadow-[0_15px_40px_rgb(0,0,0,0.2)] flex flex-col justify-between relative overflow-hidden group"
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-tr from-[#1D1D1F] to-[#434345] z-0" />
+                        
+                        <div className="absolute -right-10 -bottom-10 w-[300px] h-[200px] bg-white/10 backdrop-blur-md rounded-[2rem] border border-white/10 p-6 z-10 transform group-hover:-translate-x-4 group-hover:-translate-y-4 transition-transform duration-700 hidden md:block">
+                            <div className="flex items-center gap-2 mb-4">
+                                <Globe className="w-4 h-4 text-white/50" />
+                                <div className="text-[12px] font-mono text-white/80">eresumehub.com/johndoe</div>
+                            </div>
+                            <div className="h-2 w-full bg-white/20 rounded-full mb-3"></div>
+                            <div className="h-2 w-2/3 bg-white/20 rounded-full"></div>
                         </div>
 
-                        <h1 className="text-5xl md:text-7xl font-bold leading-tight">
-                            Build the Perfect Resume
-                            <span className="block bg-gradient-to-r from-[#4DCFFF] to-[#A855F7] bg-clip-text text-transparent mt-2">
-                                Powered by Advanced AI
-                            </span>
-                        </h1>
+                        <div className="relative z-20 text-white max-w-lg">
+                            <div className="w-16 h-16 bg-white/10 rounded-[1.25rem] flex items-center justify-center mb-8 backdrop-blur-md border border-white/10">
+                                <Globe className="w-8 h-8 text-white" strokeWidth={1.5} />
+                            </div>
+                            <h3 className="text-[2rem] font-medium mb-4 tracking-tight">Share Your Resume Online</h3>
+                            <p className="text-[1.125rem] text-white/70 font-light leading-relaxed">
+                                Get a professional link to your resume that you can share anywhere. You can even see when recruiters view it.
+                            </p>
+                        </div>
+                    </motion.div>
+                </div>
+            </section>
 
-                        <p className="text-xl text-gray-200 leading-relaxed">
-                            ATS-optimized. Professionally formatted. Tailored to your dream job — instantly.
+            {/* --- SECTION 4: TESTIMONIALS --- */}
+            <section className="py-16 bg-white border-y border-black/[0.04]">
+                <div className="max-w-[1800px] mx-auto px-6 lg:px-12">
+                    <div className="text-center mb-12">
+                        <h2 className="text-[2rem] font-medium text-[#1D1D1F] tracking-tight">
+                            Real people. Real job offers.
+                        </h2>
+                    </div>
+
+                    <div className="max-w-3xl mx-auto relative">
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={currentTestimonial}
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                transition={{ duration: 0.4 }}
+                                className="text-center px-4"
+                            >
+                                <div className="flex justify-center gap-1 mb-6">
+                                    {[1, 2, 3, 4, 5].map((i) => (
+                                        <Star key={i} className="w-4 h-4 fill-[#1D1D1F] text-[#1D1D1F]" />
+                                    ))}
+                                </div>
+                                <p className="text-[1.25rem] md:text-[1.5rem] text-[#1D1D1F] font-light leading-snug mb-8">
+                                    "{testimonials[currentTestimonial].quote}"
+                                </p>
+                                <div className="flex items-center justify-center gap-4">
+                                    <div className="w-12 h-12 rounded-full bg-[#F5F5F7] flex items-center justify-center text-[14px] font-semibold text-[#1D1D1F]">
+                                        {testimonials[currentTestimonial].initials}
+                                    </div>
+                                    <div className="text-left">
+                                        <div className="font-semibold text-[#1D1D1F] text-[15px]">{testimonials[currentTestimonial].name}</div>
+                                        <div className="text-[13px] text-[#86868B]">{testimonials[currentTestimonial].role} at {testimonials[currentTestimonial].company}</div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </AnimatePresence>
+
+                        <div className="flex justify-center gap-4 mt-10">
+                            <button 
+                                onClick={() => setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length)}
+                                className="w-10 h-10 rounded-full border border-black/[0.08] flex items-center justify-center text-[#1D1D1F] hover:bg-[#1D1D1F] hover:text-white transition-all focus:outline-none"
+                            >
+                                <ChevronLeft className="w-4 h-4" strokeWidth={2} />
+                            </button>
+                            <button 
+                                onClick={() => setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)}
+                                className="w-10 h-10 rounded-full border border-black/[0.08] flex items-center justify-center text-[#1D1D1F] hover:bg-[#1D1D1F] hover:text-white transition-all focus:outline-none"
+                            >
+                                <ChevronRight className="w-4 h-4" strokeWidth={2} />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* --- SECTION 5: PRICING / FINAL CTA --- */}
+            <section className="py-32 px-6 lg:px-12 max-w-[1800px] mx-auto flex-1">
+                <div className="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                    
+                    <div className="bg-white rounded-[2.5rem] p-10 md:p-14 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-black/[0.02]">
+                        <div className="inline-block bg-[#1D1D1F] text-white px-3.5 py-1.5 rounded-lg text-[11px] font-bold tracking-widest uppercase mb-8">
+                            Standard License
+                        </div>
+                        <h2 className="text-[2.75rem] md:text-[3.5rem] font-medium text-[#1D1D1F] tracking-tight mb-4 leading-none">
+                            100% Free to use.<br/>Seriously.
+                        </h2>
+                        <p className="text-[1.125rem] text-[#86868B] font-light mb-12 max-w-sm">
+                            Our core resume builder is completely free. No credit cards, no hidden fees, just great resumes.
+                        </p>
+                        
+                        <ul className="space-y-4 mb-14">
+                            {[
+                                'Unlimited AI rewrites',
+                                'Instant resume scoring',
+                                'Professional templates',
+                                'Download as a PDF anytime'
+                            ].map((feature, i) => (
+                                <li key={i} className="flex items-center gap-4 text-[16px] font-medium text-[#1D1D1F]">
+                                    <div className="w-6 h-6 rounded-full bg-[#34C759]/10 flex items-center justify-center shrink-0">
+                                        <CheckCircle2 className="w-4 h-4 text-[#34C759]" strokeWidth={2.5} />
+                                    </div>
+                                    {feature}
+                                </li>
+                            ))}
+                        </ul>
+
+                        <button 
+                            onClick={handleCta}
+                            className="w-full bg-[#1D1D1F] text-white px-8 py-5 rounded-[1.5rem] font-medium text-[17px] hover:bg-black active:scale-[0.98] transition-all shadow-[0_8px_20px_rgba(0,0,0,0.12)]"
+                        >
+                            Start Building for Free
+                        </button>
+                    </div>
+
+                    <div className="bg-[#F5F5F7] rounded-[2.5rem] p-10 md:p-14 border border-black/[0.04] flex flex-col justify-center">
+                        <div className="inline-block bg-[#0066CC]/10 text-[#0066CC] px-3.5 py-1.5 rounded-lg text-[11px] font-bold tracking-widest uppercase mb-8 self-start">
+                            Optional Add-on
+                        </div>
+                        <h3 className="text-[2.25rem] font-medium text-[#1D1D1F] tracking-tight mb-2">
+                            Get a Custom Link
+                        </h3>
+                        <div className="flex items-end gap-1.5 mb-6">
+                            <span className="text-[3rem] font-medium text-[#1D1D1F] leading-none tracking-tight">$9.99</span>
+                            <span className="text-[16px] text-[#86868B] mb-2 font-medium">/ year</span>
+                        </div>
+                        <p className="text-[1.125rem] text-[#86868B] font-light leading-relaxed mb-10">
+                            Want to look extra professional? Get your own custom website link for your resume without our branding.
+                        </p>
+                        <button className="w-full bg-white text-[#1D1D1F] border border-black/[0.08] px-8 py-5 rounded-[1.5rem] font-medium text-[17px] hover:bg-[#F5F5F7] active:scale-[0.98] transition-all shadow-sm">
+                            Coming Soon
+                        </button>
+                    </div>
+
+                </div>
+            </section>
+
+            {/* --- FOOTER --- */}
+            <footer className="bg-white border-t border-black/[0.04] pt-16 pb-8 px-6 lg:px-12 mt-auto">
+                <div className="max-w-[1800px] mx-auto">
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-16">
+                        <div className="col-span-2 lg:col-span-2 pr-8">
+                            <div className="flex items-center gap-2 mb-4">
+                                <span className="text-[20px] font-bold text-[#1D1D1F] tracking-tight">E-resumehub</span>
+                            </div>
+                            <p className="text-[14px] text-[#86868B] font-light leading-relaxed max-w-xs mb-6">
+                                The intelligent resume builder designed to bypass filters and help you land interviews faster.
+                            </p>
+                        </div>
+
+                        <div>
+                            <h4 className="text-[12px] font-bold uppercase tracking-widest text-[#1D1D1F] mb-6">Company</h4>
+                            <ul className="space-y-4 text-[14px]">
+                                <li><Link to="/about" className="text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">About Us</Link></li>
+                                <li><Link to="/careers" className="text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">Careers</Link></li>
+                                <li><Link to="/blog" className="text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">Blog</Link></li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h4 className="text-[12px] font-bold uppercase tracking-widest text-[#1D1D1F] mb-6">Tools</h4>
+                            <ul className="space-y-4 text-[14px]">
+                                <li><Link to="/create" className="text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">AI Resume Builder</Link></li>
+                                <li><Link to="/templates" className="text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">Templates</Link></li>
+                                <li><Link to="/ats-checker" className="text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">ATS Checker</Link></li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h4 className="text-[12px] font-bold uppercase tracking-widest text-[#1D1D1F] mb-6">Legal</h4>
+                            <ul className="space-y-4 text-[14px]">
+                                <li><Link to="/privacy" className="text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">Privacy Policy</Link></li>
+                                <li><Link to="/terms" className="text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">Terms of Service</Link></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-black/[0.04] gap-4">
+                        <p className="text-[13px] text-[#86868B] font-medium">
+                            © 2025 E-ResumeHub. All rights reserved.
                         </p>
 
-                        {/* Glassmorphic Search Box */}
-                        <div className="bg-white/10 backdrop-blur-xl p-2 rounded-3xl border border-white/20 shadow-2xl">
-                            <div className="flex items-center gap-3">
-                                <input
-                                    type="text"
-                                    value={jobSearch}
-                                    onChange={(e) => setJobSearch(e.target.value)}
-                                    placeholder="Enter your job title (e.g., Software Engineer)"
-                                    className="flex-1 bg-transparent px-6 py-4 text-white placeholder-gray-300 outline-none text-lg"
-                                />
-                                <Link to={user ? `/create?title=${encodeURIComponent(jobSearch)}` : `/signup?title=${encodeURIComponent(jobSearch)}`} className="text-center bg-gradient-to-r from-[#4DCFFF] to-[#A855F7] text-white px-8 py-4 rounded-2xl font-semibold hover:shadow-lg hover:shadow-[#4DCFFF]/50 transition-all duration-300 hover:scale-105">
-                                    Create My AI Resume
-                                </Link>
-                            </div>
-                        </div>
-
-                        <div className="flex gap-4">
-                            <Link
-                                to={ctaTarget}
-                                className="inline-flex items-center gap-2 bg-white text-[#0A2A6B] px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-xl hover:shadow-white/30 transition-all duration-300 hover:scale-105"
-                            >
-                                Get Started Free
-                                <ArrowRight className="w-5 h-5" />
-                            </Link>
-                            <Link to="/upload" className="inline-flex items-center gap-2 border-2 border-white/30 text-white px-8 py-4 rounded-2xl font-semibold text-lg hover:bg-white/10 transition-all">
-                                Upload Resume for Analysis
-                            </Link>
+                        <div className="flex items-center gap-5">
+                            <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="text-[#86868B] hover:text-[#1D1D1F] transition-colors">
+                                <Linkedin className="w-4 h-4" />
+                            </a>
+                            <a href="https://instagram.com" target="_blank" rel="noreferrer" className="text-[#86868B] hover:text-[#1D1D1F] transition-colors">
+                                <Instagram className="w-4 h-4" />
+                            </a>
                         </div>
                     </div>
 
-                    {/* Right: 3D Resume Preview */}
-                    <div className="relative">
-                        <div className="relative bg-white/10 backdrop-blur-xl p-8 rounded-[30px] border border-white/20 shadow-2xl transform hover:scale-105 transition-all duration-500">
-                            {/* Glowing border effect */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-[#4DCFFF] to-[#A855F7] rounded-[30px] opacity-50 blur-xl"></div>
-
-                            {/* Mock resume preview */}
-                            <div className="relative bg-white rounded-2xl p-8 shadow-2xl">
-                                <div className="space-y-4">
-                                    <div className="h-4 bg-[#0A2A6B] rounded w-2/3"></div>
-                                    <div className="h-2 bg-gray-300 rounded w-1/2"></div>
-                                    <div className="h-2 bg-gray-200 rounded w-full"></div>
-                                    <div className="space-y-2 pt-4">
-                                        <div className="h-2 bg-gray-300 rounded"></div>
-                                        <div className="h-2 bg-gray-300 rounded w-5/6"></div>
-                                        <div className="h-2 bg-gray-300 rounded w-4/6"></div>
-                                    </div>
-                                    <div className="pt-4 space-y-2">
-                                        <div className="h-3 bg-[#4DCFFF] rounded w-1/3"></div>
-                                        <div className="h-2 bg-gray-200 rounded"></div>
-                                        <div className="h-2 bg-gray-200 rounded w-11/12"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Floating badge */}
-                        <div className="absolute -top-4 -right-4 bg-gradient-to-r from-[#A855F7] to-[#4DCFFF] text-white px-6 py-3 rounded-2xl shadow-lg font-bold transform rotate-3 hover:rotate-0 transition-transform">
-                            ✨ AI Optimized
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* SECTION 2: TRUST BADGES */}
-            <div className="bg-white py-16">
-                <div className="max-w-7xl mx-auto px-6 lg:px-8">
-                    <p className="text-center text-sm font-semibold text-gray-500 uppercase tracking-wide mb-10">
-                        Trusted by top industry professionals
-                    </p>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 items-center">
-                        <a href="https://lifeinteractive.net/" target="_blank" rel="noopener noreferrer" className="flex justify-center items-center hover:opacity-80 transition-opacity">
-                            <img src={lifeInteractiveLogo} alt="Life Interactive" className="h-12 md:h-16 object-contain" />
-                        </a>
-                        <a href="https://whattoprompt.com/" target="_blank" rel="noopener noreferrer" className="flex justify-center items-center hover:opacity-80 transition-opacity">
-                            <img src={whattopromptLogo} alt="What To Prompt" className="h-12 md:h-16 object-contain" />
-                        </a>
-                        <a href="https://cozaint.com/" target="_blank" rel="noopener noreferrer" className="flex justify-center items-center hover:opacity-80 transition-opacity">
-                            <img src={cozaintLogo} alt="Cozaint Corporation" className="h-6 md:h-8 object-contain" />
-                        </a>
-                        <a href="https://security.world/" target="_blank" rel="noopener noreferrer" className="flex justify-center items-center hover:opacity-80 transition-opacity">
-                            <img src={securityWorldLogo} alt="Security World" className="h-12 md:h-16 object-contain" />
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            {/* SECTION 3: WHY E-RESUMEHUB AI */}
-            <div className="py-24 px-6 lg:px-8">
-                <div className="max-w-7xl mx-auto">
-                    <div className="text-center mb-16">
-                        <h2 className="text-4xl md:text-5xl font-bold text-[#0A2A6B] mb-4">
-                            Why E-ResumeHub AI?
-                        </h2>
-                        <p className="text-xl text-gray-600">Intelligent features that make you stand out</p>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {[
-                            { icon: <Wand2 className="w-8 h-8" />, title: 'AI-Powered Resume Builder', desc: 'Create job-specific resumes tailored to your exact role' },
-                            { icon: <BarChart3 className="w-8 h-8" />, title: 'Advanced ATS Score Engine', desc: 'Detects 2025-level ATS issues: keywords, formatting, numbers & more' },
-                            { icon: <FileText className="w-8 h-8" />, title: 'Professional Templates', desc: 'Stunning, HR-approved, recruiter-tested designs' },
-                            { icon: <Target className="w-8 h-8" />, title: 'Instant Job Targeting', desc: 'Paste a job description and get a matching resume' }
-                        ].map((card, i) => (
-                            <div
-                                key={i}
-                                className="bg-white rounded-[25px] p-8 shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 border border-gray-100 group"
-                            >
-                                <div className="w-16 h-16 bg-gradient-to-br from-[#4DCFFF] to-[#A855F7] rounded-2xl flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform">
-                                    {card.icon}
-                                </div>
-                                <h3 className="text-xl font-bold text-[#0A2A6B] mb-2">{card.title}</h3>
-                                <p className="text-gray-600">{card.desc}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            {/* SECTION 4: LIVE RESUME DEMO */}
-            <div className="bg-gradient-to-br from-[#0A2A6B] to-[#1e3a8a] py-24 px-6 lg:px-8">
-                <div className="max-w-7xl mx-auto">
-                    <div className="text-center mb-16">
-                        <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                            See How Your Resume Will Look
-                        </h2>
-                        <p className="text-xl text-gray-200">Professional templates that get you hired</p>
-                    </div>
-
-                    <div className="grid md:grid-cols-4 gap-6">
-                        {['Modern', 'Professional', 'Creative', 'Executive'].map((template, i) => (
-                            <div
-                                key={i}
-                                className="bg-white/10 backdrop-blur-xl rounded-[25px] p-6 border border-white/20 hover:scale-105 hover:shadow-2xl hover:shadow-[#4DCFFF]/30 transition-all duration-300 cursor-pointer group"
-                            >
-                                <div className="bg-white rounded-2xl h-64 mb-4 p-4 space-y-2">
-                                    <div className="h-3 bg-[#0A2A6B] rounded w-3/4"></div>
-                                    <div className="h-1 bg-gray-300 rounded w-1/2"></div>
-                                    <div className="h-1 bg-gray-200 rounded"></div>
-                                    <div className="h-1 bg-gray-200 rounded w-5/6"></div>
-                                    <div className="pt-2 space-y-1">
-                                        <div className="h-1 bg-gray-300 rounded"></div>
-                                        <div className="h-1 bg-gray-300 rounded w-11/12"></div>
-                                    </div>
-                                </div>
-                                <p className="text-white font-semibold text-center group-hover:text-[#4DCFFF] transition-colors">{template}</p>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="text-center mt-12">
-                        <Link to={ctaTarget} className="inline-flex items-center gap-2 text-white border-2 border-white/30 px-8 py-4 rounded-2xl font-semibold hover:bg-white/10 transition-all">
-                            Browse All Premium Templates
-                            <ArrowRight className="w-5 h-5" />
-                        </Link>
-                    </div>
-                </div>
-            </div>
-
-            {/* SECTION 5: FEATURES GRID */}
-            <div className="py-24 px-6 lg:px-8 bg-white">
-                <div className="max-w-7xl mx-auto">
-                    <div className="text-center mb-16">
-                        <h2 className="text-4xl md:text-5xl font-bold text-[#0A2A6B] mb-4">
-                            Complete Feature Set
-                        </h2>
-                        <p className="text-xl text-gray-600">Everything you need to build the perfect resume</p>
-                    </div>
-
-                    <div className="grid md:grid-cols-4 gap-6">
-                        {features.map((feature, i) => (
-                            <div
-                                key={i}
-                                className="text-center p-6 rounded-[20px] border border-gray-200 hover:border-[#4DCFFF] hover:shadow-lg transition-all duration-300"
-                                style={{ animationDelay: `${i * 0.1}s` }}
-                            >
-                                <div className="w-14 h-14 mx-auto mb-3 bg-gradient-to-br from-[#4DCFFF]/20 to-[#A855F7]/20 rounded-xl flex items-center justify-center text-[#0A2A6B]">
-                                    {feature.icon}
-                                </div>
-                                <h3 className="font-bold text-[#0A2A6B] mb-1">{feature.title}</h3>
-                                <p className="text-sm text-gray-600">{feature.desc}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            {/* SECTION 6: SUCCESS STORIES */}
-            <div className="bg-[#F8FAFC] py-24 px-6 lg:px-8">
-                <div className="max-w-5xl mx-auto">
-                    <div className="text-center mb-16">
-                        <h2 className="text-4xl md:text-5xl font-bold text-[#0A2A6B] mb-4">
-                            Real Users, Real Success
-                        </h2>
-                        <p className="text-xl text-gray-600">Join thousands who landed their dream jobs</p>
-                    </div>
-
-                    <div className="relative">
-                        <div className="bg-white rounded-[30px] p-10 shadow-xl border border-gray-100">
-                            <div className="flex gap-1 mb-6">
-                                {[...Array(testimonials[currentTestimonial].rating)].map((_, i) => (
-                                    <Star key={i} className="w-6 h-6 fill-yellow-400 text-yellow-400" />
-                                ))}
-                            </div>
-
-                            <p className="text-2xl text-gray-700 mb-8 italic leading-relaxed">
-                                "{testimonials[currentTestimonial].quote}"
-                            </p>
-
-                            <div className="flex items-center gap-4">
-                                <div className="w-16 h-16 bg-gradient-to-br from-[#4DCFFF] to-[#A855F7] rounded-full flex items-center justify-center text-white font-bold text-xl">
-                                    {testimonials[currentTestimonial].initials}
-                                </div>
-                                <div>
-                                    <p className="font-bold text-[#0A2A6B] text-lg">{testimonials[currentTestimonial].name}</p>
-                                    <p className="text-gray-600">Landed a {testimonials[currentTestimonial].role} Role</p>
-                                    <p className="text-[#4DCFFF] font-semibold">{testimonials[currentTestimonial].improvement} Resume Score Improvement</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Navigation */}
-                        <div className="flex justify-center gap-4 mt-8">
-                            <button
-                                onClick={() => setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length)}
-                                className="w-12 h-12 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center hover:bg-[#0A2A6B] hover:text-white transition-all"
-                            >
-                                <ChevronLeft className="w-5 h-5" />
-                            </button>
-                            <button
-                                onClick={() => setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)}
-                                className="w-12 h-12 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center hover:bg-[#0A2A6B] hover:text-white transition-all"
-                            >
-                                <ChevronRight className="w-5 h-5" />
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* SECTION 7: PRICING TEASER */}
-            <div className="py-24 px-6 lg:px-8 bg-white">
-                <div className="max-w-5xl mx-auto">
-                    <div className="text-center mb-16">
-                        <h2 className="text-4xl md:text-5xl font-bold text-[#0A2A6B] mb-4">
-                            100% Free to Use
-                        </h2>
-                        <p className="text-xl text-gray-600">All features included. No credit card required.</p>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-8">
-                        {/* Free Plan */}
-                        <div className="rounded-[30px] p-10 bg-gradient-to-br from-[#0A2A6B] to-[#1e3a8a] text-white shadow-2xl">
-                            <div className="inline-block bg-[#4DCFFF] text-[#0A2A6B] px-4 py-1 rounded-full text-sm font-bold mb-4">
-                                ALWAYS FREE
-                            </div>
-                            <h3 className="text-3xl font-bold mb-2">Standard</h3>
-                            <p className="text-gray-200 mb-6">Everything you need to get hired</p>
-                            <ul className="space-y-3 mb-8">
-                                {[
-                                    'Unlimited AI Resume Generation',
-                                    'Advanced ATS Score Engine',
-                                    'All Premium Templates',
-                                    'Unlimited AI Revisions',
-                                    'Cover Letter AI',
-                                    'Free Public URL (eresumehub.com/username/resume)',
-                                    'Photo Upload',
-                                    'Country-Specific Formatting'
-                                ].map((feature, i) => (
-                                    <li key={i} className="flex items-center gap-3">
-                                        <CheckCircle2 className="w-5 h-5 text-[#4DCFFF] flex-shrink-0" />
-                                        <span>{feature}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                            <Link
-                                to={ctaTarget}
-                                className="block text-center bg-white text-[#0A2A6B] px-8 py-4 rounded-2xl font-bold hover:shadow-xl transition-all"
-                            >
-                                Get Started Free
-                            </Link>
-                        </div>
-
-                        {/* Custom URL Add-on */}
-                        <div className="rounded-[30px] p-10 border-2 border-[#A855F7] hover:border-[#4DCFFF] transition-all hover:shadow-xl relative">
-                            <div className="absolute top-4 right-4 bg-gradient-to-r from-[#A855F7] to-[#4DCFFF] text-white px-4 py-1 rounded-full text-sm font-bold">
-                                ADD-ON
-                            </div>
-                            <h3 className="text-2xl font-bold text-[#0A2A6B] mb-2">Custom Domain</h3>
-                            <p className="text-gray-600 mb-6">Stand out with your personal brand</p>
-                            <div className="mb-6">
-                                <span className="text-4xl font-bold text-[#0A2A6B]">$9.99</span>
-                                <span className="text-gray-600">/year</span>
-                            </div>
-                            <ul className="space-y-3 mb-8">
-                                {[
-                                    'Custom URL (yourname.com)',
-                                    'Remove EresumeHub branding',
-                                    'Professional custom domain',
-                                    'Perfect for personal branding'
-                                ].map((feature, i) => (
-                                    <li key={i} className="flex items-center gap-3">
-                                        <CheckCircle2 className="w-5 h-5 text-[#A855F7] flex-shrink-0" />
-                                        <span className="text-gray-700">{feature}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                            <p className="text-sm text-gray-500 italic mb-6">
-                                *Optional add-on. All core features are always free.
-                            </p>
-                            <button
-                                className="block w-full text-center bg-gradient-to-r from-[#A855F7] to-[#4DCFFF] text-white px-8 py-4 rounded-2xl font-bold hover:shadow-xl hover:shadow-[#A855F7]/30 transition-all"
-                            >
-                                Coming Soon
-                            </button>
-                        </div>
-                    </div>
-
-                    <p className="text-center text-gray-500 mt-8 text-lg">
-                        🎉 <strong>No hidden fees.</strong> No subscriptions. Build unlimited resumes forever.
-                    </p>
-                </div>
-            </div>
-
-            {/* SECTION 8: FINAL CTA */}
-            <div className="relative py-32 px-6 lg:px-8 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-[#0A2A6B] via-[#4DCFFF] to-[#A855F7]"></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-
-                <div className="relative z-10 max-w-4xl mx-auto text-center text-white">
-                    <h2 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-                        Ready to Build a Winning Resume?
-                    </h2>
-                    <p className="text-2xl text-gray-100 mb-10 leading-relaxed">
-                        Get hired 10× faster with AI-powered tools trusted by professionals worldwide.
-                    </p>
-                    <Link
-                        to={ctaTarget}
-                        className="inline-flex items-center gap-3 bg-white text-[#0A2A6B] px-12 py-6 rounded-[25px] font-bold text-xl hover:shadow-2xl hover:shadow-white/50 transition-all duration-300 hover:scale-110"
-                    >
-                        Build My Resume Now
-                        <ArrowRight className="w-6 h-6" />
-                    </Link>
-                </div>
-            </div>
-
-            {/* SECTION 9: FOOTER */}
-            <footer className="bg-[#0A2A6B] text-white py-16 px-6 lg:px-8">
-                <div className="max-w-7xl mx-auto">
-                    <div className="grid md:grid-cols-3 gap-12 mb-12">
-                        {/* Column 1 */}
-                        <div>
-                            <h3 className="font-bold text-xl mb-4 text-[#4DCFFF]">About</h3>
-                            <ul className="space-y-2 text-gray-300">
-                                <li><Link to="/signup" className="hover:text-white transition-colors">About Us</Link></li>
-                                <li><Link to="/signup" className="hover:text-white transition-colors">Contact</Link></li>
-                                <li><Link to="/signup" className="hover:text-white transition-colors">Careers</Link></li>
-                                <li><Link to="/signup" className="hover:text-white transition-colors">Blog</Link></li>
-                            </ul>
-                        </div>
-
-                        {/* Column 2 */}
-                        <div>
-                            <h3 className="font-bold text-xl mb-4 text-[#4DCFFF]">Tools</h3>
-                            <ul className="space-y-2 text-gray-300">
-                                <li><Link to="/signup" className="hover:text-white transition-colors">AI Resume Builder</Link></li>
-                                <li><Link to="/signup" className="hover:text-white transition-colors">Resume Templates</Link></li>
-                                <li><Link to="/ats-check" className="hover:text-white transition-colors">ATS Checker</Link></li>
-                                <li><Link to="/signup" className="hover:text-white transition-colors">Cover Letter Builder</Link></li>
-                            </ul>
-                        </div>
-
-                        {/* Column 3 */}
-                        <div>
-                            <h3 className="font-bold text-xl mb-4 text-[#4DCFFF]">Support</h3>
-                            <ul className="space-y-2 text-gray-300">
-                                <li><Link to="#" className="hover:text-white transition-colors">Help Center</Link></li>
-                                <li><Link to="#" className="hover:text-white transition-colors">Privacy Policy</Link></li>
-                                <li><Link to="#" className="hover:text-white transition-colors">Terms of Service</Link></li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div className="border-t border-white/20 pt-8 text-center text-gray-400">
-                        <p>© 2025 E-ResumeHub. All rights reserved.</p>
-                    </div>
                 </div>
             </footer>
         </div>
