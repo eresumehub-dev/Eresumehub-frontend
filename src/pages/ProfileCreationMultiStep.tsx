@@ -1,11 +1,12 @@
 import React, { useState, forwardRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import {
-    Plus, Upload, CheckCircle, ArrowLeft,
-    User as UserIcon, Mail, Briefcase, GraduationCap, Award, Code, Globe, BookOpen, Star, MapPin, X, AlertTriangle, Linkedin, Loader2, Sparkles, ChevronRight
+    Plus, Upload, CheckCircle, ArrowLeft, ArrowRight,
+    User as UserIcon, Mail, Briefcase, GraduationCap, Award, Code, Globe, 
+    BookOpen, Star, MapPin, X, AlertTriangle, Linkedin, Loader2, Sparkles, CheckCircle2, HelpCircle
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { motion, AnimatePresence, LayoutGroup, MotionProps } from 'framer-motion';
 
 // Real Imports
 import { useAuth } from '../context/AuthContext';
@@ -18,100 +19,74 @@ import ImageCropper from '../components/ImageCropper';
 
 // --- STYLES & UTILITIES ---
 const GlobalStyles = () => (
-    <style>{`
+    <style dangerouslySetInnerHTML={{__html: `
     :root {
-      /* Executive Slate - Obsidian Theme Tokens */
-      --background: 240 10% 3.9%; /* #0A0A0B */
-      --foreground: 0 0% 98%;
-      
-      --card: 240 10% 3.9%;
-      --card-foreground: 0 0% 98%;
-      
-      --popover: 240 10% 3.9%;
-      --popover-foreground: 0 0% 98%;
-      
-      --primary: 210 100% 50%; /* Electric Blue #0066CC */
-      --primary-foreground: 0 0% 100%;
-      
-      --secondary: 240 3.7% 15.9%;
-      --secondary-foreground: 0 0% 98%;
-      
-      --muted: 240 3.7% 15.9%;
-      --muted-foreground: 240 5% 64.9%;
-      
-      --accent: 240 3.7% 15.9%;
-      --accent-foreground: 0 0% 98%;
-      
-      --destructive: 0 62.8% 30.6%;
-      --destructive-foreground: 0 0% 98%;
-      
-      --border: 240 3.7% 15.9%;
-      --input: 240 3.7% 15.9%;
-      --ring: 240 4.9% 83.9%;
-      
-      --radius: 1.25rem;
+      --background: 240 5% 98%;
+      --foreground: 240 10% 3.9%;
     }
-
-    body {
-      background-color: #0A0A0B;
-      color: #F8F8F8;
-      font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      -webkit-font-smoothing: antialiased;
-    }
-
+ 
     .glass-panel {
-      background: rgba(255, 255, 255, 0.03);
+      background: rgba(255, 255, 255, 0.75);
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
     }
 
     .glass-panel-elevated {
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.9);
       backdrop-filter: blur(40px);
       -webkit-backdrop-filter: blur(40px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(0, 0, 0, 0.04);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
     }
 
-    .input-glass {
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    .shimmer {
+      animation: shimmer 2s infinite linear;
     }
 
-    .input-glass:focus {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: rgba(0, 102, 204, 0.4);
-      box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.1);
-    }
-
-    @keyframes shine {
+    @keyframes shimmer {
       0% { transform: translateX(-100%) skewX(-15deg); }
       100% { transform: translateX(200%) skewX(-15deg); }
     }
-
-    .animate-shine {
-      animation: shine 3s infinite;
-    }
-
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #0A0A0B;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #2D2D30;
-      border-radius: 10px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #3D3D41;
-    }
-  `}</style>
+  `}} />
 );
 
+const springConfig = { type: "spring", mass: 1, stiffness: 80, damping: 20 };
+
+// --- COMPONENT: TOOLTIP ---
+interface TooltipProps {
+    children: React.ReactNode;
+    content: React.ReactNode;
+    side?: 'top' | 'bottom' | 'left' | 'right';
+}
+
+const Tooltip: React.FC<TooltipProps> = ({ children, content, side = 'top' }) => {
+    return (
+        <div className="relative group/tt inline-flex items-center justify-center">
+            {children}
+            <div className={`
+                absolute hidden group-hover/tt:block w-max max-w-[240px] text-left px-3 py-2
+                bg-[#1D1D1F] text-white text-[12px] font-medium leading-relaxed rounded-lg shadow-xl z-[100] pointer-events-none
+                ${side === 'top' ? 'bottom-full left-1/2 -translate-x-1/2 mb-2.5' : ''}
+                ${side === 'bottom' ? 'top-full left-1/2 -translate-x-1/2 mt-2.5' : ''}
+                ${side === 'left' ? 'right-full top-1/2 -translate-y-1/2 mr-2.5' : ''}
+                ${side === 'right' ? 'left-full top-1/2 -translate-y-1/2 ml-2.5' : ''}
+            `}>
+                {content}
+                <div className={`
+                    absolute border-[5px] border-transparent
+                    ${side === 'top' ? 'top-full left-1/2 -translate-x-1/2 -mt-[1px] border-t-[#1D1D1F]' : ''}
+                    ${side === 'bottom' ? 'bottom-full left-1/2 -translate-x-1/2 -mb-[1px] border-b-[#1D1D1F]' : ''}
+                    ${side === 'left' ? 'left-full top-1/2 -translate-y-1/2 -ml-[1px] border-l-[#1D1D1F]' : ''}
+                    ${side === 'right' ? 'right-full top-1/2 -translate-y-1/2 -mr-[1px] border-r-[#1D1D1F]' : ''}
+                `} />
+            </div>
+        </div>
+    );
+};
+
+// --- COMPONENT: FLIGHT STEPPER ---
 // --- COMPONENT: FLIGHT STEPPER ---
 interface Step {
     id: number;
@@ -126,43 +101,36 @@ interface FlightStepperProps {
     stepValidity: Record<number, 'valid' | 'invalid'>;
 }
 
-const springConfig = {
-    type: "spring" as const,
-    mass: 1,
-    stiffness: 80,
-    damping: 20,
-};
-
 const FlightStepper: React.FC<FlightStepperProps> = ({ steps, currentStep, onStepClick, stepValidity }) => {
     return (
         <LayoutGroup>
-            <div className="relative w-full overflow-hidden select-none py-4">
-                <div className="relative px-2 md:px-6">
-                    <div className="relative mx-4">
-                        {/* Connecting Lines Container */}
-                        <div className="absolute top-1/2 left-[15px] right-[15px] h-[2px] -translate-y-1/2 flex items-center z-0">
-                            {steps.slice(0, -1).map((_, i) => {
+            <div className="relative w-full overflow-hidden select-none py-6">
+                <div className="relative px-2 md:px-6 max-w-5xl mx-auto">
+                    <div className="relative mx-4 md:mx-6">
+                        <div className="absolute top-1/2 left-0 right-0 h-[3px] -translate-y-1/2 flex items-center z-0">
+                            {steps.slice(0, -1).map((_: any, i: number) => {
                                 const stepId = i + 1;
                                 const isPast = currentStep > stepId;
                                 const status = stepValidity[stepId];
 
                                 return (
-                                    <div key={i} className="h-full flex-1 relative bg-white/5 overflow-hidden">
+                                    <div key={i} className="h-full flex-1 relative bg-black/5 overflow-hidden">
                                         <motion.div
                                             className={`absolute inset-y-0 left-0 h-full ${status === 'invalid'
-                                                ? 'bg-amber-500/50'
+                                                ? 'bg-gradient-to-r from-amber-400 to-yellow-300'
                                                 : 'bg-gradient-to-r from-[#0066CC] to-[#4DCFFF]'
-                                                }`}
+                                            }`}
                                             initial={{ width: "0%" }}
                                             animate={{ width: isPast ? "101%" : "0%" }}
                                             transition={{ duration: 0.6, delay: i * 0.05, ease: "circOut" }}
-                                        />
+                                        >
+                                            {isPast && <div className="absolute inset-0 bg-white/30 skew-x-12 translate-x-full shimmer" />}
+                                        </motion.div>
                                     </div>
                                 )
                             })}
                         </div>
 
-                        {/* Step Gauges */}
                         <div className="relative flex items-center justify-between z-10">
                             {steps.map((step, index) => {
                                 const Icon = step.icon;
@@ -172,30 +140,40 @@ const FlightStepper: React.FC<FlightStepperProps> = ({ steps, currentStep, onSte
                                 const isValid = stepValidity[stepNumber] !== 'invalid';
 
                                 return (
-                                    <motion.button
-                                        key={step.id}
-                                        type="button"
-                                        onClick={() => onStepClick(step.id)}
-                                        className="relative flex flex-col items-center group focus:outline-none cursor-pointer"
-                                        whileTap={{ scale: 0.9 }}
-                                    >
-                                        <div
-                                            className={`
-                                                w-10 h-10 md:w-12 md:h-12 rounded-2xl 
-                                                flex items-center justify-center transition-all duration-500
-                                                ${isCompleted ? (isValid ? 'bg-[#0066CC]/20 border-[#0066CC]/30 text-[#4DCFFF]' : 'bg-amber-500/10 border-amber-500/30 text-amber-400') : ''}
-                                                ${isCurrent ? 'bg-white text-[#0A0A0B] border-white shadow-[0_0_20px_rgba(255,255,255,0.2)] scale-110' : ''}
-                                                ${!isCompleted && !isCurrent ? 'bg-[#1D1D1F] border-white/5 text-gray-500' : ''}
-                                                border z-20
-                                            `}
+                                    <Tooltip key={step.id} content={`Step ${stepNumber}: ${step.title}`} side="top">
+                                        <motion.button
+                                            key={step.id}
+                                            type="button"
+                                            onClick={() => onStepClick(step.id)}
+                                            className="relative flex flex-col items-center group focus:outline-none cursor-pointer"
+                                            whileTap={{ scale: 0.9 }}
+                                            whileHover={{ scale: 1.1 }}
+                                            transition={springConfig}
                                         >
-                                            {isCompleted ? (
-                                                isValid ? <CheckCircle className="w-5 h-5 md:w-6 md:h-6" /> : <AlertTriangle className="w-5 h-5 md:w-6 md:h-6" />
-                                            ) : (
-                                                <Icon className="w-5 h-5 md:w-6 md:h-6" />
-                                            )}
-                                        </div>
-                                    </motion.button>
+                                            <div
+                                                className={`
+                                                    w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-300 border-2 z-20
+                                                    ${isCompleted ? (isValid ? 'border-[#0066CC] bg-[#F0F7FF]' : 'border-amber-400 bg-amber-50') : ''}
+                                                    ${isCurrent ? 'border-[#1D1D1F] bg-[#1D1D1F] text-white shadow-xl shadow-black/10 scale-110' : ''}
+                                                    ${!isCompleted && !isCurrent ? 'border-black/10 bg-white text-[#86868B]' : ''}
+                                                `}
+                                                style={isCurrent ? { backgroundColor: '#1D1D1F' } : {}}
+                                            >
+                                                <motion.div layout transition={springConfig}>
+                                                    {isCompleted ? (
+                                                        isValid ? <CheckCircle className="w-5 h-5 text-[#0066CC]" /> : <AlertTriangle className="w-5 h-5 text-amber-500" />
+                                                    ) : (
+                                                        <Icon className={`w-4 h-4 md:w-5 md:h-5 ${isCurrent ? 'text-white' : 'currentColor'}`} />
+                                                    )}
+                                                </motion.div>
+                                            </div>
+                                            <div className="absolute top-14 text-center hidden md:block w-32">
+                                                <span className={`block text-[10px] font-bold uppercase tracking-widest transition-colors duration-300 ${isCurrent ? 'text-[#1D1D1F]' : 'text-[#86868B]'}`}>
+                                                    {step.title}
+                                                </span>
+                                            </div>
+                                        </motion.button>
+                                    </Tooltip>
                                 );
                             })}
                         </div>
@@ -206,196 +184,107 @@ const FlightStepper: React.FC<FlightStepperProps> = ({ steps, currentStep, onSte
     );
 };
 
-// --- COMPONENT: GLASS CARD ---
-interface GlassCardProps extends MotionProps {
-    children: React.ReactNode;
-    className?: string;
-    elevated?: boolean;
-    interactive?: boolean;
-    header?: {
-        icon?: any;
-        title: string;
-        subtitle?: string;
-        action?: React.ReactNode;
-    };
-    onClick?: () => void;
-}
-
-const GlassCard: React.FC<GlassCardProps> = ({
-    children,
-    className = '',
-    elevated = false,
-    interactive = false,
-    header,
-    onClick,
-    ...motionProps
-}) => {
-    return (
-        <motion.div
-            className={`
-                relative rounded-[2rem] overflow-hidden
-                ${elevated ? 'glass-panel-elevated' : 'glass-panel'}
-                ${interactive ? 'cursor-pointer hover:bg-white/[0.07] hover:border-white/20' : ''}
-                ${className}
-            `}
-            onClick={onClick}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            transition={springConfig}
-            whileHover={interactive ? { y: -4 } : undefined}
-            {...motionProps}
-        >
-            <div className={`relative z-10 ${header ? 'p-8' : 'p-0'}`}>
-                {header && (
-                    <div className="flex items-start justify-between mb-8 border-b border-white/5 pb-6">
-                        <div className="flex items-center gap-5">
-                            {header.icon && (
-                                <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 text-[#4DCFFF]">
-                                    <header.icon className="w-6 h-6" />
-                                </div>
-                            )}
-                            <div>
-                                <h3 className="text-xl font-medium text-white tracking-tight">
-                                    {header.title}
-                                </h3>
-                                {header.subtitle && (
-                                    <p className="text-sm text-gray-500 mt-1">
-                                        {header.subtitle}
-                                    </p>
-                                )}
-                            </div>
-                        </div>
-                        {header.action && <div className="flex-shrink-0">{header.action}</div>}
-                    </div>
-                )}
-                <div className={header ? '' : 'p-8'}>{children}</div>
-            </div>
-        </motion.div>
-    );
-};
-
 // --- COMPONENT: GLASS INPUTS ---
 interface GlassInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label?: string;
     icon?: any;
     error?: string;
-    monospace?: boolean;
-    labelAction?: React.ReactNode;
+    tooltip?: string;
 }
 
 const GlassInput = forwardRef<HTMLInputElement, GlassInputProps>(
-    ({ label, icon: Icon, error, monospace, labelAction, className = '', ...props }, ref) => {
-        return (
-            <div className="space-y-2.5">
-                {label && (
-                    <div className="flex items-center justify-between px-1">
-                        <label className="text-[12px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
-                            {label}
-                            {props.required && <span className="text-red-500/80">*</span>}
-                        </label>
-                        {labelAction}
-                    </div>
-                )}
-                <div className="relative group">
-                    {Icon && (
-                        <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-[#0066CC] transition-colors duration-300">
-                            <Icon className="w-5 h-5" />
-                        </div>
+    ({ label, icon: Icon, error, tooltip, className = '', ...props }, ref) => (
+        <motion.div className="space-y-1.5 w-full" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={springConfig}>
+            {label && (
+                <label className="flex items-center gap-1.5 text-[11px] font-bold text-[#86868B] uppercase tracking-wider pl-1">
+                    {label} {props.required && <span className="text-[#FF3B30]">*</span>}
+                    {tooltip && (
+                        <Tooltip content={tooltip}>
+                            <HelpCircle className="w-3.5 h-3.5 text-[#86868B] cursor-help hover:text-[#1D1D1F] transition-colors" />
+                        </Tooltip>
                     )}
-                    <input
-                        ref={ref}
-                        className={`
-                            w-full px-5 py-4 input-glass rounded-2xl text-white text-[15px]
-                            placeholder:text-gray-700 outline-none
-                            ${Icon ? 'pl-14' : ''}
-                            ${monospace ? 'font-mono' : ''}
-                            ${error ? 'border-red-500/50 focus:border-red-500' : ''}
-                            ${className}
-                        `}
-                        {...props}
-                    />
-                </div>
-                {error && <p className="text-xs text-red-400 font-medium pl-1">{error}</p>}
-            </div>
-        );
-    }
-);
-GlassInput.displayName = 'GlassInput';
-
-interface GlassTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
-    label?: string;
-    error?: string;
-    monospace?: boolean;
-    labelAction?: React.ReactNode;
-}
-
-const GlassTextarea = forwardRef<HTMLTextAreaElement, GlassTextareaProps>(
-    ({ label, error, monospace, labelAction, className = '', ...props }, ref) => {
-        return (
-            <div className="space-y-2.5">
-                {label && (
-                    <div className="flex items-center justify-between px-1">
-                        <label className="text-[12px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
-                            {label}
-                            {props.required && <span className="text-red-500/80">*</span>}
-                        </label>
-                        {labelAction}
-                    </div>
-                )}
-                <textarea
+                </label>
+            )}
+            <div className="relative group">
+                {Icon && <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#86868B] group-focus-within:text-[#1D1D1F] transition-colors"><Icon className="w-4 h-4" /></div>}
+                <input
                     ref={ref}
                     className={`
-                        w-full px-5 py-4 input-glass rounded-2xl text-white text-[15px]
-                        placeholder:text-gray-700 outline-none resize-none
-                        ${monospace ? 'font-mono' : ''}
+                        w-full px-4 py-3.5 bg-white/60 backdrop-blur-md rounded-xl text-[#1D1D1F] text-[14px] font-medium placeholder:text-[#86868B]/50 transition-all duration-300 border border-black/[0.04]
+                        hover:bg-white hover:border-black/10 focus:outline-none focus:bg-white focus:border-[#0066CC]/50 focus:ring-4 focus:ring-[#0066CC]/10
+                        ${Icon ? 'pl-11' : ''} ${error ? 'border-[#FF3B30] focus:border-[#FF3B30]' : ''}
                         ${className}
                     `}
                     {...props}
                 />
             </div>
-        );
-    }
-);
-GlassTextarea.displayName = 'GlassTextarea';
+        </motion.div>
+    ));
+GlassInput.displayName = 'GlassInput';
 
-// --- COMPONENT: MAGNETIC BUTTON ---
-const MagneticButton: React.FC<any> = ({ children, onClick, variant = 'primary', className = '', disabled, type = 'button' }) => {
-    return (
-        <motion.button
-            type={type}
-            onClick={onClick}
-            disabled={disabled}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className={`
-                relative overflow-hidden px-10 py-5 rounded-2xl font-bold text-[16px] transition-all duration-300 flex items-center justify-center gap-3
-                ${disabled ? 'opacity-30 cursor-not-allowed grayscale' : ''}
-                ${variant === 'primary'
-                    ? 'bg-white text-[#0A0A0B]'
-                    : 'bg-white/5 text-white border border-white/10 hover:bg-white/10'}
-                ${className}
-            `}
-        >
-            <span className="relative z-10 flex items-center gap-2">{children}</span>
-            {variant === 'primary' && !disabled && (
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-black/5 to-transparent skew-x-[-15deg] translate-x-[-100%] animate-shine" />
-            )}
-        </motion.button>
-    )
+interface GlassTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+    label?: string;
+    labelAction?: React.ReactNode;
+    tooltip?: string;
+    error?: string;
 }
 
-// --- MAIN APP ---
+const GlassTextarea = forwardRef<HTMLTextAreaElement, GlassTextareaProps>(
+    ({ label, labelAction, tooltip, error, className = '', ...props }, ref) => (
+        <motion.div className="space-y-1.5 w-full" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={springConfig}>
+            {label && (
+                <div className="flex items-center justify-between">
+                    <label className="flex items-center gap-1.5 text-[11px] font-bold text-[#86868B] uppercase tracking-wider pl-1">
+                        {label} {props.required && <span className="text-[#FF3B30]">*</span>}
+                        {tooltip && (
+                            <Tooltip content={tooltip}>
+                                <HelpCircle className="w-3.5 h-3.5 text-[#86868B] cursor-help hover:text-[#1D1D1F] transition-colors" />
+                            </Tooltip>
+                        )}
+                    </label>
+                    {labelAction}
+                </div>
+            )}
+            <textarea
+                ref={ref}
+                className={`
+                    w-full px-4 py-3.5 bg-white/60 backdrop-blur-md rounded-xl text-[#1D1D1F] text-[14px] font-medium placeholder:text-[#86868B]/50 transition-all duration-300 border border-black/[0.04] resize-none leading-relaxed
+                    hover:bg-white hover:border-black/10 focus:outline-none focus:bg-white focus:border-[#0066CC]/50 focus:ring-4 focus:ring-[#0066CC]/10
+                    ${error ? 'border-[#FF3B30] focus:border-[#FF3B30]' : ''}
+                    ${className}
+                `}
+                {...props}
+            />
+        </motion.div>
+    ));
+GlassTextarea.displayName = 'GlassTextarea';
+
+interface GlassCardProps {
+    children: React.ReactNode;
+    className?: string;
+    interactive?: boolean;
+}
+
+const GlassCard: React.FC<GlassCardProps> = ({ children, className = '' }) => (
+    <motion.div 
+        className={`glass-panel rounded-3xl p-6 md:p-8 relative ${className}`}
+        initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={springConfig}
+    >
+        {children}
+    </motion.div>
+);
+
+// --- MAIN APP / MULTI-STEPPER ---
 const STEPS = [
-    { id: 1, title: 'Identity', icon: UserIcon },
+    { id: 1, title: 'Personal', icon: UserIcon },
     { id: 2, title: 'Contact', icon: Mail },
-    { id: 3, title: 'Career', icon: Briefcase },
+    { id: 3, title: 'Experience', icon: Briefcase },
     { id: 4, title: 'Education', icon: GraduationCap },
     { id: 5, title: 'Skills', icon: Code },
     { id: 6, title: 'Languages', icon: Globe },
     { id: 7, title: 'Projects', icon: BookOpen },
-    { id: 8, title: 'Awards', icon: Award },
-    { id: 9, title: 'Values', icon: Star },
+    { id: 8, title: 'Certificates', icon: Award },
+    { id: 9, title: 'Extras', icon: Star },
     { id: 10, title: 'Review', icon: CheckCircle }
 ];
 
@@ -414,92 +303,76 @@ interface LocalUserProfile extends Omit<APIUserProfile, 'extras'> {
     };
 }
 
-const ProfileCreationMultiStep: React.FC = () => {
-    const { user } = useAuth();
+const ProfileCreationMultiStep = () => {
     const navigate = useNavigate();
-
+    const { user } = useAuth();
+    
     const [currentStep, setCurrentStep] = useState(1);
     const [loading, setLoading] = useState(false);
-    const [success, setSuccess] = useState(false);
-    const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
-    const [photoUploading, setPhotoUploading] = useState(false);
     const [importSuccess, setImportSuccess] = useState(false);
+    const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+    const [isFinished, setIsFinished] = useState(false);
+    const [availableCountries, setAvailableCountries] = useState<string[]>([]);
+    
+    const [photoUploading, setPhotoUploading] = useState(false);
+    const [cropImage, setCropImage] = useState<string | null>(null);
 
+    // Master profile state
     const [profile, setProfile] = useState<Partial<LocalUserProfile>>({
-        full_name: '',
-        email: user?.email || '',
-        phone: '',
-        street_address: '',
-        postal_code: '',
-        city: '',
-        country: 'Germany',
-        nationality: '',
-        date_of_birth: '',
-        linkedin_url: '',
-        photo_url: '',
-        skills: [],
-        languages: [],
-        links: [],
-        work_experiences: [],
-        educations: [],
-        projects: [],
-        certifications: [],
-        motivation: '',
-        self_pr: '',
-        extras: {
-            interests: [],
-            awards: [],
-            publications: [],
-            volunteering: []
-        }
+        full_name: '', email: user?.email || '', phone: '', street_address: '', postal_code: '', city: '', country: 'Germany',
+        nationality: '', date_of_birth: '', linkedin_url: '', photo_url: '',
+        professional_summary: '', motivation: '', self_pr: '',
+        skills: [], languages: [], links: [], work_experiences: [], educations: [], projects: [], certifications: [],
+        extras: { interests: [], awards: [], publications: [], volunteering: [] }
     });
 
-    const [availableCountries, setAvailableCountries] = useState<string[]>([]);
-
     useEffect(() => {
-        const fetchCountries = async () => {
-            try {
-                const countries = await getAvailableCountries();
-                setAvailableCountries(countries);
-            } catch (err) {
-                setAvailableCountries(['Germany', 'India', 'USA', 'UK', 'Canada']);
+        getAvailableCountries().then(setAvailableCountries);
+        getProfile().then(({ profile: backendProfile, exists }) => {
+            if (exists && backendProfile) {
+                const uiExtras = {
+                    interests: backendProfile.extras?.interests || [],
+                    awards: backendProfile.extras?.awards?.map(a => typeof a === 'string' ? a : a.title) || [],
+                    publications: backendProfile.extras?.publications?.map(p => typeof p === 'string' ? p : p.title) || [],
+                    volunteering: backendProfile.extras?.volunteering?.map(v => typeof v === 'string' ? v : v.role + ' at ' + v.organization) || []
+                };
+
+                setProfile({
+                    ...backendProfile,
+                    work_experiences: backendProfile.work_experiences || [],
+                    educations: backendProfile.educations || [],
+                    projects: backendProfile.projects || [],
+                    certifications: backendProfile.certifications || [],
+                    skills: backendProfile.skills || [],
+                    languages: backendProfile.languages || [],
+                    photo_url: backendProfile.photo_url || '',
+                    extras: uiExtras
+                } as LocalUserProfile);
             }
-        };
-        fetchCountries();
+        });
     }, []);
 
-    useEffect(() => {
-        const loadProfile = async () => {
-            try {
-                const { profile: backendProfile, exists } = await getProfile();
-                if (exists && backendProfile) {
-                    const uiExtras = {
-                        interests: backendProfile.extras?.interests || [],
-                        awards: backendProfile.extras?.awards?.map(a => typeof a === 'string' ? a : a.title) || [],
-                        publications: backendProfile.extras?.publications?.map(p => typeof p === 'string' ? p : p.title) || [],
-                        volunteering: backendProfile.extras?.volunteering?.map(v => typeof v === 'string' ? v : v.role + ' at ' + v.organization) || []
-                    };
+    const updateItem = (section: string, id: string, field: string, value: any) => {
+        setProfile(prev => ({ ...prev, [section]: (prev as any)[section].map((item: any) => item.id === id ? { ...item, [field]: value } : item) }));
+    };
+    const removeItem = (section: string, id: string) => {
+        setProfile(prev => ({ ...prev, [section]: (prev as any)[section].filter((item: any) => item.id !== id) }));
+    };
 
-                    setProfile({
-                        ...backendProfile,
-                        work_experiences: backendProfile.work_experiences || [],
-                        educations: backendProfile.educations || [],
-                        projects: backendProfile.projects || [],
-                        certifications: backendProfile.certifications || [],
-                        skills: backendProfile.skills || [],
-                        languages: backendProfile.languages || [],
-                        photo_url: backendProfile.photo_url || '',
-                        extras: uiExtras
-                    } as LocalUserProfile);
-                }
-            } catch (err) {
-                console.error('Failed to load profile:', err);
-            }
-        };
-        loadProfile();
-    }, []);
+    const nextStep = () => setCurrentStep(c => Math.min(c + 1, STEPS.length));
+    const prevStep = () => setCurrentStep(c => Math.max(c - 1, 1));
 
-    const [cropImage, setCropImage] = useState<string | null>(null);
+    const [newSkill, setNewSkill] = useState('');
+    const [newInterest, setNewInterest] = useState('');
+    const [newAward, setNewAward] = useState('');
+
+    const stepValidity: Record<number, 'valid' | 'invalid'> = {
+        1: (profile.full_name?.trim() && profile.professional_summary?.trim()) ? 'valid' : 'invalid',
+        2: profile.email?.trim() ? 'valid' : 'invalid',
+        3: profile.work_experiences?.some((w: any) => !w.job_title?.trim() || !w.company?.trim()) ? 'invalid' : 'valid',
+        4: profile.educations?.some((e: any) => !e.degree?.trim() || !e.institution?.trim()) ? 'invalid' : 'valid',
+        5: 'valid', 6: 'valid', 7: 'valid', 8: 'valid', 9: 'valid', 10: 'valid'
+    };
 
     const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -515,34 +388,21 @@ const ProfileCreationMultiStep: React.FC = () => {
         setCropImage(null);
         const objectUrl = URL.createObjectURL(croppedBlob);
         setProfile(prev => ({ ...prev, photo_url: objectUrl }));
-
         try {
             setPhotoUploading(true);
             const file = new File([croppedBlob], "profile_photo.jpg", { type: "image/jpeg" });
             const { photo_url } = await uploadProfilePicture(file);
             setProfile(prev => ({ ...prev, photo_url }));
-        } catch (err: any) {
-            console.error('Photo upload failed:', err);
-            setProfile(prev => ({ ...prev, photo_url: undefined }));
-            toast.error("Failed to upload photo.");
+        } catch (err) {
+            toast.error("Photo upload failed");
         } finally {
             setPhotoUploading(false);
-        }
-    };
-
-    const handleAutoSave = async () => {
-        if (!profile.full_name) return;
-        try {
-            await createOrUpdateProfile(profile as APIUserProfile);
-        } catch (err) {
-            console.error("Auto-save failed", err);
         }
     };
 
     const handleImportResume = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-
         try {
             setLoading(true);
             const { profile: importedProfile } = await createProfileFromResume(file);
@@ -552,18 +412,30 @@ const ProfileCreationMultiStep: React.FC = () => {
                 publications: importedProfile.extras?.publications?.map(p => typeof p === 'string' ? p : p.title) || [],
                 volunteering: importedProfile.extras?.volunteering?.map(v => typeof v === 'string' ? v : v.organization) || []
             };
-
-            setProfile(prev => ({
-                ...prev, ...importedProfile, certifications: importedProfile.certifications || [], extras: uiExtras
-            } as any));
-
+            setProfile(prev => ({ ...prev, ...importedProfile, certifications: importedProfile.certifications || [], extras: uiExtras } as any));
             setImportSuccess(true);
             setTimeout(() => setImportSuccess(false), 3000);
-        } catch (err: any) {
-            toast.error('Failed to analyze resume.');
+        } catch (err) {
+            toast.error("Import failed");
         } finally {
             setLoading(false);
-            e.target.value = '';
+        }
+    };
+
+    const handleAutoSave = async () => {
+        if (!profile.full_name) return;
+        try { await createOrUpdateProfile(profile as APIUserProfile); } catch (err) { console.error("Auto-save failed", err); }
+    };
+
+    const handleGenerateSummary = async () => {
+        setIsGeneratingSummary(true);
+        try {
+            const { summary } = await generateSummary(profile as APIUserProfile);
+            setProfile(prev => ({ ...prev, professional_summary: summary }));
+        } catch (err) {
+            toast.error("Summary generation failed");
+        } finally {
+            setIsGeneratingSummary(false);
         }
     };
 
@@ -579,227 +451,243 @@ const ProfileCreationMultiStep: React.FC = () => {
             };
             const payload = { ...profile, links: profile.links || [], extras: backendExtras };
             await createOrUpdateProfile(payload as any);
-            setSuccess(true);
-            toast.success("Profile Activated");
+            setIsFinished(true);
             setTimeout(() => navigate('/dashboard'), 2000);
-        } catch (err: any) {
-            toast.error("Failed to save profile.");
+        } catch (err) {
+            toast.error("Save failed");
         } finally {
             setLoading(false);
         }
     };
 
-    const handleGenerateSummary = async () => {
-        setIsGeneratingSummary(true);
-        try {
-            const { summary } = await generateSummary(profile as APIUserProfile);
-            setProfile(prev => ({ ...prev, professional_summary: summary }));
-        } catch (err) {
-            console.error("Failed to generate summary:", err);
-        } finally {
-            setIsGeneratingSummary(false);
-        }
-    };
-
-    const stepValidity = (() => {
-        const validity: Record<number, 'valid' | 'invalid'> = {};
-        const p = profile;
-        validity[1] = (p.full_name?.trim() && p.professional_summary?.trim()) ? 'valid' : 'invalid';
-        validity[2] = p.email?.trim() ? 'valid' : 'invalid';
-        validity[3] = p.work_experiences?.some((w: any) => !w.job_title?.trim() || !w.company?.trim()) ? 'invalid' : 'valid';
-        validity[4] = p.educations?.some((e: any) => !e.degree?.trim() || !e.institution?.trim()) ? 'invalid' : 'valid';
-        [5, 6, 7, 8, 9, 10].forEach(i => validity[i] = 'valid');
-        return validity;
-    })();
-
-    const [newSkill, setNewSkill] = useState('');
-
-    const addSkill = () => {
-        if (newSkill.trim() && !profile.skills?.includes(newSkill.trim())) {
-            setProfile({ ...profile, skills: [...(profile.skills || []), newSkill.trim()] });
-            setNewSkill('');
-        }
-    };
-
-
-    const updateItem = (section: string, id: string, field: string, value: any) => {
-        setProfile({
-            ...profile,
-            [section]: (profile as any)[section].map((item: any) => item.id === id ? { ...item, [field]: value } : item)
-        });
-    };
-
-    const removeItem = (section: string, id: string) => {
-        setProfile({ ...profile, [section]: (profile as any)[section].filter((item: any) => item.id !== id) });
-    };
-
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { staggerChildren: 0.05 } },
-        exit: { opacity: 0, scale: 0.95, filter: "blur(10px)", transition: { duration: 0.2 } }
-    };
-    const itemVariants = {
-        hidden: { opacity: 0, y: 30 },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } },
-    };
-
-    const renderStepContent = () => {
+    const renderContent = () => {
         switch (currentStep) {
-            case 1:
+            case 1: // Personal Information
                 return (
-                    <motion.div variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="space-y-12">
-                        <div className="flex flex-col md:flex-row justify-between items-start gap-6">
-                            <motion.div variants={itemVariants}>
-                                <h1 className="text-[2.5rem] font-medium text-white tracking-tight leading-none mb-3">Identity</h1>
-                                <p className="text-gray-500 text-lg font-light">The foundation of your professional profile.</p>
-                            </motion.div>
-                            <motion.div variants={itemVariants}>
-                                <button
-                                    type="button"
-                                    onClick={() => document.getElementById('resume-upload')?.click()}
-                                    className="flex items-center gap-3 px-6 py-3.5 bg-white/5 border border-white/10 text-white rounded-2xl hover:bg-white/10 transition-all font-bold text-sm"
-                                >
-                                    <Upload className="w-4 h-4 text-[#4DCFFF]" /> Fast Import
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
+                        <div className="flex justify-between">
+                            <div>
+                                <h2 className="text-2xl font-bold text-foreground tracking-tight">Personal Information</h2>
+                                <p className="text-muted-foreground text-base">Let's start with the basics</p>
+                            </div>
+                            <div className="relative">
+                                <button onClick={() => document.getElementById('resume-upload')?.click()} className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl shadow-lg hover:bg-indigo-700 transition-colors">
+                                    <Upload className="w-4 h-4" /> Import from Resume
                                 </button>
-                                <input id="resume-upload" type="file" accept=".pdf" className="hidden" onChange={handleImportResume} />
-                            </motion.div>
+                                <input id="resume-upload" type="file" accept=".pdf,.docx,.txt" className="hidden" onChange={handleImportResume} />
+                            </div>
                         </div>
-
-                        <div className="grid lg:grid-cols-[160px_1fr] gap-12 items-start">
-                            <motion.div variants={itemVariants} className="flex flex-col items-center">
-                                <label className="relative group cursor-pointer">
-                                    <div className="w-40 h-40 rounded-[2.5rem] bg-white/5 border border-white/5 flex items-center justify-center overflow-hidden transition-all group-hover:border-[#0066CC]/50 group-hover:bg-white/[0.08]">
-                                        {photoUploading ? (
-                                            <Loader2 className="w-8 h-8 text-[#0066CC] animate-spin" />
-                                        ) : profile.photo_url ? (
-                                            <img src={profile.photo_url} alt="Profile" className="w-full h-full object-cover" />
-                                        ) : (
-                                            <Upload className="w-8 h-8 text-gray-700 group-hover:text-white transition-colors" />
-                                        )}
-                                        <input type="file" accept="image/*" className="hidden" onChange={handlePhotoSelect} disabled={photoUploading} />
-                                    </div>
-                                    <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-white rounded-2xl flex items-center justify-center shadow-2xl text-[#0A0A0B]">
-                                        <Plus className="w-5 h-5" />
-                                    </div>
-                                </label>
-                                <p className="text-[10px] uppercase font-bold tracking-widest text-gray-600 mt-6">Professional Portrait</p>
-                            </motion.div>
-
-                            <div className="space-y-10">
-                                <motion.div variants={itemVariants} className="grid md:grid-cols-2 gap-6">
-                                    <GlassInput label="Full Legal Name" placeholder="e.g. Jean-Luc Picard" value={profile.full_name || ''} onChange={e => setProfile({ ...profile, full_name: e.target.value })} onBlur={handleAutoSave} required className="md:col-span-2" />
-                                    <GlassInput label="Birth Date" type="date" value={profile.date_of_birth || ''} onChange={e => setProfile({ ...profile, date_of_birth: e.target.value })} onBlur={handleAutoSave} required />
-                                    <GlassInput label="Primary Citizenship" placeholder="e.g. French" value={profile.nationality || ''} onChange={e => setProfile({ ...profile, nationality: e.target.value })} onBlur={handleAutoSave} required />
-                                </motion.div>
-
-                                <motion.div variants={itemVariants}>
+                        <div className="flex flex-col md:flex-row gap-8">
+                            <div className="w-full md:w-auto flex flex-col items-center gap-3">
+                                <div className="space-y-4">
+                                    <Tooltip content="Upload a professional headshot. Max size 2MB. Often expected in DACH regions." side="right">
+                                        <div className="w-32 h-32 rounded-2xl bg-white border-2 border-dashed border-black/10 flex items-center justify-center cursor-pointer hover:border-primary/50 transition-colors shadow-sm group relative overflow-hidden">
+                                            {photoUploading ? (
+                                                <Loader2 className="w-6 h-6 text-primary animate-spin" />
+                                            ) : profile.photo_url ? (
+                                                <img src={profile.photo_url} alt="Profile" className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="text-center">
+                                                    <Upload className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors mx-auto mb-2" />
+                                                    <span className="text-[10px] text-muted-foreground">Upload Photo</span>
+                                                </div>
+                                            )}
+                                            <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handlePhotoSelect} />
+                                        </div>
+                                    </Tooltip>
+                                </div>
+                            </div>
+                            <div className="flex-1 space-y-5">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    <GlassInput label="Full Name" placeholder="e.g. Allen Samuel" value={profile.full_name || ''} onChange={e => setProfile({ ...profile, full_name: e.target.value })} onBlur={handleAutoSave} icon={UserIcon} required className="md:col-span-2" />
+                                    <GlassInput
+                                        label="Date of Birth"
+                                        type="date"
+                                        value={profile.date_of_birth || ''}
+                                        onChange={e => setProfile({ ...profile, date_of_birth: e.target.value })}
+                                        onBlur={handleAutoSave}
+                                        required
+                                    />
+                                    <GlassInput
+                                        label="Nationality"
+                                        placeholder="e.g. American"
+                                        value={profile.nationality || ''}
+                                        onChange={e => setProfile({ ...profile, nationality: e.target.value })}
+                                        onBlur={handleAutoSave}
+                                        required
+                                    />
+                                </div>
+                                <div>
                                     <GlassTextarea
-                                        label="Professional Bio"
-                                        placeholder="Briefly describe your expertise..."
-                                        rows={6}
+                                        label="Professional Summary"
+                                        placeholder="Experienced software engineer..."
+                                        rows={4}
                                         value={profile.professional_summary || ''}
                                         onChange={e => setProfile({ ...profile, professional_summary: e.target.value })}
                                         required
                                         labelAction={
-                                            <button
-                                                type="button"
-                                                onClick={handleGenerateSummary}
-                                                disabled={isGeneratingSummary}
-                                                className="flex items-center gap-2 text-[10px] font-bold text-[#4DCFFF] uppercase tracking-widest bg-white/5 px-4 py-2 rounded-xl border border-white/5 hover:bg-white/10 transition-all"
-                                            >
-                                                {isGeneratingSummary ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
-                                                Generate with AI
-                                            </button>
+                                            <div className="relative group">
+                                                <button
+                                                    type="button"
+                                                    onClick={handleGenerateSummary}
+                                                    disabled={isGeneratingSummary}
+                                                    className="flex items-center gap-1.5 text-[10px] font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-full transition-colors disabled:opacity-50 border border-indigo-100"
+                                                >
+                                                    {isGeneratingSummary ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                                                    {isGeneratingSummary ? 'Writing...' : 'Write with AI'}
+                                                </button>
+                                            </div>
                                         }
                                     />
-                                </motion.div>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-4 pt-4 border-t border-black/5">
+                                    <div className="col-span-full">
+                                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">
+                                            Regional Requirements (DACH & Japan)
+                                        </p>
+                                    </div>
+                                    <GlassTextarea
+                                        label="Self-PR (自己PR)"
+                                        placeholder="Highlight your core strengths and character..."
+                                        value={profile.self_pr || ''}
+                                        onChange={e => setProfile({ ...profile, self_pr: e.target.value })}
+                                        onBlur={handleAutoSave}
+                                        rows={3}
+                                    />
+                                    <GlassTextarea
+                                        label="Motivation (志望動機)"
+                                        placeholder="Why do you want to work in this industry/role?"
+                                        value={profile.motivation || ''}
+                                        onChange={e => setProfile({ ...profile, motivation: e.target.value })}
+                                        onBlur={handleAutoSave}
+                                        rows={3}
+                                    />
+                                </div>
                             </div>
                         </div>
                     </motion.div>
                 );
-            case 2:
+            case 2: // Contact
                 return (
-                    <motion.div variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="space-y-12">
-                        <motion.div variants={itemVariants}>
-                            <h1 className="text-[2.5rem] font-medium text-white tracking-tight leading-none mb-3">Reach</h1>
-                            <p className="text-gray-500 text-lg font-light">Global reachability starts here.</p>
-                        </motion.div>
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
+                        <div><h2 className="text-2xl font-bold">Contact Information</h2></div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <GlassInput label="Email" icon={Mail} value={profile.email || ''} onChange={e => setProfile({ ...profile, email: e.target.value })} placeholder="e.g. allen@example.com" onBlur={handleAutoSave} required />
+                            <GlassInput label="Phone" value={profile.phone || ''} onChange={e => setProfile({ ...profile, phone: e.target.value })} placeholder="e.g. +1 (555) 123-4567" onBlur={handleAutoSave} />
 
-                        <motion.div variants={itemVariants} className="grid md:grid-cols-2 gap-8">
-                            <GlassInput label="Professional Email" icon={Mail} value={profile.email || ''} onChange={e => setProfile({ ...profile, email: e.target.value })} onBlur={handleAutoSave} required />
-                            <GlassInput label="Mobile Number" value={profile.phone || ''} onChange={e => setProfile({ ...profile, phone: e.target.value })} onBlur={handleAutoSave} placeholder="+X XXX-XXX-XXXX" />
-                            <GlassInput label="Location (Street)" value={profile.street_address || ''} onChange={e => setProfile({ ...profile, street_address: e.target.value })} onBlur={handleAutoSave} placeholder="123 Silicon Valley Way" />
-                            <div className="grid grid-cols-2 gap-4">
-                                <GlassInput label="Zip Code" value={profile.postal_code || ''} onChange={e => setProfile({ ...profile, postal_code: e.target.value })} onBlur={handleAutoSave} />
-                                <GlassInput label="City" icon={MapPin} value={profile.city || ''} onChange={e => setProfile({ ...profile, city: e.target.value })} onBlur={handleAutoSave} />
-                            </div>
-                            <div className="space-y-2.5">
-                                <label className="text-[12px] font-bold text-gray-500 uppercase tracking-widest px-1">Market Region</label>
+                            <GlassInput label="Street & Number" value={profile.street_address || ''} onChange={e => setProfile({ ...profile, street_address: e.target.value })} placeholder="e.g. 123 Innovation Drive, Apt 4B" required onBlur={handleAutoSave} />
+                            <GlassInput label="Postal Code" value={profile.postal_code || ''} onChange={e => setProfile({ ...profile, postal_code: e.target.value })} placeholder="e.g. 94105" required onBlur={handleAutoSave} />
+
+                            <GlassInput label="City" icon={MapPin} value={profile.city || ''} onChange={e => setProfile({ ...profile, city: e.target.value })} placeholder="e.g. San Francisco" required onBlur={handleAutoSave} />
+                            <div className="space-y-2">
+                                <label className="text-[11px] font-bold text-muted-foreground uppercase">Country</label>
                                 <select
-                                    className="w-full px-5 py-4 input-glass rounded-2xl text-white outline-none appearance-none"
+                                    className="w-full px-4 py-3.5 bg-white/50 rounded-xl text-sm border border-black/5"
                                     value={profile.country || 'Germany'}
-                                    onChange={(e) => setProfile({ ...profile, country: e.target.value })}
+                                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setProfile({ ...profile, country: e.target.value })}
                                 >
-                                    {availableCountries.map(c => <option key={c} value={c} className="bg-[#1D1D1F]">{c}</option>)}
+                                    {availableCountries.map(c => <option key={c} value={c}>{c}</option>)}
                                 </select>
                             </div>
-                            <GlassInput label="Social Architecture (LinkedIn)" icon={Linkedin} value={profile.linkedin_url || ''} onChange={e => setProfile({ ...profile, linkedin_url: e.target.value })} onBlur={handleAutoSave} placeholder="linkedin.com/in/username" />
-                        </motion.div>
-                    </motion.div>
-                );
-            case 3:
-                return (
-                    <motion.div variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="space-y-10">
-                        <div className="flex justify-between items-center">
-                            <motion.div variants={itemVariants}>
-                                <h1 className="text-[2.5rem] font-medium text-white tracking-tight leading-none mb-3">Career History</h1>
-                                <p className="text-gray-500 text-lg font-light">Your professional trajectory.</p>
-                            </motion.div>
-                            <MagneticButton variant="secondary" onClick={() => setProfile({
-                                ...profile, work_experiences: [...(profile.work_experiences || []), { id: Date.now().toString(), job_title: '', company: '', city: '', country: profile.country || '', start_date: '', end_date: '', is_current: false, achievements: [] }]
-                            })} className="!px-6 !py-3">
-                                <Plus className="w-4 h-4" /> Add
-                            </MagneticButton>
+                            <GlassInput label="LinkedIn URL" icon={Linkedin} value={profile.linkedin_url || ''} onChange={e => setProfile({ ...profile, linkedin_url: e.target.value })} placeholder="e.g. https://linkedin.com/in/allensamuel" className="md:col-span-2" />
                         </div>
 
-                        <div className="space-y-6">
+                        <div className="space-y-4 pt-4 border-t border-black/5">
+                            <div className="flex justify-between items-center">
+                                <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider pl-1">Personal Links (Portfolio, Behance, etc.)</h3>
+                                <button onClick={() => setProfile(prev => ({ ...prev, links: [...(prev.links || []), { label: '', url: '' }] }))} className="p-1.5 bg-secondary hover:bg-secondary/80 rounded-lg transition-colors">
+                                    <Plus className="w-4 h-4" />
+                                </button>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {profile.links?.map((link, idx) => (
+                                    <div key={idx} className="relative group p-4 bg-white/40 border border-black/5 rounded-2xl space-y-3">
+                                        <button onClick={() => setProfile(prev => ({ ...prev, links: prev.links?.filter((_, i) => i !== idx) }))} className="absolute top-2 right-2 p-1 text-muted-foreground hover:text-destructive">
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                        <GlassInput label="Label" placeholder="e.g. GitHub, Portfolio" value={link.label} onChange={e => {
+                                            const newLinks = [...(profile.links || [])]; newLinks[idx].label = e.target.value; setProfile(prev => ({ ...prev, links: newLinks }));
+                                        }} />
+                                        <GlassInput label="Link URL" placeholder="e.g. https://github.com/allensamuel" value={link.url} onChange={e => {
+                                            const newLinks = [...(profile.links || [])]; newLinks[idx].url = e.target.value; setProfile(prev => ({ ...prev, links: newLinks }));
+                                        }} />
+                                    </div>
+                                ))}
+                                {(!profile.links || profile.links.length === 0) && (
+                                    <div className="md:col-span-2 py-8 text-center border-2 border-dashed border-black/5 rounded-2xl text-muted-foreground/50 text-sm">
+                                        No personal links added yet. Click + to add your portfolio, Behance, or GitHub.
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </motion.div>
+                );
+            case 3: // Work
+                return (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
+                        <div className="flex justify-between items-center"><h2 className="text-2xl font-bold">Work Experience</h2><button onClick={() => setProfile(prev => ({ ...prev, work_experiences: [...(prev.work_experiences || []), { id: Date.now().toString(), job_title: '', company: '', city: '', country: profile.country || '', start_date: '', end_date: '', is_current: false, achievements: [] }] }))} className="p-2 bg-secondary rounded-xl"><Plus className="w-4 h-4" /></button></div>
+                        <div className="space-y-4">
                             {profile.work_experiences?.map((exp: any) => (
-                                <GlassCard key={exp.id} header={{ title: exp.job_title || 'New Assignment', subtitle: exp.company || 'Organization Name', icon: Briefcase, action: <button onClick={() => removeItem('work_experiences', exp.id)} className="p-2 text-gray-600 hover:text-red-400 transition-colors"><X className="w-5 h-5" /></button> }}>
-                                    <div className="grid md:grid-cols-2 gap-6 mb-8">
-                                        <GlassInput label="Executive Title" value={exp.job_title} onChange={e => updateItem('work_experiences', exp.id, 'job_title', e.target.value)} />
-                                        <GlassInput label="Organization" value={exp.company} onChange={e => updateItem('work_experiences', exp.id, 'company', e.target.value)} />
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <GlassInput label="Arrival" type="month" value={(exp.start_date || '').substring(0, 7)} onChange={e => updateItem('work_experiences', exp.id, 'start_date', e.target.value)} />
-                                            <GlassInput label="Departure" type="month" value={(exp.end_date || '').substring(0, 7)} disabled={exp.is_current} onChange={e => updateItem('work_experiences', exp.id, 'end_date', e.target.value)} />
+                                <GlassCard key={exp.id} className="relative group">
+                                    <button onClick={() => removeItem('work_experiences', exp.id)} className="absolute top-4 right-4"><X className="w-4 h-4 text-muted-foreground" /></button>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                        <GlassInput label="Job Title" value={exp.job_title || ''} placeholder="e.g. Senior Frontend Developer" onChange={(e) => updateItem('work_experiences', exp.id, 'job_title', e.target.value)} onBlur={handleAutoSave} />
+                                        <GlassInput label="Company" value={exp.company || ''} placeholder="e.g. TechNova Inc." onChange={(e) => updateItem('work_experiences', exp.id, 'company', e.target.value)} onBlur={handleAutoSave} />
+                                        <GlassInput label="City" value={exp.city || ''} placeholder="e.g. Berlin" onChange={(e) => updateItem('work_experiences', exp.id, 'city', e.target.value)} onBlur={handleAutoSave} />
+                                        <GlassInput label="Country" value={exp.country || ''} placeholder="e.g. Germany" onChange={(e) => updateItem('work_experiences', exp.id, 'country', e.target.value)} onBlur={handleAutoSave} />
+                                        <div className="md:col-span-2 grid grid-cols-2 gap-4">
+                                            <GlassInput label="Start Date" type="month" value={(exp.start_date || '').substring(0, 7)} onChange={(e) => updateItem('work_experiences', exp.id, 'start_date', e.target.value)} onBlur={handleAutoSave} />
+                                            <GlassInput label="End Date" type="month" value={(exp.end_date || '').substring(0, 7)} onChange={(e) => updateItem('work_experiences', exp.id, 'end_date', e.target.value)} disabled={exp.is_current} onBlur={handleAutoSave} />
                                         </div>
-                                        <div className="flex items-center gap-3 pt-8 px-2">
-                                            <input type="checkbox" checked={exp.is_current} onChange={e => updateItem('work_experiences', exp.id, 'is_current', e.target.checked)} className="w-5 h-5 rounded-lg border-white/10 bg-white/5 accent-[#0066CC]" />
-                                            <span className="text-sm text-gray-400 font-medium">Currently Engaged</span>
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                                type="checkbox"
+                                                checked={exp.is_current || false}
+                                                onChange={(e) => updateItem('work_experiences', exp.id, 'is_current', e.target.checked)}
+                                                onBlur={handleAutoSave}
+                                                className="rounded border-gray-300"
+                                            />
+                                            <span className="text-xs">Current Role</span>
                                         </div>
                                     </div>
-                                    <div className="space-y-4">
-                                        <label className="text-[10px] font-bold text-gray-600 uppercase tracking-widest px-1">Performance Benchmarks</label>
-                                        <div className="space-y-3">
-                                            {(exp.achievements || []).map((ach: string, aIdx: number) => (
-                                                <div key={aIdx} className="flex gap-3 group">
+
+                                    <div className="space-y-3">
+                                        <div className="flex justify-between items-center">
+                                            <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider pl-1">Key Achievements (Bullet Points)</label>
+                                            <span className="text-[9px] text-indigo-500 font-medium">3-5 bullets with metrics recommended</span>
+                                        </div>
+                                        <div className="space-y-2">
+                                            {(Array.isArray(exp.achievements) ? exp.achievements : [exp.achievements]).map((achievement: string, aIdx: number) => (
+                                                <div key={aIdx} className="flex gap-2">
                                                     <GlassInput
                                                         className="flex-1"
-                                                        placeholder="Quantified achievement..."
-                                                        value={ach}
-                                                        onChange={e => {
-                                                            const n = [...exp.achievements];
-                                                            n[aIdx] = e.target.value;
-                                                            updateItem('work_experiences', exp.id, 'achievements', n);
+                                                        placeholder={aIdx === 0 ? "e.g. Spearheaded the migration to React 18..." : "e.g. Mentored 3 junior developers..."}
+                                                        value={achievement}
+                                                        onChange={(e) => {
+                                                            const newAchievements = [...(Array.isArray(exp.achievements) ? exp.achievements : [])];
+                                                            newAchievements[aIdx] = e.target.value;
+                                                            updateItem('work_experiences', exp.id, 'achievements', newAchievements);
                                                         }}
                                                     />
-                                                    <button onClick={() => { const n = exp.achievements.filter((_: any, i: number) => i !== aIdx); updateItem('work_experiences', exp.id, 'achievements', n); }} className="p-3 text-gray-700 hover:text-red-400"><X className="w-5 h-5" /></button>
+                                                    <button
+                                                        onClick={() => {
+                                                            const newAchievements = exp.achievements.filter((_: any, i: number) => i !== aIdx);
+                                                            updateItem('work_experiences', exp.id, 'achievements', newAchievements);
+                                                        }}
+                                                        className="p-2 text-muted-foreground hover:text-destructive"
+                                                    >
+                                                        <X className="w-4 h-4" />
+                                                    </button>
                                                 </div>
                                             ))}
                                             <button
-                                                onClick={() => updateItem('work_experiences', exp.id, 'achievements', [...(exp.achievements || []), ''])}
-                                                className="w-full py-4 border border-dashed border-white/5 rounded-2xl text-[11px] font-bold text-gray-600 uppercase tracking-widest hover:border-white/20 hover:text-white transition-all"
+                                                onClick={() => {
+                                                    const newAchievements = [...(Array.isArray(exp.achievements) ? exp.achievements : []), ''];
+                                                    updateItem('work_experiences', exp.id, 'achievements', newAchievements);
+                                                }}
+                                                className="w-full py-2 border-2 border-dashed border-black/5 rounded-xl text-xs text-muted-foreground hover:bg-black/5 transition-colors"
                                             >
-                                                + Document Milestone
+                                                + Add Achievement Bullet
                                             </button>
                                         </div>
                                     </div>
@@ -808,169 +696,257 @@ const ProfileCreationMultiStep: React.FC = () => {
                         </div>
                     </motion.div>
                 );
-            case 5:
+            case 4: // Education
                 return (
-                    <motion.div variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="space-y-12">
-                        <motion.div variants={itemVariants}>
-                            <h1 className="text-[2.5rem] font-medium text-white tracking-tight leading-none mb-3">Core Stack</h1>
-                            <p className="text-gray-500 text-lg font-light">Your technical and operational expertise.</p>
-                        </motion.div>
-
-                        <motion.div variants={itemVariants}>
-                            <GlassCard>
-                                <div className="flex gap-4 mb-8">
-                                    <GlassInput className="flex-1" value={newSkill} onChange={e => setNewSkill(e.target.value)} onKeyDown={e => e.key === 'Enter' && addSkill()} placeholder="Architectural Skill..." />
-                                    <MagneticButton onClick={addSkill} className="!px-8">Register</MagneticButton>
-                                </div>
-                                <div className="flex flex-wrap gap-3">
-                                    {profile.skills?.map(s => (
-                                        <motion.span
-                                            layout
-                                            key={s}
-                                            className="px-6 py-3 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-3 text-[14px] font-medium hover:border-[#0066CC]/50 transition-all cursor-default group"
-                                        >
-                                            {s}
-                                            <X className="w-4 h-4 text-gray-600 cursor-pointer group-hover:text-red-400" onClick={() => setProfile({ ...profile, skills: profile.skills?.filter(sk => sk !== s) })} />
-                                        </motion.span>
-                                    ))}
-                                </div>
-                            </GlassCard>
-                        </motion.div>
-                    </motion.div>
-                );
-            case 10:
-                return (
-                    <motion.div variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="space-y-12">
-                        <motion.div variants={itemVariants} className="text-center">
-                            <h1 className="text-[3rem] font-medium text-white tracking-tight leading-none mb-4">Final Audit</h1>
-                            <p className="text-gray-500 text-xl font-light">Verify your career narrative before activation.</p>
-                        </motion.div>
-
-                        <div className="grid gap-10">
-                            <motion.div variants={itemVariants}>
-                                <GlassCard elevated className="border-[#0066CC]/20 bg-gradient-to-br from-white/10 to-transparent">
-                                    <div className="flex flex-col md:flex-row gap-10 items-center">
-                                        <div className="w-32 h-32 rounded-[2.5rem] bg-white overflow-hidden shadow-2xl border-4 border-white/10 flex-shrink-0">
-                                            {profile.photo_url ? <img src={profile.photo_url} className="w-full h-full object-cover" /> : <UserIcon className="w-full h-full p-8 text-black" />}
-                                        </div>
-                                        <div className="flex-1 text-center md:text-left">
-                                            <h2 className="text-[2.5rem] font-medium text-white tracking-tight mb-2">{profile.full_name}</h2>
-                                            <div className="flex flex-wrap justify-center md:justify-start gap-4 text-gray-400 text-sm font-medium">
-                                                <span className="flex items-center gap-2"><Mail className="w-4 h-4" /> {profile.email}</span>
-                                                <span className="flex items-center gap-2"><MapPin className="w-4 h-4" /> {profile.city}, {profile.country}</span>
-                                                <span className="flex items-center gap-2"><Briefcase className="w-4 h-4" /> {profile.work_experiences?.length} Roles</span>
-                                            </div>
-                                        </div>
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
+                        <div className="flex justify-between items-center"><h2 className="text-2xl font-bold">Education</h2><button onClick={() => setProfile(prev => ({ ...prev, educations: [...(prev.educations || []), { id: Date.now().toString(), degree: '', institution: '', city: '', country: profile.country || '', graduation_date: '', gpa: '' }] }))} className="p-2 bg-secondary rounded-xl"><Plus className="w-4 h-4" /></button></div>
+                        <div className="space-y-4">
+                            {profile.educations?.map((edu: any) => (
+                                <GlassCard key={edu.id} className="relative group">
+                                    <button onClick={() => removeItem('educations', edu.id)} className="absolute top-4 right-4"><X className="w-4 h-4 text-muted-foreground" /></button>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <GlassInput label="Degree" value={edu.degree || ''} placeholder="e.g. M.S. in Computer Science" onChange={(e) => updateItem('educations', edu.id, 'degree', e.target.value)} onBlur={handleAutoSave} />
+                                        <GlassInput label="Institution" value={edu.institution || ''} placeholder="e.g. Technical University of Munich" onChange={(e) => updateItem('educations', edu.id, 'institution', e.target.value)} onBlur={handleAutoSave} />
+                                        <GlassInput label="City" value={edu.city || ''} placeholder="e.g. Munich" onChange={(e) => updateItem('educations', edu.id, 'city', e.target.value)} onBlur={handleAutoSave} />
+                                        <GlassInput label="Country" value={edu.country || ''} placeholder="e.g. Germany" onChange={(e) => updateItem('educations', edu.id, 'country', e.target.value)} onBlur={handleAutoSave} />
+                                        <GlassInput label="Grad Date" type="month" value={edu.graduation_date || ''} onChange={(e) => updateItem('educations', edu.id, 'graduation_date', e.target.value)} onBlur={handleAutoSave} />
+                                        <GlassInput label="GPA (Optional)" placeholder="e.g. 3.8/4.0 or 1.2 (German scale)" value={edu.gpa || ''} onChange={(e) => updateItem('educations', edu.id, 'gpa', e.target.value)} onBlur={handleAutoSave} />
                                     </div>
                                 </GlassCard>
-                            </motion.div>
-
-                            <motion.div variants={itemVariants} className="grid md:grid-cols-2 gap-8">
-                                <div className="space-y-6">
-                                    <h3 className="text-sm font-bold text-gray-600 uppercase tracking-[0.2em] px-1">Identity Tokens</h3>
-                                    <div className="space-y-3">
-                                        {profile.skills?.slice(0, 6).map(s => (
-                                            <div key={s} className="p-4 bg-white/5 border border-white/5 rounded-2xl flex items-center justify-between">
-                                                <span className="text-sm text-gray-300 font-medium">{s}</span>
-                                                <div className="w-2 h-2 rounded-full bg-[#0066CC]" />
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div className="space-y-6">
-                                    <h3 className="text-sm font-bold text-gray-600 uppercase tracking-[0.2em] px-1">Career Logic</h3>
-                                    <div className="bg-[#1D1D1F] p-8 rounded-[2rem] border border-white/5">
-                                        <p className="text-sm text-gray-400 leading-relaxed font-light line-clamp-6 italic">
-                                            "{profile.professional_summary}"
-                                        </p>
-                                    </div>
-                                </div>
-                            </motion.div>
+                            ))}
                         </div>
                     </motion.div>
                 );
-            default:
+            case 5: // Skills
                 return (
-                    <motion.div variants={itemVariants} className="py-20 text-center">
-                        <h2 className="text-2xl font-light text-gray-500 italic">Advanced configurations coming soon.</h2>
-                        <MagneticButton variant="secondary" onClick={() => setCurrentStep(currentStep + 1)} className="mt-8">Skip to Audit</MagneticButton>
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
+                        <h2 className="text-2xl font-bold">Skills</h2>
+                        <GlassCard>
+                            <div className="flex gap-3 mb-6">
+                                <GlassInput className="flex-1" value={newSkill} onChange={e => setNewSkill(e.target.value)} onKeyDown={e => {
+                                    if (e.key === 'Enter' && newSkill.trim() && !profile.skills?.includes(newSkill.trim())) {
+                                        setProfile(prev => ({ ...prev, skills: [...(prev.skills || []), newSkill.trim()] }));
+                                        setNewSkill('');
+                                    }
+                                }} placeholder="Add a skill (e.g. React.js, Agile Leadership, Figma)" />
+                                <button onClick={() => {
+                                    if (newSkill.trim() && !profile.skills?.includes(newSkill.trim())) {
+                                        setProfile(prev => ({ ...prev, skills: [...(prev.skills || []), newSkill.trim()] }));
+                                        setNewSkill('');
+                                    }
+                                }} className="px-6 py-3.5 bg-[#1D1D1F] text-white rounded-xl font-medium shadow-md hover:bg-black transition-all">Add</button>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                                {profile.skills?.map(s => (
+                                    <span key={s} className="px-3 py-1 bg-white border rounded-lg flex items-center gap-2">{s} <X className="w-3 h-3 cursor-pointer text-muted-foreground hover:text-red-500" onClick={() => setProfile(prev => ({ ...prev, skills: prev.skills?.filter(sk => sk !== s) }))} /></span>
+                                ))}
+                            </div>
+                        </GlassCard>
                     </motion.div>
                 );
+            case 6: // Languages
+                return (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
+                        <div className="flex justify-between"><h2 className="text-2xl font-bold">Languages</h2>
+                            <button onClick={() => setProfile(prev => ({ ...prev, languages: [...(prev.languages || []), { name: '', level: 'Native' }] }))} className="p-2 bg-secondary rounded-xl"><Plus /></button></div>
+                        {profile.languages?.map((l: any, idx: number) => (
+                            <GlassCard key={idx} className="relative">
+                                <button onClick={() => setProfile(prev => ({ ...prev, languages: prev.languages?.filter((_, i) => i !== idx) }))} className="absolute top-4 right-4"><X className="w-4 h-4" /></button>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <GlassInput label="Language" placeholder="e.g. English, Spanish" value={l.name || ''} onChange={e => setProfile(prev => ({ ...prev, languages: prev.languages?.map((x: any, i: number) => i === idx ? { ...x, name: e.target.value } : x) }))} />
+                                    <GlassInput label="Proficiency Level" placeholder="e.g. Native, Fluent, B2" value={l.level || ''} onChange={e => setProfile(prev => ({ ...prev, languages: prev.languages?.map((x: any, i: number) => i === idx ? { ...x, level: e.target.value } : x) }))} />
+                                </div>
+                            </GlassCard>
+                        ))}
+                    </motion.div>
+                );
+            case 7: // Projects
+                return (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
+                        <div className="flex justify-between"><h2 className="text-2xl font-bold">Projects</h2>
+                            <button onClick={() => setProfile(prev => ({ ...prev, projects: [...(prev.projects || []), { id: Date.now().toString(), title: '', role: '', link: '', description: '' }] }))} className="p-2 bg-secondary rounded-xl"><Plus /></button></div>
+                        {profile.projects?.map((p: any) => (
+                            <GlassCard key={p.id} className="relative">
+                                <button onClick={() => removeItem('projects', p.id)} className="absolute top-4 right-4"><X className="w-4 h-4" /></button>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                    <GlassInput label="Title" placeholder="e.g. AI-Powered Analytics Dashboard" value={p.title || ''} onChange={e => updateItem('projects', p.id, 'title', e.target.value)} onBlur={handleAutoSave} />
+                                    <GlassInput label="Role" placeholder="e.g. Lead Architect" value={p.role || ''} onChange={e => updateItem('projects', p.id, 'role', e.target.value)} onBlur={handleAutoSave} />
+                                    <GlassInput label="Project Link" icon={Globe} placeholder="e.g. https://github.com/your-repo" value={p.link || ''} onChange={e => updateItem('projects', p.id, 'link', e.target.value)} onBlur={handleAutoSave} className="md:col-span-2" />
+                                </div>
+                                <GlassTextarea label="Description" placeholder="e.g. Built a real-time analytics dashboard using Next.js and WebSockets..." value={p.description || ''} onChange={e => updateItem('projects', p.id, 'description', e.target.value)} onBlur={handleAutoSave} />
+                            </GlassCard>
+                        ))}
+                    </motion.div>
+                );
+            case 8: // Certifications
+                return (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
+                        <div className="flex justify-between"><h2 className="text-2xl font-bold">Certifications</h2>
+                            <button onClick={() => setProfile(prev => ({ ...prev, certifications: [...(prev.certifications || []), { id: Date.now().toString(), name: '', issuing_organization: '', issue_date: '', credential_url: '' }] }))} className="p-2 bg-secondary rounded-xl"><Plus /></button></div>
+                        {profile.certifications?.map((c: any) => (
+                            <GlassCard key={c.id} className="relative">
+                                <button onClick={() => removeItem('certifications', c.id)} className="absolute top-4 right-4"><X className="w-4 h-4" /></button>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <GlassInput label="Name" placeholder="e.g. AWS Certified Solutions Architect" value={c.name || ''} onChange={e => updateItem('certifications', c.id, 'name', e.target.value)} onBlur={handleAutoSave} />
+                                    <GlassInput label="Issuing Organization" placeholder="e.g. Amazon Web Services" value={c.issuing_organization || ''} onChange={e => updateItem('certifications', c.id, 'issuing_organization', e.target.value)} onBlur={handleAutoSave} />
+                                    <GlassInput label="Issue Date" type="month" value={c.issue_date || ''} onChange={e => updateItem('certifications', c.id, 'issue_date', e.target.value)} onBlur={handleAutoSave} />
+                                    <GlassInput label="Credential URL" icon={Globe} placeholder="e.g. https://aws.amazon.com/verify/..." value={c.credential_url || ''} onChange={e => updateItem('certifications', c.id, 'credential_url', e.target.value)} onBlur={handleAutoSave} />
+                                </div>
+                            </GlassCard>
+                        ))}
+                    </motion.div>
+                );
+            case 9: // Extras
+                return (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
+                        <div>
+                            <h2 className="text-2xl font-bold text-foreground tracking-tight">Extras</h2>
+                            <p className="text-muted-foreground text-base">Interests, Awards, Publications, etc.</p>
+                        </div>
+
+                        <div className="space-y-6">
+                            <GlassCard>
+                                <h3 className="font-bold mb-4">Interests</h3>
+                                <div className="flex gap-3 mb-4">
+                                    <GlassInput
+                                        value={newInterest}
+                                        onChange={e => setNewInterest((e.target as HTMLInputElement).value)}
+                                        placeholder="Add an interest (e.g. Rock Climbing)"
+                                        onKeyDown={(e) => { 
+                                            if (e.key === 'Enter' && newInterest.trim()) { 
+                                                setProfile(prev => ({ ...prev, extras: { ...prev.extras!, interests: [...(prev.extras?.interests || []), newInterest.trim()] } }));
+                                                setNewInterest(''); 
+                                            } 
+                                        }}
+                                    />
+                                    <button onClick={() => { if(newInterest.trim()) { setProfile(prev => ({ ...prev, extras: { ...prev.extras!, interests: [...(prev.extras?.interests || []), newInterest.trim()] } })); setNewInterest(''); } }} className="px-6 py-3.5 bg-[#1D1D1F] text-white rounded-xl font-medium shadow-md hover:bg-black transition-all">Add</button>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    {profile.extras?.interests?.map((item, i) => (
+                                        <span key={i} className="px-3 py-1 bg-blue-50 border border-blue-100 rounded-lg text-sm text-blue-900 flex items-center gap-2">
+                                            {item}
+                                            <button onClick={() => setProfile(prev => ({ ...prev, extras: { ...prev.extras!, interests: prev.extras!.interests.filter((_, idx) => idx !== i) } }))}><X className="w-3 h-3" /></button>
+                                        </span>
+                                    ))}
+                                </div>
+                            </GlassCard>
+
+                            <GlassCard>
+                                <h3 className="font-bold mb-4">Awards & Honors</h3>
+                                <div className="flex gap-3 mb-4">
+                                    <GlassInput
+                                        value={newAward}
+                                        onChange={e => setNewAward((e.target as HTMLInputElement).value)}
+                                        placeholder="Add an award (e.g. Hackathon Winner 2023)"
+                                        onKeyDown={(e) => { 
+                                            if (e.key === 'Enter' && newAward.trim()) { 
+                                                setProfile(prev => ({ ...prev, extras: { ...prev.extras!, awards: [...(prev.extras?.awards || []), newAward.trim()] } }));
+                                                setNewAward(''); 
+                                            } 
+                                        }}
+                                    />
+                                    <button onClick={() => { if(newAward.trim()) { setProfile(prev => ({ ...prev, extras: { ...prev.extras!, awards: [...(prev.extras?.awards || []), newAward.trim()] } })); setNewAward(''); } }} className="px-6 py-3.5 bg-[#1D1D1F] text-white rounded-xl font-medium shadow-md hover:bg-black transition-all">Add</button>
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    {profile.extras?.awards?.map((item, i) => (
+                                        <div key={i} className="flex justify-between p-3 bg-secondary/30 rounded-lg text-sm">
+                                            <span>{item}</span>
+                                            <button onClick={() => setProfile(prev => ({ ...prev, extras: { ...prev.extras!, awards: prev.extras!.awards.filter((_, idx) => idx !== i) } }))} className="text-muted-foreground hover:text-destructive"><X className="w-4 h-4" /></button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </GlassCard>
+                        </div>
+                    </motion.div>
+                );
+
+            case 10: // Review
+                return (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
+                        <div className="text-center mb-8">
+                            <h2 className="text-2xl font-bold text-foreground">Review Your Profile</h2>
+                            <p className="text-muted-foreground">Please review your information before submitting.</p>
+                        </div>
+
+                        <GlassCard>
+                            <div className="flex flex-col md:flex-row gap-6 items-start">
+                                {profile.photo_url && (
+                                    <img src={profile.photo_url} alt="Profile" className="w-24 h-24 rounded-xl object-cover border border-black/5" />
+                                )}
+                                <div className="space-y-2 flex-1">
+                                    <h3 className="text-xl font-bold">{profile.full_name || 'Your Name'}</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-muted-foreground">
+                                        {profile.email && <div className="flex items-center gap-2"><Mail className="w-4 h-4" /> {profile.email}</div>}
+                                        {profile.phone && <div className="flex items-center gap-2">Phone: {profile.phone}</div>}
+                                        <div className="flex items-center gap-2 md:col-span-2">
+                                            <MapPin className="w-4 h-4 flex-shrink-0" />
+                                            <span>
+                                                {[profile.street_address, (profile.postal_code ? profile.postal_code + ' ' : '') + (profile.city || ''), profile.country]
+                                                    .filter(item => item && item.trim() !== '')
+                                                    .join(', ')}
+                                            </span>
+                                        </div>
+                                        {profile.linkedin_url && <div className="flex items-center gap-2"><Linkedin className="w-4 h-4" /> {profile.linkedin_url}</div>}
+                                    </div>
+                                    {profile.professional_summary && (
+                                        <p className="text-sm mt-4 text-foreground/80 leading-relaxed bg-secondary/30 p-3 rounded-lg">
+                                            <span className="block font-bold text-[10px] uppercase text-muted-foreground mb-1 tracking-wider">Professional Summary</span>
+                                            {profile.professional_summary}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        </GlassCard>
+                    </motion.div>
+                );
+            default: return null;
         }
     };
 
-    if (success) {
+    if (isFinished) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center bg-[#0A0A0B] text-white">
+            <div className="min-h-screen bg-[#F5F5F7] flex flex-col items-center justify-center text-center p-6">
                 <GlobalStyles />
-                <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="flex flex-col items-center">
-                    <div className="w-24 h-24 bg-white rounded-[2rem] flex items-center justify-center text-[#0A0A0B] mb-8 shadow-[0_0_50px_rgba(255,255,255,0.2)]">
-                        <CheckCircle className="w-12 h-12" />
-                    </div>
-                    <h1 className="text-[3rem] font-medium tracking-tight mb-4">Profile Activated</h1>
-                    <p className="text-gray-500 text-xl font-light">Redirecting to your command center...</p>
+                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={springConfig} className="w-24 h-24 bg-[#34C759] rounded-full flex items-center justify-center mb-8 shadow-[0_10px_40px_rgba(52,199,89,0.3)]">
+                    <CheckCircle2 className="w-12 h-12 text-white" strokeWidth={2.5} />
                 </motion.div>
+                <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ ...springConfig, delay: 0.2 }} className="text-[3rem] font-medium tracking-tight mb-4 text-[#1D1D1F]">Profile Complete.</motion.h1>
+                <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ ...springConfig, delay: 0.3 }} className="text-[16px] text-[#86868B]">Your global professional dossier is ready. Redirecting to Dashboard...</motion.p>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-[#0A0A0B] text-[#F8F8F8] selection:bg-white selection:text-black">
+        <div className="min-h-screen bg-background text-foreground relative overflow-x-hidden selection:bg-black/5 selection:text-black">
             <GlobalStyles />
-            
-            {/* Background elements */}
-            <div className="fixed inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-[-20%] right-[-10%] w-[800px] h-[800px] bg-[#0066CC]/10 rounded-full blur-[140px]" />
-                <div className="absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] bg-[#AF52DE]/5 rounded-full blur-[120px]" />
-            </div>
-
             <AnimatePresence>
                 {(loading || importSuccess) && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] bg-[#0A0A0B]/80 backdrop-blur-xl flex items-center justify-center">
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-background/80 backdrop-blur flex items-center justify-center">
                         <div className="text-center">
-                            <Loader2 className="w-12 h-12 animate-spin text-white mb-6 mx-auto" />
-                            <h3 className="text-xl font-medium tracking-tight">{importSuccess ? 'Intelligence Integrated' : 'Processing Profile...'}</h3>
+                            <Loader2 className="w-10 h-10 animate-spin mx-auto mb-4" />
+                            <p className="font-bold">{importSuccess ? 'Resume Imported!' : 'Syncing Profile...'}</p>
                         </div>
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            <header className="sticky top-0 z-50 bg-[#0A0A0B]/80 backdrop-blur-md border-b border-white/5">
-                <div className="max-w-[1800px] mx-auto px-6 h-28 flex flex-col justify-center">
+            <header className="sticky top-0 z-40 glass-panel border-b border-black/5">
+                <div className="max-w-7xl mx-auto px-4 md:px-6 py-2">
                     <FlightStepper steps={STEPS} currentStep={currentStep} onStepClick={setCurrentStep} stepValidity={stepValidity} />
                 </div>
             </header>
-
-            <main className="max-w-[1200px] mx-auto px-6 py-20 relative z-10">
-                <AnimatePresence mode="wait">
-                    <motion.div key={currentStep} className="min-h-[60vh]">
-                        {renderStepContent()}
-                    </motion.div>
-                </AnimatePresence>
-
-                <div className="flex justify-between items-center mt-24">
-                    {currentStep > 1 ? (
-                        <MagneticButton variant="secondary" onClick={() => setCurrentStep(currentStep - 1)}>
-                            <ArrowLeft className="w-5 h-5" /> Reverse
-                        </MagneticButton>
-                    ) : <div />}
-                    
-                    <div className="flex gap-4">
-                        {currentStep < STEPS.length ? (
-                            <MagneticButton onClick={() => setCurrentStep(currentStep + 1)}>
-                                Proceed <ChevronRight className="w-5 h-5 ml-1" />
-                            </MagneticButton>
-                        ) : (
-                            <MagneticButton onClick={handleFinalSubmit}>
-                                Activate Profile <Sparkles className="w-5 h-5 text-[#4DCFFF] ml-2" />
-                            </MagneticButton>
-                        )}
-                    </div>
+            <main className="max-w-4xl mx-auto px-4 md:px-6 py-12 relative z-10">
+                <GlassCard className="min-h-[600px] glass-panel-elevated">
+                    <AnimatePresence mode="wait"><motion.div key={currentStep} className="h-full">{renderContent()}</motion.div></AnimatePresence>
+                </GlassCard>
+                <div className="flex justify-between mt-8 gap-4">
+                    {currentStep > 1 ? <button onClick={prevStep} className="flex items-center gap-2 px-6 py-3.5 bg-white border border-black/[0.06] rounded-[1.25rem] font-medium text-[15px] hover:bg-[#F5F5F7] transition-all shadow-sm"><ArrowLeft className="w-4 h-4" /> Back</button> : <div />}
+                    {currentStep < STEPS.length ? <button onClick={nextStep} className="flex items-center gap-2 bg-[#1D1D1F] text-white px-8 py-3.5 rounded-[1.25rem] font-medium text-[15px] hover:bg-black transition-all shadow-md">Continue <ArrowRight className="w-4 h-4" /></button> : <button onClick={handleFinalSubmit} className="flex items-center gap-2 bg-[#34C759] text-white px-10 py-3.5 rounded-[1.25rem] font-bold text-[15px] hover:bg-[#2FB350] transition-all shadow-md">Finish & Save <CheckCircle2 className="w-4 h-4" /></button>}
                 </div>
             </main>
 
             {cropImage && (
-                <div className="fixed inset-0 z-[1000] bg-black/95 backdrop-blur-2xl flex items-center justify-center p-6">
+                <div className="fixed inset-0 z-[60] bg-black/80 flex items-center justify-center">
                     <div className="max-w-xl w-full">
                         <ImageCropper imageSrc={cropImage} onCropComplete={handleCropComplete} onCancel={() => setCropImage(null)} />
                     </div>
