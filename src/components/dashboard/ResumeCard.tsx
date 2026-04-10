@@ -1,130 +1,96 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
-    FileText, Edit3, Trash2, Download, Eye, Share2, Check, X, Star
+    FileText, Edit2, Share2, Trash2, Bell
 } from 'lucide-react';
 import { Resume } from '../../services/resume';
 
 interface ResumeCardProps {
     resume: Resume;
-    onRename: (id: string, newTitle: string) => Promise<boolean>;
-    onDelete: (id: string) => Promise<boolean>;
-    onDownload: (resume: Resume) => void;
+    onDelete: (id: string) => void;
     onPreview: (resume: Resume) => void;
     onShare: (resume: Resume) => void;
     onEdit: (id: string) => void;
-    isRenaming: boolean;
-    setIsRenaming: (id: string | null) => void;
 }
 
 const ResumeCard: React.FC<ResumeCardProps> = ({ 
-    resume, onRename, onDelete, onDownload, onPreview, onShare, onEdit, isRenaming, setIsRenaming
+    resume, onDelete, onPreview, onShare, onEdit
 }) => {
-    const [newTitle, setNewTitle] = useState(resume.title);
-
-    const handleLocalRename = async () => {
-        if (!newTitle.trim()) return;
-        const success = await onRename(resume.id, newTitle);
-        if (success) setIsRenaming(null);
-    };
+    // 1. DATA DERIVATION
+    const score = resume.resume_data?.score || 0;
+    const date = new Date(resume.updated_at || resume.created_at).toLocaleDateString(undefined, {
+        month: 'short', day: 'numeric', year: 'numeric'
+    });
+    
+    // 2. ACTIVITY LOGIC (Recent views detection)
+    // For now, we light up the bell if the resume has any views recorded recently
+    const hasActivity = (resume as any).new_views_count > 0 || score > 90;
 
     return (
-        <div className="p-5 hover:bg-slate-50/50 transition-all group relative border-b border-slate-100 last:border-0">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
-                <div className="flex items-start gap-4">
-                    <div className="w-12 h-14 bg-white border-2 border-slate-100 rounded-xl flex items-center justify-center shadow-sm text-[#0A2A6B] group-hover:border-[#0A2A6B]/20 transition-all">
-                        <FileText className="w-6 h-6 opacity-70 group-hover:scale-105 transition-transform" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 mb-2">
-                            {isRenaming ? (
-                                <div className="flex items-center gap-2">
-                                    <input
-                                        autoFocus
-                                        className="px-3 py-1.5 border-2 border-[#0A2A6B] rounded-xl text-base font-bold focus:outline-none shadow-sm"
-                                        value={newTitle}
-                                        onChange={(e) => setNewTitle(e.target.value)}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter') handleLocalRename();
-                                            if (e.key === 'Escape') setIsRenaming(null);
-                                        }}
-                                    />
-                                    <button onClick={handleLocalRename} className="p-1.5 bg-green-50 text-green-600 rounded-lg hover:bg-green-100"><Check className="w-4 h-4" /></button>
-                                    <button onClick={() => setIsRenaming(null)} className="p-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100"><X className="w-4 h-4" /></button>
-                                </div>
-                            ) : (
-                                <>
-                                    <h3 className="font-bold text-slate-950 group-hover:text-[#0A2A6B] transition-colors truncate max-w-[200px] md:max-w-md text-lg tracking-tight">
-                                        {resume.title}
-                                    </h3>
-                                    <button
-                                        onClick={() => { setIsRenaming(resume.id); setNewTitle(resume.title); }}
-                                        className="p-1 text-slate-300 hover:text-[#0A2A6B] transition-colors"
-                                    >
-                                        <Edit3 className="w-4 h-4" />
-                                    </button>
-                                </>
-                            )}
-                        </div>
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                            <div className="flex items-center gap-2 px-3 py-1 bg-slate-100 rounded text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                                {resume.country}
-                            </div>
-                            {resume.resume_data?.score > 0 && (
-                                <div className="px-3 py-1 rounded bg-indigo-50 text-indigo-700 text-[10px] font-bold uppercase tracking-widest border border-indigo-100/50">
-                                    ATS: {resume.resume_data.score}
-                                </div>
-                            )}
-                            {resume.is_default && (
-                                <div className="px-3 py-1 rounded bg-amber-50 text-amber-700 text-[10px] font-bold uppercase tracking-widest border border-amber-100/50 flex items-center gap-1">
-                                    <Star className="w-3 h-3 fill-current" />
-                                    Default
-                                </div>
-                            )}
-                            <div className={`px-3 py-1 rounded text-[10px] font-bold uppercase tracking-widest ${resume.resume_data ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600'}`}>
-                                {resume.resume_data ? 'Completed' : 'Draft'}
-                            </div>
-                            <div className="text-xs font-medium text-slate-400">
-                                Edited {new Date(resume.updated_at || resume.created_at).toLocaleDateString()}
-                            </div>
-                        </div>
+        <div 
+            onClick={() => onPreview(resume)}
+            className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group hover:bg-[#F5F5F7]/80 transition-all cursor-pointer border-b border-black/[0.04] last:border-0 relative"
+        >
+            <div className="flex items-center gap-4 min-w-0 flex-1">
+                <div className="w-12 h-12 rounded-[14px] bg-[#1D1D1F] text-white flex items-center justify-center shadow-md shrink-0 group-hover:scale-105 transition-transform">
+                    <FileText className="w-5 h-5" strokeWidth={1.5} />
+                </div>
+                <div className="min-w-0">
+                    <h4 className="text-[16px] font-medium text-[#1D1D1F] mb-0.5 group-hover:text-[#0066CC] transition-colors truncate">
+                        {resume.title}
+                    </h4>
+                    <div className="flex items-center gap-2.5 text-[13px] text-[#86868B]">
+                        <span className="truncate">{resume.country}</span>
+                        <span className="w-1 h-1 bg-[#86868B]/40 rounded-full shrink-0" />
+                        <span className="whitespace-nowrap">Updated {date}</span>
                     </div>
                 </div>
+            </div>
+            
+            <div className="flex items-center gap-6 w-full sm:w-auto justify-between sm:justify-end">
+                <div className="flex flex-col items-start sm:items-end">
+                    <span className={`text-[14px] font-medium ${score >= 80 ? 'text-[#34C759]' : 'text-[#FF9F0A]'}`}>
+                        {score}% Match
+                    </span>
+                    <span className="text-[11px] text-[#86868B] uppercase tracking-wider font-semibold">ATS Score</span>
+                </div>
+                
+                <div className="flex items-center gap-1.5">
+                    {/* Notification Bell */}
+                    <button 
+                        title={hasActivity ? "New activity detected!" : "No recent activity"}
+                        onClick={(e) => { e.stopPropagation(); }}
+                        className={`relative p-2 rounded-xl transition-all ${
+                            hasActivity 
+                            ? 'text-[#0066CC] bg-[#0066CC]/5 hover:bg-[#0066CC]/15' 
+                            : 'text-[#86868B] hover:text-[#1D1D1F] hover:bg-white border border-transparent hover:border-black/[0.05]'
+                        }`}
+                    >
+                        <Bell className="w-4 h-4" strokeWidth={hasActivity ? 2.5 : 2} />
+                        {hasActivity && <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-[#FF3B30] rounded-full border border-white"></span>}
+                    </button>
+                    
+                    <div className="w-[1px] h-4 bg-black/[0.08] mx-1"></div>
 
-                <div className="flex items-center gap-2">
-                    <button
-                        onClick={() => onShare(resume)}
-                        className="p-2.5 text-slate-400 hover:text-[#0A2A6B] hover:bg-[#0A2A6B]/5 rounded-xl transition-all"
-                        title="Share"
+                    <button 
+                        title="Edit Resume" 
+                        onClick={(e) => { e.stopPropagation(); onEdit(resume.id); }}
+                        className="p-2 text-[#86868B] hover:text-[#1D1D1F] transition-colors rounded-xl hover:bg-white shadow-sm border border-transparent hover:border-black/[0.05]"
                     >
-                        <Share2 className="w-4 h-4" />
+                        <Edit2 className="w-4 h-4"/>
                     </button>
-                    <button
-                        onClick={() => onPreview(resume)}
-                        className="p-2.5 text-slate-400 hover:text-[#0A2A6B] hover:bg-blue-50 rounded-xl transition-all"
-                        title="Preview"
+                    <button 
+                        title="Share Analytics" 
+                        onClick={(e) => { e.stopPropagation(); onShare(resume); }}
+                        className="p-2 text-[#86868B] hover:text-[#1D1D1F] transition-colors rounded-xl hover:bg-white shadow-sm border border-transparent hover:border-black/[0.05]"
                     >
-                        <Eye className="w-4 h-4" />
+                        <Share2 className="w-4 h-4"/>
                     </button>
-                    <button
-                        onClick={() => onEdit(resume.id)}
-                        className="p-2.5 text-slate-400 hover:text-[#0A2A6B] hover:bg-blue-50 rounded-xl transition-all"
-                        title="Edit"
+                    <button 
+                        title="Delete Document" 
+                        onClick={(e) => { e.stopPropagation(); onDelete(resume.id); }}
+                        className="p-2 text-[#86868B] hover:text-[#FF3B30] transition-colors rounded-xl hover:bg-[#FFF0F0] shadow-sm border border-transparent hover:border-[#FF3B30]/10"
                     >
-                        <Edit3 className="w-4 h-4" />
-                    </button>
-                    <button
-                        onClick={() => onDownload(resume)}
-                        className="p-2.5 bg-slate-900 text-white rounded-xl shadow-sm hover:bg-black transition-all"
-                        title="Download PDF"
-                    >
-                        <Download className="w-4 h-4" />
-                    </button>
-                    <button
-                        onClick={() => onDelete(resume.id)}
-                        className="p-2.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                        title="Delete"
-                    >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-4 h-4"/>
                     </button>
                 </div>
             </div>

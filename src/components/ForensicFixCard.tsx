@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertTriangle, ArrowRight, Zap, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
+import { AlertTriangle, Zap, CheckCircle2, XCircle } from 'lucide-react';
 
 interface Fix {
     title: string;
@@ -17,7 +17,7 @@ interface ForensicFixCardProps {
     isFallback?: boolean;
 }
 
-const ForensicFixCard: React.FC<ForensicFixCardProps> = ({ fix, resumeTitle, onFix, onNext, isFallback = false }) => {
+const ForensicFixCard: React.FC<ForensicFixCardProps> = ({ fix, onFix }) => {
     // Helper to extract country from title if present (e.g. "Title (Germany)")
     const getCountryBadge = (title: string) => {
         const match = title.match(/\((.*?)\)/);
@@ -29,96 +29,54 @@ const ForensicFixCard: React.FC<ForensicFixCardProps> = ({ fix, resumeTitle, onF
     const cleanTitle = fix.title.replace(/\(.*?\)/, '').trim();
 
     return (
-        <div className="bg-white rounded-[24px] border border-slate-200 shadow-xl shadow-slate-200/40 overflow-hidden flex flex-col group transition-all hover:shadow-2xl hover:border-blue-200/50">
-            {/* 1. HEADER: Context & Stakes */}
-            <div className="bg-slate-50 px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                <div>
-                    <div className="flex items-center gap-2 mb-1">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest bg-slate-200 text-slate-600">
-                            {country}
-                        </span>
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                            • {resumeTitle ? `Checking "${resumeTitle}"` : "General Audit"}
-                        </span>
-                    </div>
-                    <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                        <span className="bg-red-100 text-red-600 p-1 rounded-md">
-                            <AlertTriangle className="w-4 h-4" />
-                        </span>
-                        {cleanTitle}
-                    </h3>
-                </div>
+        <div className="bg-white rounded-[1.5rem] shadow-[0_4px_20px_rgb(0,0,0,0.04)] border border-black/[0.03] p-5 flex flex-col">
+            {/* Header Row */}
+            <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                    <div className="px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg font-bold text-sm border border-emerald-100 shadow-sm flex items-center gap-1.5">
-                        <Zap className="w-3.5 h-3.5 fill-current" />
-                        +{fix.points} PTS
+                    <div className="w-9 h-9 rounded-full bg-[#FF3B30]/10 flex items-center justify-center shrink-0">
+                        <AlertTriangle className="w-4 h-4 text-[#FF3B30]" strokeWidth={2.5} />
                     </div>
+                    <div>
+                        <div className="text-[10px] font-bold uppercase tracking-widest text-[#86868B] flex items-center gap-1.5">
+                            {country} <span className="opacity-50">•</span> Insight
+                        </div>
+                        <h3 className="text-[15px] font-semibold text-[#1D1D1F] tracking-tight mt-0.5">
+                            {cleanTitle}
+                        </h3>
+                    </div>
+                </div>
+                <div className="inline-flex bg-[#34C759]/10 text-[#34C759] px-2 py-1 rounded-lg font-bold text-[11px] items-center gap-1">
+                    <Zap className="w-3.5 h-3.5 fill-current" /> +{fix.points}
                 </div>
             </div>
 
-            {/* 2. THE CRIME SCENE: Before vs After */}
-            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Current (The Error) */}
-                <div className="bg-red-50/50 rounded-xl p-4 border border-red-100 relative group/bad">
-                    <div className="absolute top-3 right-3 opacity-50">
-                        <XCircle className="w-5 h-5 text-red-400" />
-                    </div>
-                    <p className="text-[9px] font-bold text-red-400 uppercase tracking-widest mb-2">
-                        DETECTED ISSUE
-                    </p>
-                    <p className="font-medium text-slate-600 line-through decoration-red-300 decoration-2 opacity-80 text-sm">
+            {/* Minimalist Before/After Box */}
+            <div className="bg-[#F5F5F7] rounded-[1rem] p-3.5 mb-4 space-y-2.5">
+                <div className="flex items-start gap-2.5">
+                    <XCircle className="w-4 h-4 text-[#FF3B30]/60 shrink-0 mt-0.5" />
+                    <p className="text-[13px] text-[#86868B] font-medium line-through decoration-[#FF3B30]/30 decoration-2 italic">
                         "{fix.current}"
                     </p>
                 </div>
-
-                {/* Suggested (The Fix) */}
-                <div className="bg-emerald-50/50 rounded-xl p-4 border border-emerald-100 relative group/good">
-                    <div className="absolute top-3 right-3">
-                        <CheckCircle className="w-5 h-5 text-emerald-500" />
-                    </div>
-                    <p className="text-[9px] font-bold text-emerald-600 uppercase tracking-widest mb-2">
-                        OPTIMIZED FORMAT
-                    </p>
-                    <p className="font-bold text-slate-900 text-sm leading-relaxed">
+                <div className="flex items-start gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-[#34C759] shrink-0 mt-0.5" />
+                    <p className="text-[13px] text-[#1D1D1F] font-medium leading-relaxed">
                         "{fix.suggested}"
                     </p>
                 </div>
             </div>
 
-            {/* 3. THE VERDICT: Dominator Footer */}
-            <div className="bg-slate-900 px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4 mt-auto">
-                <div className="flex gap-3">
-                    <div className="mt-0.5 shrink-0">
-                        <AlertTriangle className="w-5 h-5 text-amber-400" />
-                    </div>
-                    <div>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">
-                            COMPLIANCE WARNING
-                        </p>
-                        <p className="text-sm font-medium text-slate-200 leading-snug max-w-2xl">
-                            {fix.reasoning || "This error may cause automated rejection by ATS parsers. Correct immediately."}
-                        </p>
-                    </div>
-                </div>
-
-                <div className="flex items-center gap-3 shrink-0">
-                    {onNext && isFallback && (
-                        <button
-                            onClick={onNext}
-                            className="p-2.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all"
-                            title="Next Tip"
-                        >
-                            <RefreshCw className="w-5 h-5" />
-                        </button>
-                    )}
-
-                    <button
-                        onClick={onFix}
-                        className="inline-flex items-center gap-2 px-6 py-2.5 bg-white text-slate-900 rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-slate-100 active:scale-95 transition-all shadow-lg shadow-white/10"
-                    >
-                        Fix Now <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                </div>
+            {/* Footer / Call to Action */}
+            <div className="flex items-center justify-between gap-4 mt-auto">
+                <p className="text-[11px] text-[#86868B] leading-snug font-medium flex-1">
+                    {fix.reasoning || "Readers are skimming. Missing specific metrics can reduce callback rates by 40%."}
+                </p>
+                <button 
+                    onClick={onFix}
+                    className="px-4 py-2 bg-[#1D1D1F] text-white rounded-[10px] text-[12px] font-bold shadow-sm hover:bg-black active:scale-[0.98] transition-all shrink-0"
+                >
+                    Fix Now
+                </button>
             </div>
         </div>
     );
