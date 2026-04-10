@@ -63,7 +63,7 @@ const Dashboard: React.FC = () => {
     if (bootLoading) return <div className="flex bg-[#F5F5F7] min-h-screen"><Sidebar user={user} userProfile={null} resumeCount={0} initials="..." /><main className="flex-1 p-12"><DashboardSkeleton /></main></div>;
 
     return (
-        <div className="flex bg-[#F5F5F7] min-h-screen relative antialiased text-[#1D1D1F]">
+        <div className="flex bg-[#F5F5F7] min-h-screen relative antialiased text-[#1D1D1F] pt-[72px]">
             <Sidebar 
                 user={user} 
                 userProfile={userProfile || null} 
@@ -71,7 +71,7 @@ const Dashboard: React.FC = () => {
                 initials={getUserInitials(userProfile?.full_name)} 
             />
 
-            <main className="flex-1 p-6 md:p-10 lg:p-12 xl:p-16 max-w-[1600px] mx-auto w-full overflow-y-auto">
+            <main className="flex-1 lg:ml-64 p-6 md:p-10 lg:p-12 xl:p-16 max-w-[1600px] mx-auto w-full overflow-y-auto">
                 <motion.div 
                     variants={containerVariants}
                     initial="hidden"
