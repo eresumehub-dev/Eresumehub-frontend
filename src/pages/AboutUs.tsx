@@ -1,15 +1,13 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { 
-    Sparkles, 
     ArrowRight, 
     ShieldCheck, 
     Cpu, 
     Globe,
     Linkedin,
     Instagram,
-    BotOff,
+    Bot,
     ImageOff,
     FileText,
     Target
@@ -150,7 +148,7 @@ const AboutUs = () => {
 
                     <motion.div variants={fadeUp} className="bg-white rounded-[2.5rem] p-10 md:p-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-black/[0.02] flex flex-col group transition-transform hover:-translate-y-1">
                         <div className="w-16 h-16 bg-[#F5F5F7] rounded-[1.25rem] flex items-center justify-center mb-8">
-                            <BotOff className="w-8 h-8 text-[#1D1D1F]" strokeWidth={1.5} />
+                            <Bot className="w-8 h-8 text-[#1D1D1F]" strokeWidth={1.5} />
                         </div>
                         <h3 className="text-[1.75rem] font-medium text-[#1D1D1F] mb-4 tracking-tight leading-tight">The "Auto-Reject" Myth</h3>
                         <p className="text-[15px] text-[#86868B] font-light leading-relaxed">

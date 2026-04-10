@@ -21,6 +21,7 @@ const AnalyticsDetail = lazy(() => import('./pages/AnalyticsDetail'))
 const Templates = lazy(() => import('./pages/Templates'))
 const AboutUs = lazy(() => import('./pages/AboutUs'))
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'))
+const ContactUs = lazy(() => import('./pages/ContactUs'))
 
 // Centralized Loading Component
 const PageLoader = () => (
@@ -43,6 +44,7 @@ function App() {
                     <Route path="templates" element={<Templates />} />
                     <Route path="about" element={<AboutUs />} />
                     <Route path="privacy" element={<PrivacyPolicy />} />
+                    <Route path="contact" element={<ContactUs />} />
 
                     <Route path="/:username/:slug" element={<PublicResume />} />
 

@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 import { 
     Sparkles, 
     ShieldCheck, 
@@ -8,14 +7,11 @@ import {
     FileText,
     Lock,
     Eye,
-    Server,
-    Database,
     Fingerprint,
     Trash2
 } from 'lucide-react';
 
 const PrivacyPolicy = () => {
-    const navigate = useNavigate();
     const [activeSection, setActiveSection] = useState('collection');
 
     // Animation Variants
@@ -46,7 +42,7 @@ const PrivacyPolicy = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    const scrollToSection = (id) => {
+    const scrollToSection = (id: string) => {
         const element = document.getElementById(id);
         if (element) {
             const offset = 120;
