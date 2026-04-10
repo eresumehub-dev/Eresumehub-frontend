@@ -2956,14 +2956,22 @@ const ProfileCreationMultiStep: React.FC = () => {
 
 
 
-            <header className="sticky top-0 z-40 glass-panel border-b border-black/5">
-
-                <div className="max-w-7xl mx-auto px-4 md:px-6 py-2">
-
-                    <FlightStepper steps={STEPS} currentStep={currentStep} onStepClick={setCurrentStep} stepValidity={stepValidity} />
-
+            <header className="sticky top-0 z-40 glass-panel border-b border-black/5 py-4">
+                <div className="max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between">
+                    <button 
+                        onClick={() => navigate('/')} 
+                        className="text-xl font-bold tracking-tight hover:opacity-70 transition-opacity"
+                    >
+                        E-resumehub
+                    </button>
+                    <MagneticButton 
+                        variant="secondary" 
+                        onClick={() => navigate('/dashboard')}
+                        className="!py-2 !px-4 text-xs"
+                    >
+                        Dashboard
+                    </MagneticButton>
                 </div>
-
             </header>
 
             <main className="max-w-4xl mx-auto px-4 md:px-6 py-12 relative z-10">
