@@ -390,6 +390,28 @@ const ResumeEditor: React.FC = () => {
                     </button>
 
                     <button
+                        onClick={async () => {
+                            if (!resume || !resumeContent) return;
+                            try {
+                                setSaveStatus('saving');
+                                await updateResume(resume.id, {
+                                    resume_data: resumeContent,
+                                    regenerate_pdf: false
+                                });
+                                setSaveStatus('saved');
+                                setLastSaved(new Date());
+                            } catch (error) {
+                                setSaveStatus('error');
+                            }
+                        }}
+                        disabled={saveStatus === 'saving'}
+                        className="flex items-center gap-2 px-6 py-2.5 bg-white border border-black/[0.08] text-[#1D1D1F] rounded-full text-[13px] font-semibold hover:bg-[#F5F5F7] active:scale-95 transition-all shadow-sm"
+                    >
+                        {saveStatus === 'saving' ? <Loader2 className="w-4 h-4 animate-spin text-[#0066CC]" /> : <Check className="w-4 h-4 text-[#34C759]" />}
+                        Save Changes
+                    </button>
+
+                    <button
                         onClick={handleManualSave}
                         disabled={saveStatus === 'saving'}
                         className="flex items-center gap-2 px-6 py-2.5 bg-[#1D1D1F] text-white rounded-full text-[13px] font-semibold hover:bg-black active:scale-95 transition-all shadow-[0_8px_20px_rgba(0,0,0,0.12)]"
