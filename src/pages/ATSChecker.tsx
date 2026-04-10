@@ -1,11 +1,12 @@
-import * as React from 'react';
-import { useState, useEffect } from 'react';
-import { 
-    Upload, CheckCircle2, AlertTriangle, XCircle, 
-    BarChart3, Target, MapPin, Briefcase, FileText, Edit3 
-} from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
+import { 
+    Upload, CheckCircle2, AlertTriangle, XCircle, 
+    BarChart3, Target, MapPin, Briefcase, FileText, Edit3,
+    ChevronLeft, Sparkles, Check, File, Loader2
+} from 'lucide-react';
 
 // Services
 import { createResumeFromData, uploadResumePDF } from '../services/resume';
@@ -15,11 +16,11 @@ import { getAvailableCountries } from '../services/schema';
 import { useFileUpload } from '../hooks/useFileUpload';
 import { useATSAnalysis } from '../hooks/useATSAnalysis';
 
-type Step = 'upload' | 'details' | 'results';
+type Stage = 'upload' | 'details' | 'analyzing' | 'results';
 
 const ATSChecker: React.FC = () => {
     const navigate = useNavigate();
-    const [step, setStep] = useState<Step>('upload');
+    const [step, setStep] = useState<Stage>('upload');
     const [jobDetails, setJobDetails] = useState({
         jobRole: '',
         targetCountry: 'Germany',
@@ -29,29 +30,44 @@ const ATSChecker: React.FC = () => {
     const [availableCountries, setAvailableCountries] = useState<string[]>([]);
 
     // Custom Hooks
-    const { file, handleFileChange, handleDrop, handleDragOver } = useFileUpload();
+    const { file, setFile, handleFileChange, handleDrop, handleDragOver } = useFileUpload();
     const { 
         analyzing, stageText, results, error: analysisError, 
-        elapsedTime, analyzeResume, setResults 
+        analyzeResume, setResults 
     } = useATSAnalysis(jobDetails.targetCountry);
 
+    // Fetch countries on mount
     useEffect(() => {
         const fetchCountries = async () => {
-            const countries = await getAvailableCountries();
-            setAvailableCountries(countries);
-            if (countries.length > 0 && !jobDetails.targetCountry) {
-                setJobDetails(prev => ({ ...prev, targetCountry: countries[0] }));
+            try {
+                const countries = await getAvailableCountries();
+                setAvailableCountries(countries);
+                if (countries.length > 0 && !jobDetails.targetCountry) {
+                    setJobDetails(prev => ({ ...prev, targetCountry: countries[0] }));
+                }
+            } catch (err) {
+                console.error("Failed to fetch countries", err);
             }
         };
         fetchCountries();
     }, []);
+
+    // Sync state stage with analysis hook
+    useEffect(() => {
+        if (analyzing) {
+            setStep('analyzing');
+        } else if (results) {
+            setStep('results');
+        } else if (analysisError) {
+            setStep('results'); // Show error in results state
+        }
+    }, [analyzing, results, analysisError]);
 
     const handleRunAnalysis = async () => {
         if (!file) {
             toast.error("Please upload a resume first.");
             return;
         }
-        setStep('results');
         await analyzeResume(file, jobDetails.jobRole, jobDetails.jobDescription);
     };
 
@@ -65,7 +81,6 @@ const ATSChecker: React.FC = () => {
         setIsRedirecting(true);
 
         try {
-            // 1. Create a "Draft" Resume in the background
             const newResume = await createResumeFromData(
                 results.debug_parsed_profile,
                 jobDetails.jobRole || "Imported Profile",
@@ -74,18 +89,12 @@ const ATSChecker: React.FC = () => {
                 results
             );
 
-            // 2. Upload the Original PDF Reference
             if (file) {
                 try {
-                    // Optimized: Preserve original PDF for visual fidelity in the editor
-                    // Replaces unprofessional comments with logic-driven documentation
                     await uploadResumePDF(newResume.id, file);
-                } catch {
-                    /* Non-blocking upload failure */
-                }
+                } catch { /* Non-blocking upload failure */ }
             }
 
-            // 3. Navigation
             if (newResume?.id) {
                 didNavigate = true;
                 navigate(`/resume/edit/${newResume.id}`);
@@ -103,291 +112,332 @@ const ATSChecker: React.FC = () => {
                 } 
             });
         } finally {
-            // Fix: Reset redirecting state only if we haven't already navigated away
             if (!didNavigate) setIsRedirecting(false);
         }
     };
 
+    // Animation Variants
+    const fadeUp = {
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
+        exit: { opacity: 0, y: -20, transition: { duration: 0.3 } }
+    };
+
     return (
-        <div className="min-h-screen bg-[#F8FAFC] py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-5xl mx-auto">
-                {/* Header */}
-                <div className="text-center mb-12">
-                    <div className="inline-flex items-center gap-2 bg-[#4DCFFF]/10 px-4 py-2 rounded-full mb-4">
-                        <BarChart3 className="w-5 h-5 text-[#4DCFFF]" />
-                        <span className="text-sm font-semibold text-[#0A2A6B]">100% Free • Country-Specific Analysis</span>
-                    </div>
-                    <h1 className="text-4xl md:text-5xl font-bold text-[#0A2A6B] mb-4">
-                        Smart ATS Resume Checker
-                    </h1>
-                    <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                        Tailored analysis for <span className="text-[#0A2A6B] font-bold">{jobDetails.targetCountry}</span>
-                    </p>
-                </div>
+        <div className="min-h-screen bg-[#F5F5F7] font-['IBM_Plex_Sans'] text-[#1D1D1F] selection:bg-[#1D1D1F] selection:text-white flex flex-col">
+            
+            {/* Minimalist Isolation Header */}
+            <header className="w-full px-6 md:px-12 py-8 relative z-20 flex justify-between items-center max-w-[1800px] mx-auto shrink-0">
+                <button 
+                    onClick={() => navigate('/')} 
+                    className="text-[19px] font-bold tracking-tight text-[#1D1D1F] hover:opacity-70 transition-opacity focus:outline-none"
+                >
+                    E-resumeHub
+                </button>
+                <button 
+                    onClick={() => navigate('/dashboard')}
+                    className="text-[14px] font-medium text-[#86868B] hover:text-[#1D1D1F] transition-colors focus:outline-none flex items-center gap-1"
+                >
+                    <ChevronLeft className="w-4 h-4" /> Back to Dashboard
+                </button>
+            </header>
 
-                {/* Progress Steps */}
-                <div className="flex items-center justify-center mb-12">
-                    {[
-                        { label: 'Upload Resume', key: 'upload' }, 
-                        { label: 'Job Details', key: 'details' }, 
-                        { label: 'Get Report', key: 'results' }
-                    ].map((s, i) => (
-                        <React.Fragment key={s.key}>
-                            <div className="flex items-center">
-                                <div className={`flex items-center justify-center w-10 h-10 rounded-full font-bold transition-all ${
-                                    step === s.key ? 'bg-[#0A2A6B] text-white scale-110 shadow-lg' : 
-                                    (i === 0 && (step === 'details' || step === 'results')) || (i === 1 && step === 'results') ? 'bg-[#4DCFFF] text-white' : 
-                                    'bg-gray-200 text-gray-500'
-                                }`}>
-                                    {i + 1}
-                                </div>
-                                <span className={`ml-2 text-sm font-medium ${step === s.key ? 'text-[#0A2A6B] font-bold' : 'text-gray-500'}`}>
-                                    {s.label}
-                                </span>
-                            </div>
-                            {i < 2 && (
-                                <div className={`w-16 h-1 mx-4 transition-colors ${
-                                    (i === 0 && (step === 'details' || step === 'results')) || (i === 1 && step === 'results') ? 'bg-[#4DCFFF]' : 'bg-gray-200'
-                                }`} />
-                            )}
-                        </React.Fragment>
-                    ))}
-                </div>
-
-                {/* Step Content */}
-                {step === 'upload' && (
-                    <div className="bg-white rounded-[30px] p-10 shadow-xl border border-gray-100">
-                        <div 
-                            onDrop={handleDrop}
-                            onDragOver={handleDragOver}
-                            className="border-2 border-dashed border-gray-300 rounded-2xl p-12 text-center hover:border-[#4DCFFF] hover:bg-slate-50/50 transition-all cursor-pointer group relative"
+            {/* Main Content Area */}
+            <main className="flex-1 flex flex-col items-center px-4 sm:px-6 relative z-10 pb-20">
+                
+                {/* Header Text */}
+                <AnimatePresence mode="wait">
+                    {(step === 'upload' || step === 'details') && (
+                        <motion.div 
+                            initial="hidden" animate="visible" exit="exit" variants={fadeUp}
+                            className="text-center max-w-2xl mx-auto mb-12 mt-8"
                         >
-                            <input
-                                type="file"
-                                accept=".pdf,.doc,.docx"
-                                onChange={handleFileChange}
-                                className="absolute inset-0 opacity-0 cursor-pointer"
-                                id="resume-upload"
-                            />
-                            <Upload className="w-16 h-16 text-gray-400 mx-auto mb-4 group-hover:text-[#4DCFFF] transition-colors" />
-                            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                                {file ? file.name : "Upload Your Resume"}
-                            </h3>
-                            <p className="text-gray-600 mb-6">
-                                {file ? `${(file.size / (1024 * 1024)).toFixed(2)}MB • Ready` : "Drag and drop or click to browse (Max 5MB PDF/DOCX)"}
+                            <div className="inline-flex items-center gap-2 bg-[#0066CC]/10 px-3.5 py-1.5 rounded-lg mb-6">
+                                <BarChart3 className="w-4 h-4 text-[#0066CC]" />
+                                <span className="text-[11px] font-bold uppercase tracking-widest text-[#0066CC]">Precision Scanner</span>
+                            </div>
+                            <h1 className="text-[2.5rem] md:text-[3.5rem] font-medium text-[#1D1D1F] tracking-tight leading-tight mb-4">
+                                Will your resume pass<br />the software?
+                            </h1>
+                            <p className="text-[1.125rem] text-[#86868B] font-light leading-relaxed">
+                                Upload your document to see exactly what hiring managers—and their automated filters—see.
                             </p>
-                            
-                            <label
-                                htmlFor="resume-upload"
-                                className="inline-block bg-[#0A2A6B] text-white px-8 py-4 rounded-2xl font-semibold cursor-pointer hover:shadow-lg hover:bg-[#061A44] transition-all"
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* --- THE INTERACTIVE STAGES --- */}
+                <div className="w-full max-w-[700px] relative">
+                    <AnimatePresence mode="wait">
+                        
+                        {/* STAGE 1: UPLOAD */}
+                        {step === 'upload' && (
+                            <motion.div 
+                                key="upload"
+                                initial="hidden" animate="visible" exit="exit" variants={fadeUp}
+                                className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-[0_20px_60px_rgb(0,0,0,0.04)] border border-black/[0.04]"
                             >
-                                {file ? "Change File" : "Choose File"}
-                            </label>
-                        </div>
-
-                        <button
-                            onClick={() => setStep('details')}
-                            disabled={!file}
-                            className="w-full mt-6 bg-[#4DCFFF] text-[#0A2A6B] px-8 py-4 rounded-2xl font-bold hover:bg-[#3dbbe6] transition-all disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed"
-                        >
-                            Next: Job Details →
-                        </button>
-                    </div>
-                )}
-
-                {step === 'details' && (
-                    <div className="bg-white rounded-[30px] p-10 shadow-xl border border-gray-100">
-                        <h2 className="text-2xl font-bold text-[#0A2A6B] mb-6">Tell Us About Your Target Job</h2>
-
-                        <div className="space-y-6">
-                            <div>
-                                <label className="flex items-center justify-between text-sm font-semibold text-gray-700 mb-2">
-                                    <div className="flex items-center gap-2">
-                                        <Briefcase className="w-4 h-4 text-[#4DCFFF]" />
-                                        Job Role / Position
-                                    </div>
-                                    {!jobDetails.jobRole && <span className="text-[10px] text-rose-500 uppercase tracking-widest font-bold">Required</span>}
-                                </label>
-                                <input
-                                    type="text"
-                                    value={jobDetails.jobRole}
-                                    onChange={(e) => setJobDetails({ ...jobDetails, jobRole: e.target.value })}
-                                    placeholder="e.g., Senior Software Engineer"
-                                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#4DCFFF] focus:outline-none transition-colors font-medium"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                                    <MapPin className="w-4 h-4 text-[#4DCFFF]" />
-                                    Target Country
-                                </label>
-                                <select
-                                    value={jobDetails.targetCountry}
-                                    onChange={(e) => setJobDetails({ ...jobDetails, targetCountry: e.target.value })}
-                                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#4DCFFF] focus:outline-none transition-colors cursor-pointer"
+                                <div 
+                                    onDrop={(e) => {
+                                        handleDrop(e);
+                                        // Transition delay handled in hook or here
+                                        setTimeout(() => setStep('details'), 400);
+                                    }}
+                                    onDragOver={handleDragOver}
+                                    className="border-2 border-dashed border-black/[0.08] rounded-[1.5rem] p-12 text-center hover:border-[#0066CC]/50 hover:bg-[#0066CC]/[0.02] transition-all duration-300 cursor-pointer group relative flex flex-col items-center justify-center min-h-[300px]"
                                 >
-                                    {availableCountries.map(c => <option key={c} value={c}>{c}</option>)}
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                                    <FileText className="w-4 h-4 text-[#4DCFFF]" />
-                                    Job Description (Optional)
-                                </label>
-                                <textarea
-                                    value={jobDetails.jobDescription}
-                                    onChange={(e) => setJobDetails({ ...jobDetails, jobDescription: e.target.value })}
-                                    placeholder="Paste the job description here for better keyword matching..."
-                                    rows={5}
-                                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#4DCFFF] focus:outline-none transition-colors"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="flex gap-4 mt-8">
-                            <button
-                                onClick={() => setStep('upload')}
-                                className="flex-1 border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-2xl font-bold hover:bg-gray-50 transition-all"
-                            >
-                                ← Back
-                            </button>
-                            <button
-                                onClick={handleRunAnalysis}
-                                disabled={!jobDetails.jobRole}
-                                className="flex-1 bg-[#0A2A6B] text-white px-8 py-4 rounded-2xl font-bold hover:shadow-lg hover:shadow-[#0A2A6B]/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                Analyze Resume →
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                {step === 'results' && (
-                    <>
-                        {analyzing ? (
-                            <div className="bg-white rounded-[30px] p-20 shadow-xl border border-gray-100 text-center relative overflow-hidden">
-                                <div className="absolute top-0 left-0 w-full h-1 bg-slate-100">
-                                    <div 
-                                        className="h-full bg-[#4DCFFF] transition-all duration-500 ease-out" 
-                                        style={{ width: `${Math.min(95, (elapsedTime / 60) * 100)}%` }}
+                                    <input
+                                        type="file"
+                                        accept=".pdf,.doc,.docx"
+                                        onChange={(e) => {
+                                            handleFileChange(e);
+                                            setTimeout(() => setStep('details'), 400);
+                                        }}
+                                        className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                                        id="resume-upload"
                                     />
-                                </div>
-                                <div className="relative w-24 h-24 mx-auto mb-8">
-                                    <div className="absolute inset-0 border-4 border-[#4DCFFF]/20 rounded-full"></div>
-                                    <div className="absolute inset-0 border-4 border-[#4DCFFF] border-t-transparent rounded-full animate-spin"></div>
-                                    <FileText className="absolute inset-0 m-auto w-8 h-8 text-[#0A2A6B]" />
-                                </div>
-                                <h3 className="text-2xl font-bold text-[#0A2A6B] mb-2">{stageText}</h3>
-                                <p className="text-gray-500 text-sm font-medium">
-                                    {elapsedTime > 15 ? `Searching deep... (${elapsedTime}s elapsed)` : "AI deep scan in progress..."}
-                                </p>
-                            </div>
-                        ) : analysisError ? (
-                            <div className="bg-white rounded-[30px] p-12 shadow-xl border border-rose-100 text-center">
-                                <div className="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                                    <XCircle className="w-10 h-10 text-rose-500" />
-                                </div>
-                                <h3 className="text-2xl font-bold text-[#0A2A6B] mb-2">Analysis Failed</h3>
-                                <p className="text-gray-600 mb-8 max-w-sm mx-auto">{analysisError}</p>
-                                <button
-                                    onClick={() => setStep('details')}
-                                    className="bg-[#0A2A6B] text-white px-8 py-4 rounded-2xl font-bold hover:shadow-lg transition-all"
-                                >
-                                    Try Again
-                                </button>
-                            </div>
-                        ) : results ? (
-                            <div className="space-y-6">
-                                {/* Score Card */}
-                                <div className="bg-[#0A2A6B] rounded-[30px] p-10 shadow-xl text-white relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl text-[#4DCFFF]" />
-                                    <div className="flex items-center justify-between relative z-10 font-sans">
-                                        <div>
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <Target className="w-6 h-6 text-[#4DCFFF]" />
-                                                <h2 className="text-2xl font-bold">ATS Score for {results.country}</h2>
-                                            </div>
-                                            <p className="text-gray-300 font-medium">Job Role: {results.jobRole}</p>
-                                        </div>
-                                        <div className="text-center">
-                                            <div className="text-7xl font-bold text-[#4DCFFF] tracking-tighter">
-                                                {results.score}
-                                            </div>
-                                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em] mt-1">out of 100</p>
-                                        </div>
+                                    
+                                    <div className="w-20 h-20 bg-[#F5F5F7] rounded-full flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-white group-hover:shadow-md transition-all duration-500">
+                                        <Upload className="w-8 h-8 text-[#86868B] group-hover:text-[#0066CC] transition-colors" />
                                     </div>
-                                </div>
-
-                                {/* Results Grid */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="bg-white rounded-[25px] p-8 shadow-lg border border-slate-100">
-                                        <h3 className="text-lg font-bold text-[#0A2A6B] mb-6 flex items-center gap-2">
-                                            <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                                            Strengths
-                                        </h3>
-                                        <ul className="space-y-4">
-                                            {results.strengths.map((s, i) => (
-                                                <li key={i} className="flex items-start gap-3 text-sm text-slate-700 font-medium leading-relaxed">
-                                                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full mt-2 flex-shrink-0" />
-                                                    {s}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-
-                                    <div className="bg-white rounded-[25px] p-8 shadow-lg border border-slate-100">
-                                        <h3 className="text-lg font-bold text-[#0A2A6B] mb-6 flex items-center gap-2">
-                                            <AlertTriangle className="w-5 h-5 text-amber-500" />
-                                            Needs Work
-                                        </h3>
-                                        <ul className="space-y-4">
-                                            {[...results.errors, ...results.warnings].map((w, i) => (
-                                                <li key={i} className="flex items-start gap-3 text-sm text-slate-700 font-medium leading-relaxed">
-                                                    <div className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-2 flex-shrink-0" />
-                                                    {w}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                {/* CTA */}
-                                <div className="bg-[#0A2A6B] rounded-[25px] p-10 text-center text-white shadow-2xl shadow-[#0A2A6B]/20">
-                                    <h3 className="text-3xl font-bold mb-3 tracking-tight">Want to Fix These Issues?</h3>
-                                    <p className="mb-8 text-lg text-gray-300">
-                                        Use our AI to rewrite your resume for the <span className="text-[#4DCFFF] font-bold">{results.country}</span> market.
+                                    
+                                    <h3 className="text-[1.25rem] font-medium text-[#1D1D1F] mb-2 tracking-tight">
+                                        Drop your resume here
+                                    </h3>
+                                    <p className="text-[14px] text-[#86868B] font-light mb-8 max-w-xs">
+                                        We accept PDF and DOCX files up to 5MB.
                                     </p>
-                                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                                        <button
-                                            onClick={handleEditResume}
-                                            disabled={isRedirecting}
-                                            className="inline-flex items-center justify-center gap-2 bg-[#4DCFFF] text-[#0A2A6B] px-8 py-4 rounded-2xl font-bold hover:bg-[#3dbbe6] transition-all disabled:opacity-50"
+                                    
+                                    <label htmlFor="resume-upload" className="inline-block bg-[#1D1D1F] text-white px-6 py-3.5 rounded-xl text-[14px] font-medium cursor-pointer shadow-md group-hover:bg-black transition-colors pointer-events-none">
+                                        Browse Files
+                                    </label>
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {/* STAGE 2: JOB DETAILS */}
+                        {step === 'details' && (
+                            <motion.div 
+                                key="details"
+                                initial="hidden" animate="visible" exit="exit" variants={fadeUp}
+                                className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-[0_20px_60px_rgb(0,0,0,0.04)] border border-black/[0.04]"
+                            >
+                                <div className="flex items-center gap-4 mb-8 pb-6 border-b border-black/[0.04]">
+                                    <div className="w-12 h-12 bg-[#F5F5F7] rounded-xl flex items-center justify-center">
+                                        <File className="w-5 h-5 text-[#1D1D1F]" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-[11px] font-bold uppercase tracking-widest text-[#34C759] mb-1 flex items-center gap-1"><Check className="w-3 h-3"/> File Attached</p>
+                                        <p className="text-[15px] font-medium text-[#1D1D1F] truncate">{file?.name || "resume_final.pdf"}</p>
+                                    </div>
+                                    <button onClick={() => { setFile(null); setStep('upload'); }} className="text-[13px] font-medium text-[#86868B] hover:text-[#1D1D1F] transition-colors">Change</button>
+                                </div>
+
+                                <div className="space-y-6">
+                                    <div>
+                                        <label className="flex items-center gap-2 text-[13px] font-medium text-[#1D1D1F] mb-2 pl-1">
+                                            <Briefcase className="w-4 h-4 text-[#86868B]" />
+                                            What role are you applying for?
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={jobDetails.jobRole}
+                                            onChange={(e) => setJobDetails({ ...jobDetails, jobRole: e.target.value })}
+                                            placeholder="e.g. Senior Software Engineer"
+                                            className="w-full px-4 py-4 bg-[#F5F5F7] border border-transparent rounded-[1rem] focus:bg-white focus:border-black/[0.08] focus:ring-4 focus:ring-black/5 transition-all outline-none text-[15px] text-[#1D1D1F] placeholder-[#86868B]/50 font-medium"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="flex items-center gap-2 text-[13px] font-medium text-[#1D1D1F] mb-2 pl-1">
+                                            <MapPin className="w-4 h-4 text-[#86868B]" />
+                                            Where is the job located?
+                                        </label>
+                                        <select
+                                            value={jobDetails.targetCountry}
+                                            onChange={(e) => setJobDetails({ ...jobDetails, targetCountry: e.target.value })}
+                                            className="w-full px-4 py-4 bg-[#F5F5F7] border border-transparent rounded-[1rem] focus:bg-white focus:border-black/[0.08] focus:ring-4 focus:ring-black/5 transition-all outline-none text-[15px] text-[#1D1D1F] cursor-pointer font-medium appearance-none"
                                         >
-                                            <Edit3 className="w-5 h-5" />
-                                            {isRedirecting ? "Importing..." : "Edit & Improve Resume"}
-                                        </button>
-                                        <button
-                                            onClick={() => navigate('/create')}
-                                            className="inline-flex items-center justify-center gap-2 border-2 border-white/20 text-white px-8 py-4 rounded-2xl font-bold hover:bg-white/10 transition-all"
-                                        >
-                                            Create New Resume
-                                        </button>
+                                            {availableCountries.map(c => <option key={c} value={c}>{c}</option>)}
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="flex items-center justify-between text-[13px] font-medium text-[#1D1D1F] mb-2 pl-1 pr-1">
+                                            <div className="flex items-center gap-2">
+                                                <FileText className="w-4 h-4 text-[#86868B]" />
+                                                Paste the job description
+                                            </div>
+                                            <span className="text-[#86868B] text-[11px] uppercase tracking-wider">Highly Recommended</span>
+                                        </label>
+                                        <textarea
+                                            value={jobDetails.jobDescription}
+                                            onChange={(e) => setJobDetails({ ...jobDetails, jobDescription: e.target.value })}
+                                            placeholder="Copy and paste the full job posting here. Our AI will analyze your keyword match..."
+                                            rows={4}
+                                            className="w-full px-4 py-4 bg-[#F5F5F7] border border-transparent rounded-[1rem] focus:bg-white focus:border-black/[0.08] focus:ring-4 focus:ring-black/5 transition-all outline-none text-[14px] text-[#1D1D1F] placeholder-[#86868B]/50 leading-relaxed resize-none"
+                                        />
                                     </div>
                                 </div>
 
                                 <button
-                                    onClick={() => { setStep('upload'); setResults(null); }}
-                                    className="w-full text-center text-slate-400 hover:text-[#0A2A6B] text-sm font-bold uppercase tracking-widest transition-colors py-8"
+                                    onClick={handleRunAnalysis}
+                                    disabled={!jobDetails.jobRole}
+                                    className="w-full mt-8 flex justify-center items-center gap-2 bg-[#1D1D1F] text-white px-8 py-4 rounded-[1.25rem] font-medium text-[16px] hover:bg-black active:scale-[0.98] transition-all shadow-[0_8px_20px_rgba(0,0,0,0.12)] disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    ← Check Another Resume
+                                    <Sparkles className="w-4 h-4" /> Scan My Resume
                                 </button>
-                            </div>
-                        ) : null}
-                    </>
-                )}
-            </div>
+                            </motion.div>
+                        )}
+
+                        {/* STAGE 3: ANALYZING (The Scan State) */}
+                        {step === 'analyzing' && (
+                            <motion.div 
+                                key="analyzing"
+                                initial="hidden" animate="visible" exit="exit" variants={fadeUp}
+                                className="bg-white rounded-[2.5rem] p-16 shadow-[0_20px_60px_rgb(0,0,0,0.04)] border border-black/[0.04] text-center relative overflow-hidden"
+                            >
+                                {/* Sweeping Laser Animation */}
+                                <motion.div 
+                                    animate={{ top: ['0%', '100%', '0%'] }}
+                                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                                    className="absolute left-0 right-0 h-[2px] bg-[#0066CC] shadow-[0_0_20px_#0066CC] z-20 opacity-50"
+                                />
+
+                                <div className="relative w-24 h-24 mx-auto mb-8">
+                                    <div className="absolute inset-0 border-[3px] border-[#0066CC]/10 rounded-full"></div>
+                                    <div className="absolute inset-0 border-[3px] border-[#0066CC] border-t-transparent rounded-full animate-spin"></div>
+                                    <Target className="absolute inset-0 m-auto w-8 h-8 text-[#1D1D1F]" />
+                                </div>
+                                <h3 className="text-[1.5rem] font-medium text-[#1D1D1F] tracking-tight mb-2">Analyzing Document</h3>
+                                <p className="text-[15px] text-[#86868B] font-light animate-pulse">
+                                    {stageText || "Initializing deep scan..."}
+                                </p>
+                            </motion.div>
+                        )}
+
+                        {/* STAGE 4: RESULTS (Bento Box Layout) */}
+                        {step === 'results' && (
+                            <motion.div 
+                                key="results"
+                                initial="hidden" animate="visible" variants={fadeUp}
+                                className="w-full max-w-[1000px] mx-auto space-y-6"
+                            >
+                                {analysisError ? (
+                                    <div className="bg-white rounded-[2.5rem] p-12 shadow-xl border border-rose-100 text-center">
+                                        <div className="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                                            <XCircle className="w-10 h-10 text-rose-500" />
+                                        </div>
+                                        <h3 className="text-[1.5rem] font-medium text-[#1D1D1F] mb-2">Analysis Failed</h3>
+                                        <p className="text-[15px] text-[#86868B] mb-8 max-w-sm mx-auto">{analysisError}</p>
+                                        <button
+                                            onClick={() => { setResults(null); setStep('details'); }}
+                                            className="bg-[#1D1D1F] text-white px-8 py-4 rounded-xl font-medium hover:bg-black transition-all"
+                                        >
+                                            Try Again
+                                        </button>
+                                    </div>
+                                ) : results ? (
+                                    <>
+                                        {/* Score Header Card */}
+                                        <div className="bg-[#1D1D1F] rounded-[2.5rem] p-10 md:p-14 shadow-2xl relative overflow-hidden">
+                                            <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#AF52DE]/20 to-transparent rounded-bl-full pointer-events-none" />
+                                            
+                                            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
+                                                <div>
+                                                    <div className="inline-flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-lg mb-4 backdrop-blur-md border border-white/10">
+                                                        <Target className="w-4 h-4 text-white" />
+                                                        <span className="text-[11px] font-bold uppercase tracking-widest text-white">Scan Complete</span>
+                                                    </div>
+                                                    <h2 className="text-[2rem] md:text-[2.5rem] font-medium text-white tracking-tight leading-tight">
+                                                        Resume Score
+                                                    </h2>
+                                                    <p className="text-[15px] text-white/60 mt-2 font-light">
+                                                        Analyzed for a <strong className="text-white font-medium">{results.jobRole}</strong> role in {results.country}.
+                                                    </p>
+                                                </div>
+                                                
+                                                <div className="flex flex-col items-center md:items-end">
+                                                    <div className="text-[5rem] md:text-[6rem] font-medium leading-none tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white to-white/60">
+                                                        {results.score}<span className="text-[2rem] text-white/40">%</span>
+                                                    </div>
+                                                    <p className="text-[13px] font-medium text-white/60 mt-2">
+                                                        Match Potential
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Bento Grid for Feedback */}
+                                        <div className="grid md:grid-cols-2 gap-6">
+                                            
+                                            {/* What you did right */}
+                                            <div className="bg-white rounded-[2rem] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-black/[0.02]">
+                                                <h3 className="text-[1.25rem] font-medium text-[#1D1D1F] mb-6 flex items-center gap-2">
+                                                    <CheckCircle2 className="w-5 h-5 text-[#34C759]" strokeWidth={2.5}/>
+                                                    What you did right
+                                                </h3>
+                                                <ul className="space-y-4">
+                                                    {(results.strengths || []).map((s, i) => (
+                                                        <li key={i} className="flex items-start gap-3 text-[14px] text-[#1D1D1F]/80 leading-relaxed font-light text-justify">
+                                                            <div className="w-1.5 h-1.5 bg-[#34C759] rounded-full mt-2 shrink-0" />
+                                                            {s}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+
+                                            {/* What needs fixing */}
+                                            <div className="bg-white rounded-[2rem] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-[#FF3B30]/10">
+                                                <h3 className="text-[1.25rem] font-medium text-[#1D1D1F] mb-6 flex items-center gap-2">
+                                                    <AlertTriangle className="w-5 h-5 text-[#FF3B30]" strokeWidth={2.5}/>
+                                                    What needs fixing
+                                                </h3>
+                                                <ul className="space-y-4">
+                                                    {[...(results.errors || []), ...(results.warnings || [])].map((w, i) => (
+                                                        <li key={i} className="flex items-start gap-3 text-[14px] text-[#1D1D1F]/80 leading-relaxed font-light text-justify">
+                                                            <div className="w-1.5 h-1.5 bg-[#FF3B30] rounded-full mt-2 shrink-0" />
+                                                            {w}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                        {/* Action CTA */}
+                                        <div className="bg-white rounded-[2rem] p-8 md:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-black/[0.04] text-center mt-6">
+                                            <div className="w-16 h-16 bg-[#F5F5F7] rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                                <Sparkles className="w-8 h-8 text-[#1D1D1F]" />
+                                            </div>
+                                            <h3 className="text-[1.75rem] font-medium text-[#1D1D1F] tracking-tight mb-2">Fix these issues automatically</h3>
+                                            <p className="text-[15px] text-[#86868B] font-light max-w-md mx-auto mb-8">
+                                                Let our AI engine rewrite your document to match exactly what hiring systems are looking for.
+                                            </p>
+                                            
+                                            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                                                <button
+                                                    onClick={handleEditResume}
+                                                    disabled={isRedirecting}
+                                                    className="flex items-center justify-center gap-2 bg-[#1D1D1F] text-white px-8 py-4 rounded-[1.25rem] font-medium text-[15px] hover:bg-black active:scale-[0.98] transition-all shadow-[0_8px_20px_rgba(0,0,0,0.12)] disabled:opacity-50"
+                                                >
+                                                    {isRedirecting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Edit3 className="w-4 h-4" />}
+                                                    {isRedirecting ? "Importing..." : "Polish with AI"}
+                                                </button>
+                                                <button
+                                                    onClick={() => { setResults(null); setStep('upload'); setFile(null); }}
+                                                    className="flex items-center justify-center gap-2 bg-white text-[#1D1D1F] border border-black/[0.08] px-8 py-4 rounded-[1.25rem] font-medium text-[15px] hover:bg-[#F5F5F7] active:scale-[0.98] transition-all"
+                                                >
+                                                    Check another resume
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : null}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+            </main>
         </div>
     );
 };
