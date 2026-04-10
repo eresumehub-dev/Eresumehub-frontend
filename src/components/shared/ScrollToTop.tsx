@@ -34,7 +34,7 @@ const ScrollToTop = () => {
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.5, y: 20 }}
                     onClick={scrollToTop}
-                    className="fixed bottom-8 right-8 z-[60] p-4 bg-white/20 backdrop-blur-xl border border-white/30 rounded-full shadow-2xl shadow-[#0A2A6B]/20 text-[#0A2A6B] hover:shadow-[#4DCFFF]/40 hover:scale-110 active:scale-95 transition-all group"
+                    className="fixed bottom-10 right-8 z-[60] p-4 bg-white/20 backdrop-blur-xl border border-white/30 rounded-full shadow-2xl shadow-[#0A2A6B]/20 text-[#0A2A6B] hover:shadow-[#4DCFFF]/40 hover:scale-110 active:scale-95 transition-all group"
                 >
                     <ArrowUp className="w-6 h-6 group-hover:-translate-y-1 transition-transform" />
                     
