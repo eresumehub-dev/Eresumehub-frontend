@@ -77,20 +77,20 @@ const Landing = () => {
         <div className="bg-[#F5F5F7] min-h-screen font-['IBM_Plex_Sans'] text-[#1D1D1F] overflow-x-hidden selection:bg-[#1D1D1F] selection:text-white flex flex-col">
             
             {/* --- TOP NAVIGATION --- */}
-            <nav className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-6 max-w-[1800px] mx-auto">
-                <Link to="/" className="flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-[#1D1D1F]" />
-                    <span className="text-[18px] font-bold tracking-tight">E-resumehub</span>
+            <nav className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-10 py-8 mx-auto w-full">
+                <Link to="/" className="flex items-center gap-2 group">
+                    <Sparkles className="w-5 h-5 text-[#1D1D1F] group-hover:rotate-12 transition-transform" />
+                    <span className="text-[19px] font-bold tracking-tight text-[#1D1D1F]">E-resumehub</span>
                 </Link>
                 <div className="flex items-center gap-6">
                     {user ? (
-                        <Link to="/dashboard" className="bg-[#1D1D1F] text-white px-5 py-2.5 rounded-full text-[14px] font-medium hover:bg-black transition-all active:scale-95 shadow-md">
+                        <Link to="/dashboard" className="bg-[#1D1D1F] text-white px-6 py-2.5 rounded-full text-[14px] font-medium hover:bg-black transition-all active:scale-95 shadow-md">
                             Dashboard
                         </Link>
                     ) : (
                         <>
-                            <Link to="/login" className="text-[14px] font-medium text-[#86868B] hover:text-[#1D1D1F] transition-colors hidden md:block">Log In</Link>
-                            <Link to="/signup" className="bg-[#1D1D1F] text-white px-5 py-2.5 rounded-full text-[14px] font-medium hover:bg-black transition-all active:scale-95 shadow-md">
+                            <Link to="/login" className="text-[14px] font-medium text-[#434345] hover:text-[#1D1D1F] transition-colors hidden md:block">Log In</Link>
+                            <Link to="/signup" className="bg-[#1D1D1F] text-white px-6 py-2.5 rounded-full text-[14px] font-medium hover:bg-black transition-all active:scale-95 shadow-md">
                                 Sign Up
                             </Link>
                         </>
@@ -99,34 +99,34 @@ const Landing = () => {
             </nav>
 
             {/* --- SECTION 1: THE "PRO" HERO --- */}
-            <section className="relative min-h-[95vh] flex flex-col justify-center px-6 lg:px-12 pt-20 overflow-hidden max-w-[1800px] mx-auto w-full">
+            <section className="relative min-h-[95vh] flex flex-col justify-center px-6 lg:px-12 pt-28 overflow-hidden w-full">
                 
                 {/* Immersive AI Aura Background */}
-                <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-gradient-to-br from-[#0066CC]/20 to-[#AF52DE]/20 rounded-full filter blur-[120px] pointer-events-none animate-pulse" />
-                <div className="absolute bottom-[10%] left-[-10%] w-[500px] h-[500px] bg-gradient-to-tr from-[#34C759]/10 to-[#0066CC]/10 rounded-full filter blur-[100px] pointer-events-none animate-pulse" />
+                <div className="absolute top-[-10%] right-[-5%] w-[700px] h-[700px] bg-gradient-to-br from-[#0066CC]/25 to-[#AF52DE]/25 rounded-full filter blur-[130px] pointer-events-none animate-pulse" />
+                <div className="absolute bottom-[10%] left-[-10%] w-[600px] h-[600px] bg-gradient-to-tr from-[#34C759]/15 to-[#0066CC]/15 rounded-full filter blur-[110px] pointer-events-none animate-pulse" />
 
-                <div className="relative z-10 grid lg:grid-cols-2 gap-16 lg:gap-8 items-center w-full mt-10 lg:mt-0">
+                <div className="relative z-10 grid lg:grid-cols-2 gap-16 lg:gap-12 items-center w-full mt-10 lg:mt-0">
                     
-                    {/* Left: Authoritative Typography */}
+                    {/* Left: Authoritative Typography (Full Width) */}
                     <motion.div 
                         initial="hidden"
                         animate="visible"
                         variants={staggerContainer}
-                        className="space-y-8 max-w-2xl"
+                        className="space-y-8 w-full"
                     >
-                        <motion.div variants={fadeUp} className="inline-flex items-center gap-2.5 bg-white/60 backdrop-blur-md px-4 py-2 rounded-full border border-black/[0.05] shadow-sm">
+                        <motion.div variants={fadeUp} className="inline-flex items-center gap-2.5 bg-white/70 backdrop-blur-md px-4 py-2 rounded-full border border-black/[0.05] shadow-sm">
                             <Sparkles className="w-4 h-4 text-[#AF52DE]" />
                             <span className="text-[12px] font-bold tracking-widest uppercase text-[#1D1D1F]">Smart Resume Builder</span>
                         </motion.div>
 
-                        <motion.h1 variants={fadeUp} className="text-[3.5rem] md:text-[5.5rem] font-medium leading-[1.05] tracking-tight text-[#1D1D1F]">
+                        <motion.h1 variants={fadeUp} className="text-[3.5rem] md:text-[5.5rem] lg:text-[6.5rem] font-medium leading-[1.0] tracking-tight text-[#1D1D1F]">
                             Stop guessing.<br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1D1D1F] via-[#434345] to-[#86868B]">
                                 Start getting interviews.
                             </span>
                         </motion.h1>
 
-                        <motion.p variants={fadeUp} className="text-[1.25rem] text-[#86868B] font-light leading-relaxed max-w-xl">
+                        <motion.p variants={fadeUp} className="text-[1.25rem] text-[#434345] font-light leading-relaxed max-w-2xl">
                             We help you turn your everyday work experience into a powerful story that recruiters and hiring software actually want to read.
                         </motion.p>
 
@@ -136,13 +136,13 @@ const Landing = () => {
                                 <div className="absolute inset-[-4px] bg-gradient-to-r from-[#0066CC]/20 to-[#AF52DE]/20 rounded-[2rem] blur-lg group-hover:blur-xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
                                 
                                 <div className="relative flex flex-col sm:flex-row items-center bg-white p-2.5 rounded-[1.75rem] border border-black/[0.06] shadow-[0_15px_40px_rgb(0,0,0,0.08)] gap-2">
-                                    <div className="w-full flex items-center pl-4 pr-2 text-[#86868B]">
+                                    <div className="w-full flex items-center pl-4 pr-2 text-[#434345]">
                                         <Briefcase className="w-5 h-5 shrink-0" />
                                         <input
                                             type="text"
                                             value={jobSearch}
                                             onChange={(e) => setJobSearch(e.target.value)}
-                                            placeholder="What job do you want? (e.g. UX Director)"
+                                            placeholder="What job do you want?"
                                             className="w-full bg-transparent px-3 py-4 text-[16px] text-[#1D1D1F] placeholder-[#86868B]/70 outline-none font-medium"
                                         />
                                     </div>
@@ -436,57 +436,57 @@ const Landing = () => {
             </section>
 
             {/* --- FOOTER --- */}
-            <footer className="bg-white border-t border-black/[0.04] pt-16 pb-8 px-6 lg:px-12 mt-auto">
-                <div className="max-w-[1800px] mx-auto">
+            <footer className="bg-white border-t border-black/[0.04] pt-20 pb-10 px-6 lg:px-12 mt-auto">
+                <div className="max-w-[1800px] mx-auto w-full">
                     
-                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-16">
-                        <div className="col-span-2 lg:col-span-2 pr-8">
-                            <div className="flex items-center gap-2 mb-4">
-                                <span className="text-[20px] font-bold text-[#1D1D1F] tracking-tight">E-resumehub</span>
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-20">
+                        <div className="col-span-2 lg:col-span-2 pr-12">
+                            <div className="flex items-center gap-2 mb-6">
+                                <span className="text-[22px] font-bold text-[#1D1D1F] tracking-tight">E-resumehub</span>
                             </div>
-                            <p className="text-[14px] text-[#86868B] font-light leading-relaxed max-w-xs mb-6">
-                                The intelligent resume builder designed to bypass filters and help you land interviews faster.
+                            <p className="text-[15px] text-[#434345] font-light leading-relaxed max-w-sm mb-6">
+                                The intelligent resume builder designed to bypass occupational filters and help you land high-impact interviews faster.
                             </p>
                         </div>
 
                         <div>
-                            <h4 className="text-[12px] font-bold uppercase tracking-widest text-[#1D1D1F] mb-6">Company</h4>
-                            <ul className="space-y-4 text-[14px]">
-                                <li><Link to="/about" className="text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">About Us</Link></li>
-                                <li><Link to="/careers" className="text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">Careers</Link></li>
-                                <li><Link to="/blog" className="text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">Blog</Link></li>
+                            <h4 className="text-[12px] font-bold uppercase tracking-widest text-[#1D1D1F] mb-8">Company</h4>
+                            <ul className="space-y-5 text-[14px]">
+                                <li><Link to="/about" className="text-[#434345] hover:text-[#1D1D1F] transition-colors font-medium">About Us</Link></li>
+                                <li><Link to="/careers" className="text-[#434345] hover:text-[#1D1D1F] transition-colors font-medium">Careers</Link></li>
+                                <li><Link to="/blog" className="text-[#434345] hover:text-[#1D1D1F] transition-colors font-medium">Blog</Link></li>
                             </ul>
                         </div>
 
                         <div>
-                            <h4 className="text-[12px] font-bold uppercase tracking-widest text-[#1D1D1F] mb-6">Tools</h4>
-                            <ul className="space-y-4 text-[14px]">
-                                <li><Link to="/create" className="text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">AI Resume Builder</Link></li>
-                                <li><Link to="/templates" className="text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">Templates</Link></li>
-                                <li><Link to="/ats-checker" className="text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">ATS Checker</Link></li>
+                            <h4 className="text-[12px] font-bold uppercase tracking-widest text-[#1D1D1F] mb-8">Tools</h4>
+                            <ul className="space-y-5 text-[14px]">
+                                <li><Link to="/create" className="text-[#434345] hover:text-[#1D1D1F] transition-colors font-medium">AI Resume Builder</Link></li>
+                                <li><Link to="/templates" className="text-[#434345] hover:text-[#1D1D1F] transition-colors font-medium">Templates</Link></li>
+                                <li><Link to="/ats-checker" className="text-[#434345] hover:text-[#1D1D1F] transition-colors font-medium">ATS Checker</Link></li>
                             </ul>
                         </div>
 
                         <div>
-                            <h4 className="text-[12px] font-bold uppercase tracking-widest text-[#1D1D1F] mb-6">Legal</h4>
-                            <ul className="space-y-4 text-[14px]">
-                                <li><Link to="/privacy" className="text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">Privacy Policy</Link></li>
-                                <li><Link to="/terms" className="text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">Terms of Service</Link></li>
+                            <h4 className="text-[12px] font-bold uppercase tracking-widest text-[#1D1D1F] mb-8">Legal</h4>
+                            <ul className="space-y-5 text-[14px]">
+                                <li><Link to="/privacy" className="text-[#434345] hover:text-[#1D1D1F] transition-colors font-medium">Privacy Policy</Link></li>
+                                <li><Link to="/terms" className="text-[#434345] hover:text-[#1D1D1F] transition-colors font-medium">Terms of Service</Link></li>
                             </ul>
                         </div>
                     </div>
 
-                    <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-black/[0.04] gap-4">
-                        <p className="text-[13px] text-[#86868B] font-medium">
-                            © 2025 E-ResumeHub. All rights reserved.
+                    <div className="flex flex-col md:flex-row justify-between items-center pt-10 border-t border-black/[0.04] gap-6">
+                        <p className="text-[14px] text-[#434345] font-medium">
+                            © 2026 E-ResumeHub. All rights reserved.
                         </p>
 
-                        <div className="flex items-center gap-5">
-                            <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="text-[#86868B] hover:text-[#1D1D1F] transition-colors">
-                                <Linkedin className="w-4 h-4" />
+                        <div className="flex items-center gap-6">
+                            <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="text-[#434345] transition-all hover:scale-110" style={{ color: '#0A66C2' }}>
+                                <Linkedin className="w-5 h-5 fill-current" />
                             </a>
-                            <a href="https://instagram.com" target="_blank" rel="noreferrer" className="text-[#86868B] hover:text-[#1D1D1F] transition-colors">
-                                <Instagram className="w-4 h-4" />
+                            <a href="https://instagram.com" target="_blank" rel="noreferrer" className="text-[#434345] transition-all hover:scale-110" style={{ color: '#E4405F' }}>
+                                <Instagram className="w-5 h-5 fill-current" />
                             </a>
                         </div>
                     </div>
