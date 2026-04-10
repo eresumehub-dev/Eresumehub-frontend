@@ -23,6 +23,7 @@ const AboutUs = lazy(() => import('./pages/AboutUs'))
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'))
 const ContactUs = lazy(() => import('./pages/ContactUs'))
 const SupportCenter = lazy(() => import('./pages/SupportCenter'))
+const Settings = lazy(() => import('./pages/Settings'))
 
 // Centralized Loading Component
 const PageLoader = () => (
@@ -59,6 +60,7 @@ function App() {
                         <Route path="resume/:id" element={<ViewResume />} />
                         <Route path="resume/edit/:id" element={<ResumeEditor />} />
                         <Route path="builder" element={<ResumeBuilder />} />
+                        <Route path="settings" element={<Settings />} />
                     </Route>
                 </Route>
             </Routes>

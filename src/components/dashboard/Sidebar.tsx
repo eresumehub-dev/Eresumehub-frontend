@@ -23,6 +23,7 @@ const Sidebar: React.FC<SidebarProps> = () => {
         { to: "/ats-checker", icon: ShieldCheck, label: "ATS Checker", mt: true },
         { to: "/templates", icon: LayoutTemplate, label: "Templates" },
         { to: "/profile", icon: User, label: "Profile Data" },
+        { to: "/settings", icon: SettingsIcon, label: "Settings" },
         { to: "/help", icon: HelpCircle, label: "Support" },
     ];
 
