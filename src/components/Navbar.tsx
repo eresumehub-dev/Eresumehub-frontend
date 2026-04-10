@@ -58,8 +58,8 @@ const Navbar = () => {
         return location.pathname.startsWith(path);
     };
 
-    // Hide Navbar on the landing page, login, or signup so it doesn't overlap/double-up
-    if (['/', '/login', '/signup'].includes(location.pathname)) return null;
+    // Hide Navbar on the landing page, login, signup, or profile so it doesn't overlap/double-up
+    if (['/', '/login', '/signup', '/profile'].includes(location.pathname)) return null;
 
     return (
         <header 
