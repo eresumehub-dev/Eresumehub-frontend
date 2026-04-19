@@ -87,6 +87,11 @@ export const useCreateResumeFlow = () => {
         const warnings = evaluateMarketRules(profile, schema);
         setComplianceWarnings(warnings);
         
+        if (warnings.some(w => w.type === 'error')) {
+            setError('Please fix the compliance errors before generating.');
+            return;
+        }
+
         setIsGenerating(true);
         setError(null);
         setGenerationStep('Architecting your resume...');
@@ -146,7 +151,6 @@ export const useCreateResumeFlow = () => {
                 user_data: userData,
                 job_description: formData.jobDescription,
                 job_title: formData.jobTitle,
-                ignore_compliance: true, // [BYPASS ENABLED] (v16.4.17)
                 ...override
             });
 

@@ -69,13 +69,13 @@ const CreateResumePage: React.FC = () => {
     }
 
     return (
-        <div className="h-screen w-full bg-[#F5F5F7] flex flex-col overflow-hidden antialiased text-[#1D1D1F]" style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}>
+        <div className="min-h-screen w-full bg-[#F5F5F7] flex flex-col antialiased text-[#1D1D1F]" style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}>
             
             {/* 1. Main Workspace (Header removed as requested) */}
-            <div className="flex-1 flex justify-center overflow-hidden w-full">
+            <div className="flex-1 flex justify-center w-full">
                 
                 {/* Left: Interactive Form Canvas (Scroll bar removed, fitting enhanced) */}
-                <main className="flex-1 overflow-y-auto px-6 md:px-12 lg:px-20 py-8 scroll-smooth">
+                <main className="flex-1 px-6 md:px-12 lg:px-20 py-8 scroll-smooth">
                     <motion.div 
                         initial="hidden"
                         animate="visible"
@@ -126,7 +126,7 @@ const CreateResumePage: React.FC = () => {
                 </main>
 
                 {/* Right: Helpful Guidance Sidebar */}
-                <div className="hidden lg:block w-[380px] xl:w-[440px] bg-[#F5F5F7] border-l border-black/[0.03] z-10">
+                <div className="hidden lg:block w-[380px] xl:w-[440px] bg-[#F5F5F7] border-l border-black/[0.03] z-10 sticky top-0 h-screen">
                     <ReadinessHub
                         score={readinessScore}
                         interpretation={interpretation}
