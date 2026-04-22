@@ -56,7 +56,7 @@ export const useReadinessScore = (
         if (!profile) return { 
             readinessScore: 0, 
             projectedAtsScore: 0, 
-            interpretation: { label: 'Incomplete', color: 'gray', guidance: 'Define your role to start.' }, 
+            interpretation: { label: 'Incomplete', color: 'slate', guidance: 'Define your role to start.' }, 
             warnings: [],
             isEvaluatingRules: false,
             schema: null

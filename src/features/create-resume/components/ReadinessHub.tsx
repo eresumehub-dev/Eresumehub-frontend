@@ -27,8 +27,8 @@ const ReadinessHub: React.FC<ReadinessHubProps> = ({
     onGenerate, canGenerate, isEvaluatingRules
 }) => {
     
-    const errors = warnings.filter(w => w.type === 'error');
-    const tips = warnings.filter(w => w.type === 'warning' || w.type === 'info');
+    const errors = (warnings || []).filter(w => w.type === 'error');
+    const tips = (warnings || []).filter(w => w.type === 'warning' || w.type === 'info');
 
     return (
         <div className="h-full flex flex-col p-8 md:p-10 bg-[#F5F5F7] backdrop-blur-3xl overflow-y-auto custom-scrollbar">
@@ -79,7 +79,7 @@ const ReadinessHub: React.FC<ReadinessHubProps> = ({
                         <div className="flex items-start gap-3">
                             <CheckCircle2 className="w-5 h-5 text-[#34C759] shrink-0 mt-0.5" strokeWidth={1.5}/>
                             <div>
-                                <h4 className="text-[15px] font-semibold text-[#1D1D1F] mb-1">{interpretation.label}</h4>
+                                <h4 className="text-[15px] font-semibold text-[#1D1D1F] mb-1">{interpretation?.label || 'Calculating...'}</h4>
                                 <p className="text-[14px] text-[#86868B] leading-relaxed">
                                     {interpretation.guidance}
                                 </p>
