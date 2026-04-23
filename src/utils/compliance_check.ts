@@ -141,9 +141,9 @@ export const evaluateMarketRules = (profile: UserProfile | null, schema: any): C
     }
 
     // Education
-    if (mandatorySections.education) {
-        const education = profile.educations || [];
-        if (!education || education.length === 0) {
+    if (mandatorySections.education || order.some(o => o.toLowerCase().includes('education'))) {
+        const educations = profile.educations || (profile as any).education || [];
+        if (!educations || educations.length === 0) {
             warnings.push({
                 id: 'education-missing', type: 'error', title: 'Education Required',
                 message: `Education history is a mandatory section for ${country} resumes.`,

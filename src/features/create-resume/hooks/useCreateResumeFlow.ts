@@ -45,7 +45,7 @@ export const useCreateResumeFlow = () => {
     const mutation = useMutation({
         mutationFn: async (payload: any) => {
             trackEvent('generation_started', { title: payload.title });
-            console.log("🚀 [v16.4.17] SENDING_PAYLOAD:", payload);
+            console.log("🚀 [v16.4.21] SENDING_PAYLOAD:", payload);
 
             const response = await createResume(payload);
             if (response?.job_id) {
@@ -65,13 +65,12 @@ export const useCreateResumeFlow = () => {
             trackEvent('generation_failed', { error: err.message });
             const status = err.response?.status;
             const responseData = err.response?.data;
-            const detail = responseData?.detail;
+            const errorMsg = responseData?.error || responseData?.detail?.message || responseData?.detail || err.message || 'Generation failed.';
 
             if (status === 422) {
-                const msg = typeof detail === 'string' ? detail : (detail?.message || 'Required profile information is missing.');
-                setError(msg);
+                setError(errorMsg);
             } else {
-                setError(detail?.message || err.message || 'Generation failed.');
+                setError(errorMsg);
             }
             setIsGenerating(false);
         }
