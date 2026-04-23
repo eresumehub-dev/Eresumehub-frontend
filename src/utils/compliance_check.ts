@@ -98,7 +98,7 @@ export const evaluateMarketRules = (profile: UserProfile | null, schema: any): C
     const locationRequired = allContactReqs.some(k => ['City', 'Location', 'Current City and State'].includes(k));
     
     if (locationRequired) {
-        const city = profile.city || profile.location;
+        const city = profile.city || (profile as any).location;
         if (!city || city.trim().length < 2) {
             warnings.push({
                 id: 'location-missing', type: 'error', title: 'Location Required',
