@@ -87,9 +87,18 @@ export const useCreateResumeFlow = () => {
         const warnings = evaluateMarketRules(profile, schema);
         setComplianceWarnings(warnings);
         
-        if (warnings.some(w => w.type === 'error')) {
-            setError('Please fix the compliance errors before generating.');
-            return;
+        if (warnings.some(w => w.type === 'error') && !override.ignore_compliance) {
+            const proceed = window.confirm(
+                "Market Compliance Alert\n\n" +
+                "You are missing mandatory fields for this region. " +
+                "While you can force generation, your resume may not meet local standards.\n\n" +
+                "Do you want to ignore these warnings and generate anyway?"
+            );
+            if (!proceed) {
+                setError('Please fix the compliance errors before generating.');
+                return;
+            }
+            override.ignore_compliance = true;
         }
 
         setIsGenerating(true);
@@ -151,6 +160,7 @@ export const useCreateResumeFlow = () => {
                 user_data: userData,
                 job_description: formData.jobDescription,
                 job_title: formData.jobTitle,
+                ignore_compliance: override.ignore_compliance || false,
                 ...override
             });
 
