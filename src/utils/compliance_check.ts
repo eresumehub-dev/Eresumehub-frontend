@@ -92,6 +92,22 @@ export const evaluateMarketRules = (profile: UserProfile | null, schema: any): C
         }
     }
 
+    // Location
+    const headerReqs = cvStructure.header?.required || [];
+    const allContactReqs = [...requiredPersonalInfo, ...headerReqs];
+    const locationRequired = allContactReqs.some(k => ['City', 'Location', 'Current City and State'].includes(k));
+    
+    if (locationRequired) {
+        const city = profile.city || profile.location;
+        if (!city || city.trim().length < 2) {
+            warnings.push({
+                id: 'location-missing', type: 'error', title: 'Location Required',
+                message: `City/Location is required for ${country} resumes.`,
+                actionLabel: 'Add', actionLink: '/profile'
+            });
+        }
+    }
+
     // Professional Photo
     if (checkRequired('photo') && !profile.photo_url) {
         warnings.push({
@@ -122,6 +138,18 @@ export const evaluateMarketRules = (profile: UserProfile | null, schema: any): C
             message: `A Motivation section (志望動機) is a critical requirement for ${country}.`,
             actionLabel: 'Add', actionLink: '/profile'
         });
+    }
+
+    // Education
+    if (mandatorySections.education) {
+        const education = profile.educations || [];
+        if (!education || education.length === 0) {
+            warnings.push({
+                id: 'education-missing', type: 'error', title: 'Education Required',
+                message: `Education history is a mandatory section for ${country} resumes.`,
+                actionLabel: 'Add', actionLink: '/profile'
+            });
+        }
     }
 
     // 4. Required Languages Check (Mirroring Backend Logic)
