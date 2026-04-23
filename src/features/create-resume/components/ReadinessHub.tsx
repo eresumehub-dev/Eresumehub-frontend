@@ -151,14 +151,19 @@ const ReadinessHub: React.FC<ReadinessHubProps> = ({
                                 onClick={onGenerate}
                                 className={`
                                     w-full py-4 rounded-2xl font-medium text-[16px] tracking-tight transition-all duration-300 flex items-center justify-center gap-2
-                                    ${(!canGenerate || isEvaluatingRules || errors.length > 0)
+                                    ${(!canGenerate || isEvaluatingRules)
                                         ? 'bg-white text-[#86868B] border border-black/[0.04]'
                                         : 'bg-[#1D1D1F] text-white hover:bg-black shadow-[0_4px_14px_rgba(0,0,0,0.1)] active:scale-[0.98]'
                                     }
                                 `}
                             >
                                 {isEvaluatingRules ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
-                                {isEvaluatingRules ? 'Identifying Market Rules...' : errors.length > 0 ? 'Review Market Alerts' : 'Generate Perfect Resume'}
+                                {isEvaluatingRules 
+                                    ? 'Identifying Market Rules...' 
+                                    : errors.length > 0 
+                                        ? 'Force Generate (Bypass Alerts)' 
+                                        : 'Generate Perfect Resume'
+                                }
                                 {!isEvaluatingRules && <ArrowUpRight className="w-4 h-4" />}
                             </button>
                             <p className="text-[11px] text-[#86868B] text-center font-medium">Precision alignment with target RAG schemas. <span className="text-[#1D1D1F]">v16.4.20</span></p>
