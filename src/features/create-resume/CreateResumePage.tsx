@@ -69,13 +69,13 @@ const CreateResumePage: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen w-full bg-[#F5F5F7] flex flex-col antialiased text-[#1D1D1F]" style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}>
+        <div className="min-h-screen w-full bg-[#F5F5F7] flex flex-col antialiased text-[#1D1D1F] pt-[72px]" style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}>
             
             {/* 1. Main Workspace (Header removed as requested) */}
             <div className="flex-1 flex justify-center w-full">
                 
                 {/* Left: Interactive Form Canvas (Scroll bar removed, fitting enhanced) */}
-                <main className="flex-1 px-6 md:px-12 lg:px-20 py-8 scroll-smooth">
+                <main className="flex-1 px-4 sm:px-6 md:px-12 lg:px-20 pt-8 pb-32 sm:pb-8 scroll-smooth">
                     <motion.div 
                         initial="hidden"
                         animate="visible"
@@ -84,7 +84,7 @@ const CreateResumePage: React.FC = () => {
                     >
                         {/* Typography */}
                         <div className="mb-8 mt-2">
-                            <h2 className="text-[2.5rem] font-medium text-[#1D1D1F] tracking-tight leading-[1.1] mb-4">
+                            <h2 className="text-[2rem] sm:text-[2.5rem] font-medium text-[#1D1D1F] tracking-tight leading-[1.1] mb-4">
                                 Define your target.
                             </h2>
                             <p className="text-[1rem] text-[#86868B] leading-relaxed font-light max-w-xl">
@@ -115,7 +115,7 @@ const CreateResumePage: React.FC = () => {
                         </AnimatePresence>
 
                         {/* Form Context */}
-                        <div className="pb-8 bg-white p-6 md:p-10 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.02)] border border-black/[0.01] mb-12">
+                        <div className="pb-8 bg-white p-5 sm:p-6 md:p-10 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.02)] border border-black/[0.01] mb-12">
                             <FormSections
                                 formData={formData}
                                 setFormData={setFormData}
