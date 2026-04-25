@@ -169,7 +169,8 @@ export const useCreateResumeFlow = () => {
                     navigate('/dashboard');
                 }, 1000);
             }
-        } catch (err) {
+        } catch (err: any) {
+            setError(err.message || 'Generation failed. Please try again.');
             setIsGenerating(false);
         }
     };

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../services/supabase';
 import { Session, User } from '@supabase/supabase-js';
+import { useQueryClient } from '@tanstack/react-query';
 import { login as authLogin } from '../services/auth';
 
 interface AuthContextType {
@@ -18,6 +19,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     // Check active sessions and sets the user
@@ -37,7 +39,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    // v16.5.0: Handle centralized 401 logout event
+    const handleUnauthorized = () => {
+        signOut();
+    };
+    window.addEventListener('auth:unauthorized', handleUnauthorized);
+
+    return () => {
+        subscription.unsubscribe();
+        window.removeEventListener('auth:unauthorized', handleUnauthorized);
+    };
   }, []);
 
   const signInWithGoogle = async () => {
@@ -68,6 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
+    queryClient.clear();
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
   };

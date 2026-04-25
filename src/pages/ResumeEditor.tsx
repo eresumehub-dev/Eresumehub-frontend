@@ -913,6 +913,8 @@ const ResumeEditor: React.FC = () => {
                                             src={`${urlToUse}?inline=true&t=${previewTimestamp}`}
                                             className="w-full h-full border-none absolute inset-0"
                                             title="Resume Preview"
+                                            sandbox="allow-scripts allow-same-origin"
+                                            loading="lazy"
                                         />
                                     );
                                 } else {

@@ -25,9 +25,6 @@ api.interceptors.request.use(
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
-        // Staff+ Security: Never hardcode secrets in source code.
-        // Use VITE_ environment variables for client-side injection.
-        config.headers['X-API-Key'] = import.meta.env.VITE_API_KEY || '';
         return config;
     },
     (error) => {
@@ -39,10 +36,9 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response && error.response.status === 401) {
-            // localStorage.removeItem('token');
-            // window.location.href = '/login';
-            console.warn('API 401 Error - Token might be invalid');
+        if (error.response?.status === 401) {
+            // Emit a custom event to handle multi-request 401s without flickering
+            window.dispatchEvent(new CustomEvent('auth:unauthorized'));
         }
         return Promise.reject(error);
     }

@@ -344,6 +344,8 @@ const PublicResume: React.FC = () => {
                         src={`${previewUrl}${previewUrl.includes('?') ? '&' : '?'}preview=true`}
                         className="w-full h-[1122px] border-none"
                         title="Resume View"
+                        sandbox="allow-scripts allow-same-origin"
+                        loading="lazy"
                     />
                 </div>
             </div>

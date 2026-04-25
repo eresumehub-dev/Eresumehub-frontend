@@ -289,6 +289,8 @@ const ViewResume = () => {
                             src={previewUrl}
                             className="w-full h-[1122px] border-none"
                             title="Resume PDF Preview"
+                            sandbox="allow-scripts allow-same-origin"
+                            loading="lazy"
                         />
                     </div>
 
