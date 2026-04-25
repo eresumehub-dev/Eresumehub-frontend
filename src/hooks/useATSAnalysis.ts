@@ -67,7 +67,7 @@ export const useATSAnalysis = (country: string) => {
             formData.append('file', file, file.name);
             formData.append('job_role', jobRole);
             formData.append('target_country', country);
-            formData.append('job_description', jobDescription);
+            formData.append('job_description', jobDescription || '');
 
             const response = await api.post('/ats/analyze', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },

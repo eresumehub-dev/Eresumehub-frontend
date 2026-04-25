@@ -14,6 +14,10 @@ interface UIState {
     // Dashboard Preferences
     statsView: 'grid' | 'list';
     setStatsView: (view: 'grid' | 'list') => void;
+    
+    // Hydration
+    _hasHydrated: boolean;
+    setHasHydrated: (state: boolean) => void;
 }
 
 export const useUIStore = create<UIState>()(
@@ -28,9 +32,15 @@ export const useUIStore = create<UIState>()(
 
             statsView: 'grid',
             setStatsView: (view) => set({ statsView: view }),
+
+            _hasHydrated: false,
+            setHasHydrated: (state) => set({ _hasHydrated: state }),
         }),
         {
             name: 'eresumehub-ui-storage',
+            onRehydrateStorage: () => (state) => {
+                state?.setHasHydrated(true);
+            }
         }
     )
 );

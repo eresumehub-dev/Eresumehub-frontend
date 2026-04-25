@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState, useEffect } from 'react';
 import { UserProfile } from '../../../services/profile';
 import { evaluateMarketRules, ComplianceWarning } from '../../../utils/compliance_check';
 import { getCountrySchema } from '../../../services/schema';
+import { useDebounce } from '../../../hooks/useDebounce';
 
 export interface ReadinessScoreResult {
     readinessScore: number;
@@ -52,6 +53,8 @@ export const useReadinessScore = (
     }, [dismissedWarnings]);
 
     // 2. Main Memoized Calculation
+    const debouncedJD = useDebounce(jobDescription, 500);
+
     const result = useMemo((): ReadinessScoreResult => {
         if (!profile) return { 
             readinessScore: 0, 
@@ -91,8 +94,8 @@ export const useReadinessScore = (
 
         if (!profile.professional_summary) ats -= 10;
 
-        if (jobDescription.trim().length > 20) {
-            const jdLower = jobDescription.toLowerCase();
+        if (debouncedJD.trim().length > 20) {
+            const jdLower = debouncedJD.toLowerCase();
             const profileSkills = (profile.skills || []).map(s => s.toLowerCase());
             let matches = 0;
             profileSkills.forEach(skill => { if (jdLower.includes(skill)) matches++; });
@@ -126,7 +129,7 @@ export const useReadinessScore = (
             isEvaluatingRules: isLoadingRules,
             schema
         };
-    }, [profile, schema, isLoadingRules, jobTitle, jobDescription, country, generateComplianceWarnings]);
+    }, [profile, schema, isLoadingRules, jobTitle, debouncedJD, country, generateComplianceWarnings]);
 
     return result;
 };

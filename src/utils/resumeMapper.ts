@@ -23,7 +23,7 @@ export const profileToResume = (profile: UserProfile): ResumeData => {
             subtitle: exp.company,
             date: `${exp.start_date} - ${exp.is_current ? 'Present' : exp.end_date || ''}`,
             location: exp.location,
-            description: exp.achievements ? `<ul>${exp.achievements.map(a => `<li>${a}</li>`).join('')}</ul>` : ''
+            description: exp.achievements || []
         }));
 
         sections.push({
@@ -135,7 +135,7 @@ export const resumeToProfile = (resume: ResumeData): Partial<UserProfile> => {
                 end_date: safeDates[1] === 'Present' ? undefined : safeDates[1],
                 is_current: safeDates[1] === 'Present',
                 achievements: item.description
-                    ? item.description.replace(/<\/?ul>/g, '').split('<li>').map(li => li.replace('</li>', '').trim()).filter(Boolean)
+                    ? (Array.isArray(item.description) ? item.description : item.description.replace(/<\/?ul>/g, '').split('<li>').map(li => li.replace('</li>', '').trim()).filter(Boolean))
                     : []
             };
         });

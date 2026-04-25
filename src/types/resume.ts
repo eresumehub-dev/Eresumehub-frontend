@@ -3,7 +3,7 @@ export interface ResumeItem {
     title?: string;
     subtitle?: string;
     date?: string;
-    description?: string; // HTML string for bullet points
+    description?: string | string[]; // Array of strings (preferred) or raw string
     location?: string;
 }
 

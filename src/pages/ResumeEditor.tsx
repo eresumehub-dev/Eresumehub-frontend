@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import RefineTooltip from '../components/RefineTooltip';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -19,24 +19,10 @@ import {
     setDefaultResume,
     enhanceResume
 } from '../services/resume';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useDebounce } from '../hooks/useDebounce';
 import { Resume } from '../services/resume';
 
-// Debounce hook
-function useDebounce<T>(value: T, delay: number): T {
-    const [debouncedValue, setDebouncedValue] = useState<T>(value);
-
-    useEffect(() => {
-        const handler = setTimeout(() => {
-            setDebouncedValue(value);
-        }, delay);
-
-        return () => {
-            clearTimeout(handler);
-        };
-    }, [JSON.stringify(value), delay]);
-
-    return debouncedValue;
-}
 
 const ResumeEditor: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -93,54 +79,57 @@ const ResumeEditor: React.FC = () => {
         loadResumeData();
     }, [id]);
 
+    const queryClient = useQueryClient();
+    const updateMutation = useMutation({
+        mutationFn: (data: any) => updateResume(id!, data),
+        onSuccess: (data: any, variables: any) => {
+            setSaveStatus('saved');
+            setLastSaved(new Date());
+            
+            // Invalidate both the list and this specific resume
+            queryClient.invalidateQueries({ queryKey: ['resume', id] });
+            queryClient.invalidateQueries({ queryKey: ['resumes'] });
+            
+            if (variables.regenerate_pdf) {
+                setPreviewTimestamp(Date.now());
+                // Also fetch updated scores if it was a manual full save
+                setTimeout(async () => {
+                    if (!id) return;
+                    const scores = await getScoreHistory(id);
+                    if (scores && scores.length > 0) {
+                        setCurrentScore(scores[0].score);
+                        setScoreHistory(scores);
+                    }
+                }, 2000);
+            }
+        },
+        onError: (error) => {
+            console.error('Save failed:', error);
+            setSaveStatus('error');
+            if (updateMutation.variables?.regenerate_pdf) {
+                alert('Failed to save and refresh preview');
+            }
+        }
+    });
+
     // Auto-save when content changes
     useEffect(() => {
         if (!debouncedContent || !resume || loading) return;
-
-        const saveChanges = async () => {
-            try {
-                setSaveStatus('saving');
-                await updateResume(resume.id, {
-                    resume_data: debouncedContent,
-                    regenerate_pdf: false
-                });
-                setSaveStatus('saved');
-                setLastSaved(new Date());
-            } catch (error) {
-                console.error('Auto-save failed:', error);
-                setSaveStatus('error');
-            }
-        };
-
-        const timeoutId = setTimeout(saveChanges, 100);
-        return () => clearTimeout(timeoutId);
+        
+        setSaveStatus('saving');
+        updateMutation.mutate({
+            resume_data: debouncedContent,
+            regenerate_pdf: false
+        });
     }, [debouncedContent, resume?.id]);
 
-    const handleManualSave = async () => {
+    const handleManualSave = () => {
         if (!resume || !resumeContent) return;
-        try {
-            setSaveStatus('saving');
-            await updateResume(resume.id, {
-                resume_data: resumeContent,
-                regenerate_pdf: true
-            });
-            setSaveStatus('saved');
-            setLastSaved(new Date());
-            setPreviewTimestamp(Date.now()); // Force preview refresh
-
-            setTimeout(async () => {
-                if (!resume.id) return;
-                const scores = await getScoreHistory(resume.id);
-                if (scores && scores.length > 0) {
-                    setCurrentScore(scores[0].score);
-                    setScoreHistory(scores);
-                }
-            }, 2000);
-        } catch (error) {
-            console.error('Manual save failed:', error);
-            setSaveStatus('error');
-            alert('Failed to save and refresh preview');
-        }
+        setSaveStatus('saving');
+        updateMutation.mutate({
+            resume_data: resumeContent,
+            regenerate_pdf: true
+        });
     };
 
     const handleContentChange = (field: string, value: any) => {
