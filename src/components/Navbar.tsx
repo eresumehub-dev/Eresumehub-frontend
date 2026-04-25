@@ -9,7 +9,8 @@ import {
     User,
     Settings,
     HelpCircle,
-    ChevronDown
+    ChevronDown,
+    TrendingUp
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
@@ -49,7 +50,9 @@ const Navbar = () => {
     const navLinks = [
         { name: "Dashboard", icon: <LayoutDashboard className="w-4 h-4" />, href: "/dashboard" },
         { name: "My Resumes", icon: <FileText className="w-4 h-4" />, href: "/dashboard/resumes" },
-        { name: "ATS Scanner", icon: <ScanSearch className="w-4 h-4" />, href: "/ats-checker" }
+        { name: "Analytics", icon: <TrendingUp className="w-4 h-4" />, href: "/analytics/overview" },
+        { name: "ATS Scanner", icon: <ScanSearch className="w-4 h-4" />, href: "/ats-checker" },
+        { name: "Templates", icon: <HelpCircle className="w-4 h-4" />, href: "/templates" }
     ];
 
     // Helper for active state
@@ -224,11 +227,17 @@ const Navbar = () => {
                             
                             <div className="h-[1px] w-full bg-black/[0.04] my-4"></div>
                             
-                            <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3.5 text-[#86868B] font-medium">
-                                <User className="w-5 h-5" /> Profile Details
-                            </Link>
-                            <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-3.5 mt-2 rounded-[1rem] text-[#FF3B30] font-medium w-full text-left">
-                                <LogOut className="w-5 h-5" /> Sign Out
+                            <div className="grid grid-cols-2 gap-2 mb-4">
+                                <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-[#F5F5F7] text-[13px] font-medium text-[#1D1D1F]">
+                                    <User className="w-4 h-4 text-[#86868B]" /> Profile
+                                </Link>
+                                <Link to="/settings" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-[#F5F5F7] text-[13px] font-medium text-[#1D1D1F]">
+                                    <Settings className="w-4 h-4 text-[#86868B]" /> Settings
+                                </Link>
+                            </div>
+
+                            <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-4 rounded-[1rem] text-[#FF3B30] bg-[#FFF0F0] font-bold text-[14px] w-full text-left transition-colors active:scale-[0.98]">
+                                <LogOut className="w-5 h-5" strokeWidth={2.5} /> Sign Out
                             </button>
                         </div>
                     </motion.div>

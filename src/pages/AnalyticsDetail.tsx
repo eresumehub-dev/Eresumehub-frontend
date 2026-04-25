@@ -114,20 +114,18 @@ const AnalyticsDetail: React.FC = () => {
                     
                     {/* Behavioral Funnel (v13.0.0) */}
                     {data.funnel && (
-                        <div className="bg-white p-5 rounded-[24px] border border-slate-100 shadow-xl shadow-slate-200/10 flex gap-8 items-center">
-                            <div className="text-center">
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Views</p>
-                                <p className="text-xl font-bold text-slate-900">{data.funnel.views}</p>
+                        <div className="bg-white p-4 sm:p-5 rounded-[24px] border border-slate-100 shadow-xl shadow-slate-200/10 grid grid-cols-3 sm:flex sm:gap-8 items-center divide-x divide-slate-100 sm:divide-x-0">
+                            <div className="text-center px-2 sm:px-0">
+                                <p className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Views</p>
+                                <p className="text-lg sm:text-xl font-bold text-slate-900">{data.funnel.views}</p>
                             </div>
-                            <div className="w-px h-8 bg-slate-100"></div>
-                            <div className="text-center">
-                                <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Engaged Viewers</p>
-                                <p className="text-xl font-bold text-slate-900">{data.funnel.engagement}</p>
+                            <div className="text-center px-2 sm:px-0 border-l sm:border-l-0">
+                                <p className="text-[9px] sm:text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Engaged</p>
+                                <p className="text-lg sm:text-xl font-bold text-slate-900">{data.funnel.engagement}</p>
                             </div>
-                            <div className="w-px h-8 bg-slate-100"></div>
-                            <div className="text-center">
-                                <p className="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-1">Downloads</p>
-                                <p className="text-xl font-bold text-slate-900">{data.funnel.downloads}</p>
+                            <div className="text-center px-2 sm:px-0 border-l sm:border-l-0">
+                                <p className="text-[9px] sm:text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-1">Downloads</p>
+                                <p className="text-lg sm:text-xl font-bold text-slate-900">{data.funnel.downloads}</p>
                             </div>
                         </div>
                     )}

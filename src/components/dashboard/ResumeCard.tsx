@@ -46,49 +46,49 @@ const ResumeCard: React.FC<ResumeCardProps> = ({
                 </div>
             </div>
             
-            <div className="flex items-center gap-6 w-full sm:w-auto justify-between sm:justify-end">
+            <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 border-black/[0.04] pt-4 sm:pt-0">
                 <div className="flex flex-col items-start sm:items-end">
-                    <span className={`text-[14px] font-medium ${score >= 80 ? 'text-[#34C759]' : 'text-[#FF9F0A]'}`}>
+                    <span className={`text-[14px] font-bold ${score >= 80 ? 'text-[#34C759]' : 'text-[#FF9F0A]'}`}>
                         {score}% Match
                     </span>
-                    <span className="text-[11px] text-[#86868B] uppercase tracking-wider font-semibold">ATS Score</span>
+                    <span className="text-[10px] text-[#86868B] uppercase tracking-wider font-bold">ATS Score</span>
                 </div>
                 
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 bg-[#F5F5F7] sm:bg-transparent p-1.5 rounded-[1rem] sm:p-0">
                     {/* Notification Bell */}
                     <button 
                         title={hasActivity ? "New activity detected!" : "No recent activity"}
                         onClick={(e) => { e.stopPropagation(); }}
                         className={`relative p-2 rounded-xl transition-all ${
                             hasActivity 
-                            ? 'text-[#0066CC] bg-[#0066CC]/5 hover:bg-[#0066CC]/15' 
-                            : 'text-[#86868B] hover:text-[#1D1D1F] hover:bg-white border border-transparent hover:border-black/[0.05]'
+                            ? 'text-[#0066CC] bg-white shadow-sm' 
+                            : 'text-[#86868B] hover:text-[#1D1D1F] hover:bg-white border border-transparent'
                         }`}
                     >
                         <Bell className="w-4 h-4" strokeWidth={hasActivity ? 2.5 : 2} />
                         {hasActivity && <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-[#FF3B30] rounded-full border border-white"></span>}
                     </button>
                     
-                    <div className="w-[1px] h-4 bg-black/[0.08] mx-1"></div>
+                    <div className="hidden sm:block w-[1px] h-4 bg-black/[0.08] mx-1"></div>
 
                     <button 
                         title="Edit Resume" 
                         onClick={(e) => { e.stopPropagation(); onEdit(resume.id); }}
-                        className="p-2 text-[#86868B] hover:text-[#1D1D1F] transition-colors rounded-xl hover:bg-white shadow-sm border border-transparent hover:border-black/[0.05]"
+                        className="p-2 text-[#86868B] hover:text-[#1D1D1F] transition-colors rounded-xl bg-white sm:bg-transparent shadow-sm sm:shadow-none border border-black/[0.05] sm:border-transparent hover:border-black/[0.1]"
                     >
                         <Edit2 className="w-4 h-4"/>
                     </button>
                     <button 
                         title="Share Analytics" 
                         onClick={(e) => { e.stopPropagation(); onShare(resume); }}
-                        className="p-2 text-[#86868B] hover:text-[#1D1D1F] transition-colors rounded-xl hover:bg-white shadow-sm border border-transparent hover:border-black/[0.05]"
+                        className="p-2 text-[#86868B] hover:text-[#1D1D1F] transition-colors rounded-xl bg-white sm:bg-transparent shadow-sm sm:shadow-none border border-black/[0.05] sm:border-transparent hover:border-black/[0.1]"
                     >
                         <Share2 className="w-4 h-4"/>
                     </button>
                     <button 
                         title="Delete Document" 
                         onClick={(e) => { e.stopPropagation(); onDelete(resume.id); }}
-                        className="p-2 text-[#86868B] hover:text-[#FF3B30] transition-colors rounded-xl hover:bg-[#FFF0F0] shadow-sm border border-transparent hover:border-[#FF3B30]/10"
+                        className="p-2 text-[#86868B] hover:text-[#FF3B30] transition-colors rounded-xl bg-white sm:bg-transparent shadow-sm sm:shadow-none border border-black/[0.05] sm:border-transparent hover:border-[#FF3B30]/20"
                     >
                         <Trash2 className="w-4 h-4"/>
                     </button>

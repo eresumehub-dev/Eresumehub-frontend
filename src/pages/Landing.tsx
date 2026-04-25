@@ -95,7 +95,7 @@ const Landing = () => {
             </nav>
 
             {/* --- SECTION 1: THE "PRO" HERO --- */}
-            <section className="relative min-h-[95vh] flex flex-col justify-center px-6 lg:px-12 pt-28 overflow-hidden w-full">
+            <section className="relative min-h-[85vh] sm:min-h-[95vh] flex flex-col justify-center px-4 sm:px-6 lg:px-12 pt-24 sm:pt-28 overflow-hidden w-full">
                 
                 {/* Immersive AI Aura Background */}
                 <div className="absolute top-[-10%] right-[-5%] w-[700px] h-[700px] bg-gradient-to-br from-[#0066CC]/25 to-[#AF52DE]/25 rounded-full filter blur-[130px] pointer-events-none animate-pulse" />
@@ -110,7 +110,7 @@ const Landing = () => {
                         variants={staggerContainer}
                         className="space-y-8 w-full"
                     >
-                        <motion.h1 variants={fadeUp} className="text-[3.5rem] md:text-[5.5rem] lg:text-[6.5rem] font-medium leading-[1.0] tracking-tight text-[#1D1D1F]">
+                        <motion.h1 variants={fadeUp} className="text-[2.5rem] sm:text-[3.5rem] md:text-[5.5rem] lg:text-[6.5rem] font-medium leading-[1.0] tracking-tight text-[#1D1D1F]">
                             Stop guessing.<br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1D1D1F] via-[#434345] to-[#86868B]">
                                 Start getting interviews.
@@ -122,24 +122,24 @@ const Landing = () => {
                         </motion.p>
 
                         {/* Premium Spotlight-style Input */}
-                        <motion.div variants={fadeUp} className="pt-4 pb-16">
+                        <motion.div variants={fadeUp} className="pt-4 pb-12 sm:pb-16">
                             <div className="relative group max-w-xl">
                                 <div className="absolute inset-[-4px] bg-gradient-to-r from-[#0066CC]/20 to-[#AF52DE]/20 rounded-[2rem] blur-lg group-hover:blur-xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
                                 
-                                <div className="relative flex flex-col sm:flex-row items-center bg-white p-2.5 rounded-[1.75rem] border border-black/[0.06] shadow-[0_15px_40px_rgb(0,0,0,0.08)] gap-2">
-                                    <div className="w-full flex items-center pl-4 pr-2 text-[#434345]">
+                                <div className="relative flex flex-col sm:flex-row items-center bg-white p-2 sm:p-2.5 rounded-[1.5rem] sm:rounded-[1.75rem] border border-black/[0.06] shadow-[0_15px_40px_rgb(0,0,0,0.08)] gap-2">
+                                    <div className="w-full flex items-center pl-3 sm:pl-4 pr-2 text-[#434345]">
                                         <Briefcase className="w-5 h-5 shrink-0" />
                                         <input
                                             type="text"
                                             value={jobSearch}
                                             onChange={(e) => setJobSearch(e.target.value)}
                                             placeholder="What job do you want?"
-                                            className="w-full bg-transparent px-3 py-4 text-[16px] text-[#1D1D1F] placeholder-[#86868B]/70 outline-none font-medium"
+                                            className="w-full bg-transparent px-3 py-3 sm:py-4 text-[15px] sm:text-[16px] text-[#1D1D1F] placeholder-[#86868B]/70 outline-none font-medium"
                                         />
                                     </div>
                                     <button 
                                         onClick={handleCta}
-                                        className="w-full sm:w-auto bg-[#1D1D1F] text-white px-8 py-4 rounded-[1.25rem] font-medium text-[15px] hover:bg-black active:scale-[0.98] transition-all shadow-md shrink-0 whitespace-nowrap flex items-center justify-center gap-2"
+                                        className="w-full sm:w-auto bg-[#1D1D1F] text-white px-8 py-3.5 sm:py-4 rounded-[1.1rem] sm:rounded-[1.25rem] font-medium text-[15px] hover:bg-black active:scale-[0.98] transition-all shadow-md shrink-0 whitespace-nowrap flex items-center justify-center gap-2"
                                     >
                                         Build My Resume <ArrowRight className="w-4 h-4" />
                                     </button>

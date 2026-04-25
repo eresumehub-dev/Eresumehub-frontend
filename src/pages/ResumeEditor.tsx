@@ -317,32 +317,33 @@ const ResumeEditor: React.FC = () => {
             />
 
             {/* --- PREMIUM HEADER --- */}
-            <header className="h-20 bg-white/80 backdrop-blur-xl border-b border-black/[0.04] flex items-center justify-between px-6 md:px-10 z-50 shrink-0">
-                <div className="flex items-center gap-6">
+            <header className="h-16 sm:h-20 bg-white/80 backdrop-blur-xl border-b border-black/[0.04] flex items-center justify-between px-4 sm:px-6 md:px-10 z-50 shrink-0">
+                <div className="flex items-center gap-3 sm:gap-6">
                     <button
                         onClick={() => navigate('/dashboard')}
-                        className="w-10 h-10 flex items-center justify-center bg-[#F5F5F7] hover:bg-[#E8E8ED] rounded-full transition-colors group focus:outline-none"
+                        className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center bg-[#F5F5F7] hover:bg-[#E8E8ED] rounded-full transition-colors group focus:outline-none"
                     >
-                        <ChevronLeft className="w-5 h-5 text-[#1D1D1F] group-hover:-translate-x-0.5 transition-transform" />
+                        <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-[#1D1D1F] group-hover:-translate-x-0.5 transition-transform" />
                     </button>
-                    <div className="flex flex-col">
+                    <div className="flex flex-col min-w-0">
                         <input
                             type="text"
                             value={resume.title}
                             onChange={(e) => setResume({ ...resume, title: e.target.value })}
-                            className="font-bold text-[17px] bg-transparent border-none focus:ring-0 p-0 placeholder-black/20 tracking-tight"
+                            className="font-bold text-[15px] sm:text-[17px] bg-transparent border-none focus:ring-0 p-0 placeholder-black/20 tracking-tight truncate"
                             placeholder="Untitled Resume"
                         />
-                        <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest leading-none mt-1">
+                        <div className="flex items-center gap-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest leading-none mt-1">
                             {saveStatus === 'saving' ? (
                                 <div className="flex items-center gap-1.5 text-[#0066CC]">
                                     <Clock className="w-2.5 h-2.5 animate-spin" />
-                                    <span>Syncing...</span>
+                                    <span className="hidden sm:inline">Syncing...</span>
                                 </div>
                             ) : (
                                 <div className="flex items-center gap-1.5 text-[#34C759]">
                                     <Check className="w-2.5 h-2.5" />
-                                    <span>Saved {lastSaved && `at ${lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}</span>
+                                    <span className="hidden sm:inline">Saved {lastSaved && `at ${lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}</span>
+                                    <span className="sm:hidden">Saved</span>
                                 </div>
                             )}
                         </div>
@@ -405,7 +406,7 @@ const ResumeEditor: React.FC = () => {
                     <button
                         onClick={handleManualSave}
                         disabled={saveStatus === 'saving'}
-                        className="flex items-center gap-2 px-6 py-2.5 bg-[#1D1D1F] text-white rounded-full text-[13px] font-semibold hover:bg-black active:scale-95 transition-all shadow-[0_8px_20px_rgba(0,0,0,0.12)]"
+                        className="hidden sm:flex items-center gap-2 px-6 py-2.5 bg-[#1D1D1F] text-white rounded-full text-[13px] font-semibold hover:bg-black active:scale-95 transition-all shadow-[0_8px_20px_rgba(0,0,0,0.12)]"
                     >
                         {saveStatus === 'saving' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
                         Save & Refresh
@@ -414,7 +415,7 @@ const ResumeEditor: React.FC = () => {
                     <div className="relative">
                         <button
                             onClick={() => setShowActions(!showActions)}
-                            className="w-10 h-10 flex items-center justify-center bg-[#F5F5F7] hover:bg-[#E8E8ED] rounded-full transition-colors focus:outline-none"
+                            className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center bg-[#F5F5F7] hover:bg-[#E8E8ED] rounded-full transition-colors focus:outline-none"
                         >
                             <MoreVertical className="w-5 h-5 text-[#1D1D1F]" />
                         </button>
@@ -426,6 +427,16 @@ const ResumeEditor: React.FC = () => {
                                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
                                     className="absolute right-0 mt-3 w-56 bg-white/90 backdrop-blur-xl rounded-[1.25rem] shadow-[0_20px_40px_rgba(0,0,0,0.08)] border border-black/[0.04] py-2.5 z-[100] overflow-hidden"
                                 >
+                                    {/* Mobile Only: Save Actions */}
+                                    <div className="sm:hidden border-b border-black/[0.04] mb-2 pb-2">
+                                        <button onClick={handleManualSave} className="w-full text-left px-5 py-3 hover:bg-black/[0.03] flex items-center gap-3 text-[14px] font-bold text-[#0066CC]">
+                                            <Wand2 className="w-4 h-4" /> Save & Refresh
+                                        </button>
+                                        <button onClick={handleEnhanceWithAI} className="w-full text-left px-5 py-3 hover:bg-black/[0.03] flex items-center gap-3 text-[14px] font-bold text-[#AF52DE]">
+                                            <Sparkles className="w-4 h-4" /> AI Enhance
+                                        </button>
+                                    </div>
+
                                     <button onClick={handleClone} className="w-full text-left px-5 py-3 hover:bg-black/[0.03] flex items-center gap-3 text-[14px] font-medium text-[#1D1D1F]">
                                         <Copy className="w-4 h-4 text-[#86868B]" /> Clone Resume
                                     </button>

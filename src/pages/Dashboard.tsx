@@ -65,7 +65,7 @@ const Dashboard: React.FC = () => {
         <div className="bg-[#F5F5F7] min-h-screen relative antialiased text-[#1D1D1F] pt-[72px]">
             <Sidebar />
 
-            <main className="flex-1 lg:ml-64 p-6 md:p-10 lg:p-12 xl:p-16 max-w-[1600px] mx-auto w-full overflow-y-auto">
+            <main className="flex-1 lg:ml-64 p-4 sm:p-6 md:p-10 lg:p-12 xl:p-16 max-w-[1600px] mx-auto w-full overflow-y-auto">
                 <motion.div 
                     variants={containerVariants}
                     initial="hidden"
@@ -75,7 +75,7 @@ const Dashboard: React.FC = () => {
                     {/* 1. HEADER */}
                     <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-black/[0.04]">
                         <div className="mt-2">
-                            <h1 className="text-[2.5rem] md:text-[2.75rem] font-medium text-[#1D1D1F] tracking-tight leading-[1.1] mb-3">
+                            <h1 className="text-[2rem] sm:text-[2.5rem] md:text-[2.75rem] font-medium text-[#1D1D1F] tracking-tight leading-[1.1] mb-3">
                                 Welcome back, {firstName}.
                             </h1>
                             <p className="text-[1.125rem] text-[#86868B] font-light">
