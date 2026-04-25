@@ -86,7 +86,7 @@ export const useCreateResumeFlow = () => {
         const warnings = evaluateMarketRules(profile, schema);
         setComplianceWarnings(warnings);
         
-        if (warnings.some(w => w.type === 'error') && !override.ignore_compliance) {
+        if (Array.isArray(warnings) && warnings.some(w => w.type === 'error') && !override.ignore_compliance) {
             const proceed = window.confirm(
                 "Market Compliance Alert\n\n" +
                 "You are missing mandatory fields for this region. " +

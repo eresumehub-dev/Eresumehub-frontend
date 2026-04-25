@@ -719,8 +719,8 @@ const ProfileCreationMultiStep: React.FC = () => {
         const p = profile;
         validity[1] = (p.full_name?.trim() && p.professional_summary?.trim()) ? 'valid' : 'invalid';
         validity[2] = p.email?.trim() ? 'valid' : 'invalid';
-        validity[3] = p.work_experiences?.some((w: any) => !w.job_title?.trim() || !w.company?.trim()) ? 'invalid' : 'valid';
-        validity[4] = p.educations?.some((e: any) => !e.degree?.trim() || !e.institution?.trim()) ? 'invalid' : 'valid';
+        validity[3] = (Array.isArray(p.work_experiences) && p.work_experiences.some((w: any) => !w.job_title?.trim() || !w.company?.trim())) ? 'invalid' : 'valid';
+        validity[4] = (Array.isArray(p.educations) && p.educations.some((e: any) => !e.degree?.trim() || !e.institution?.trim())) ? 'invalid' : 'valid';
         [5, 6, 7, 8, 9, 10].forEach(i => validity[i] = 'valid');
         return validity;
     };

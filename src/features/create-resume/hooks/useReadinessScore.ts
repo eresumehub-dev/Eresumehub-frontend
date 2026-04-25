@@ -66,16 +66,19 @@ export const useReadinessScore = (
         };
 
         const activeWarnings = generateComplianceWarnings(profile, schema);
-        const hasErrors = activeWarnings.some(w => w.type === 'error');
+        const hasErrors = Array.isArray(activeWarnings) && activeWarnings.some(w => w.type === 'error');
 
         // Readiness Score
         let rScore = 100;
         if (!profile.full_name) rScore -= 10;
         if (!profile.email) rScore -= 10;
-        if ((profile.work_experiences?.length || 0) === 0) rScore -= 20;
-        if ((profile.skills?.length || 0) === 0) rScore -= 15;
-        if ((profile.educations?.length || 0) === 0) rScore -= 10;
-        rScore -= (activeWarnings.length * 5);
+        if ((Array.isArray(profile.work_experiences) ? profile.work_experiences.length : 0) === 0) rScore -= 20;
+        
+        const skillsCount = Array.isArray(profile.skills) ? profile.skills.length : 0;
+        if (skillsCount === 0) rScore -= 15;
+        
+        if ((Array.isArray(profile.educations) ? profile.educations.length : 0) === 0) rScore -= 10;
+        rScore -= (Array.isArray(activeWarnings) ? activeWarnings.length : 0) * 5;
         
         // --- v3.5.0 Hard Compliance Cap ---
         if (hasErrors) {
@@ -86,17 +89,18 @@ export const useReadinessScore = (
 
         // ATS Score
         let ats = 85;
-        if ((profile.work_experiences?.length || 0) === 0) ats -= 20;
-        else if ((profile.work_experiences?.length || 0) > 1) ats += 5;
+        const expCount = Array.isArray(profile.work_experiences) ? profile.work_experiences.length : 0;
+        if (expCount === 0) ats -= 20;
+        else if (expCount > 1) ats += 5;
         
-        if ((profile.skills?.length || 0) === 0) ats -= 15;
-        else if ((profile.skills?.length || 0) > 5) ats += 5;
+        if (skillsCount === 0) ats -= 15;
+        else if (skillsCount > 5) ats += 5;
 
         if (!profile.professional_summary) ats -= 10;
 
         if (debouncedJD.trim().length > 20) {
             const jdLower = debouncedJD.toLowerCase();
-            const profileSkills = (profile.skills || []).map(s => s.toLowerCase());
+            const profileSkills = (Array.isArray(profile.skills) ? profile.skills : []).map(s => String(s).toLowerCase());
             let matches = 0;
             profileSkills.forEach(skill => { if (jdLower.includes(skill)) matches++; });
             const matchRatio = Math.min(1, matches / 5); 
@@ -125,7 +129,7 @@ export const useReadinessScore = (
             readinessScore: rScore,
             projectedAtsScore: ats,
             interpretation,
-            warnings: activeWarnings,
+            warnings: Array.isArray(activeWarnings) ? activeWarnings : [],
             isEvaluatingRules: isLoadingRules,
             schema
         };

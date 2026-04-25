@@ -63,10 +63,10 @@ export const evaluateMarketRules = (profile: UserProfile | null, schema: any): C
     const cvStructure = schema.cv_structure || {};
     const mandatorySections = cvStructure.mandatory_sections || {};
     const personalInfo = mandatorySections.personal_info || {};
-    const requiredPersonalInfo: string[] = personalInfo.required || [];
+    const requiredPersonalInfo: string[] = Array.isArray(personalInfo.required) ? personalInfo.required : [];
 
     const checkRequired = (keyword: string) => 
-        requiredPersonalInfo.some(req => req.toLowerCase().includes(keyword.toLowerCase()));
+        requiredPersonalInfo.some(req => typeof req === 'string' && req.toLowerCase().includes(keyword.toLowerCase()));
 
     // Date of Birth
     if (checkRequired('date of birth') || checkRequired('dob')) {
@@ -93,9 +93,9 @@ export const evaluateMarketRules = (profile: UserProfile | null, schema: any): C
     }
 
     // Location
-    const headerReqs = cvStructure.header?.required || [];
+    const headerReqs = Array.isArray(cvStructure.header?.required) ? cvStructure.header.required : [];
     const allContactReqs = [...requiredPersonalInfo, ...headerReqs];
-    const locationRequired = allContactReqs.some(k => ['City', 'Location', 'Current City and State'].includes(k));
+    const locationRequired = allContactReqs.some(k => typeof k === 'string' && ['City', 'Location', 'Current City and State'].includes(k));
     
     if (locationRequired) {
         const city = profile.city || (profile as any).location;
@@ -118,9 +118,9 @@ export const evaluateMarketRules = (profile: UserProfile | null, schema: any): C
     }
 
     // 3. Structural Content Parsing
-    const order: string[] = cvStructure.order || [];
-    const requiresSelfPr = order.some(o => o.toLowerCase().includes('self-pr') || o.includes('自己PR'));
-    const requiresMotivation = order.some(o => o.toLowerCase().includes('motivation') || o.includes('志望動機'));
+    const order: string[] = Array.isArray(cvStructure.order) ? cvStructure.order : [];
+    const requiresSelfPr = order.some(o => typeof o === 'string' && (o.toLowerCase().includes('self-pr') || o.includes('自己PR')));
+    const requiresMotivation = order.some(o => typeof o === 'string' && (o.toLowerCase().includes('motivation') || o.includes('志望動機')));
 
     if (requiresSelfPr) {
         if (!profile.professional_summary?.trim()) {
@@ -141,8 +141,8 @@ export const evaluateMarketRules = (profile: UserProfile | null, schema: any): C
     }
 
     // Education
-    if (mandatorySections.education || order.some(o => o.toLowerCase().includes('education'))) {
-        const educations = profile.educations || (profile as any).education || [];
+    if (mandatorySections.education || order.some(o => typeof o === 'string' && o.toLowerCase().includes('education'))) {
+        const educations = Array.isArray(profile.educations) ? profile.educations : (Array.isArray((profile as any).education) ? (profile as any).education : []);
         if (!educations || educations.length === 0) {
             warnings.push({
                 id: 'education-missing', type: 'error', title: 'Education Required',
@@ -153,13 +153,13 @@ export const evaluateMarketRules = (profile: UserProfile | null, schema: any): C
     }
 
     // 4. Required Languages Check (Mirroring Backend Logic)
-    const requiredLanguages: string[] = schema.required_languages || [];
-    const userLangs = (profile.languages || []).map((l: any) => 
+    const requiredLanguages: string[] = Array.isArray(schema.required_languages) ? schema.required_languages : [];
+    const userLangs = (Array.isArray(profile.languages) ? profile.languages : []).map((l: any) => 
         (typeof l === 'string' ? l : (l?.name || l?.language || '')).toLowerCase()
     );
 
     requiredLanguages.forEach(langReq => {
-        const hasLang = userLangs.some(ul => ul.includes(langReq.toLowerCase()));
+        const hasLang = userLangs.some(ul => typeof ul === 'string' && ul.includes(langReq.toLowerCase()));
 
         if (!hasLang) {
             warnings.push({

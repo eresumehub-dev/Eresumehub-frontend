@@ -34,7 +34,7 @@ const Sidebar: React.FC<SidebarProps> = () => {
     };
 
     return (
-        <aside className="w-64 bg-[#F5F5F7] border-r border-black/[0.04] p-6 hidden lg:flex flex-col fixed top-[72px] bottom-0 left-0 z-40 transition-all duration-300">
+        <aside className="w-64 bg-[#F5F5F7] border-r border-black/[0.04] p-6 hidden lg:flex flex-col fixed top-[90px] bottom-0 left-0 z-40 transition-all duration-300">
             {/* Top Logo Removed as requested (already in header) */}
             
             <nav className="flex-1 space-y-1.5 mt-4">

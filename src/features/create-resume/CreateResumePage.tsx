@@ -69,7 +69,7 @@ const CreateResumePage: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen w-full bg-[#F5F5F7] flex flex-col antialiased text-[#1D1D1F] pt-[72px]" style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}>
+        <div className="min-h-screen w-full bg-[#F5F5F7] flex flex-col antialiased text-[#1D1D1F] pt-[130px]" style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}>
             
             {/* 1. Main Workspace (Header removed as requested) */}
             <div className="flex-1 flex justify-center w-full">

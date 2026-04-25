@@ -62,7 +62,7 @@ const Dashboard: React.FC = () => {
     if (bootLoading) return <div className="bg-[#F5F5F7] min-h-screen pt-[72px]"><Sidebar /><main className="flex-1 p-12 lg:ml-64"><DashboardSkeleton /></main></div>;
 
     return (
-        <div className="bg-[#F5F5F7] min-h-screen relative antialiased text-[#1D1D1F] pt-[72px]">
+        <div className="bg-[#F5F5F7] min-h-screen relative antialiased text-[#1D1D1F] pt-[90px]">
             <Sidebar />
 
             <main className="flex-1 lg:ml-64 p-4 sm:p-6 md:p-10 lg:p-12 xl:p-16 max-w-[1600px] mx-auto w-full overflow-y-auto">
@@ -229,7 +229,7 @@ const Dashboard: React.FC = () => {
             {isShareModalOpen && sharingResume && userProfile && (
                 <ShareModal
                     resume={sharingResume}
-                    username={(userProfile as any).username}
+                    username={(userProfile as any)?.username || user?.user_metadata?.username}
                     onClose={() => setIsShareModalOpen(false)}
                     onUpdate={() => setIsShareModalOpen(false)}
                 />
