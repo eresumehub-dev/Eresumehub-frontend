@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import { isbot } from 'isbot';
 import { useParams, Link } from 'react-router-dom';
 import { getPublicResume, Resume } from '../services/resume';
 import { logView, updateViewHeartbeat, logDownload } from '../services/analytics';
@@ -19,6 +20,8 @@ const PublicResume: React.FC = () => {
     const analyticsInitialized = useRef(false);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const maxScrollRef = useRef<number>(0);
+    const lastActivityRef = useRef<number>(Date.now());
+    const isIdleRef = useRef<boolean>(false);
 
     const loadResume = async (u: string, s: string) => {
         try {
@@ -57,6 +60,15 @@ const PublicResume: React.FC = () => {
         }
 
         const initTracking = async () => {
+            // Staff+ Bot Guard: Prevent crawlers and automated browsers from skewing analytics (v16.5.0)
+            const isBotUserAgent = isbot(navigator.userAgent);
+            const isWebdriver = navigator.webdriver;
+            
+            if (isBotUserAgent || isWebdriver) {
+                console.log("[Analytics] Bot detected (UA or Webdriver). View logging suppressed.");
+                return;
+            }
+
             try {
                 // Initialize v12 standardized tracking
                 await tracker.trackEvent('resume_view_started', {
@@ -107,10 +119,23 @@ const PublicResume: React.FC = () => {
             container.addEventListener('scroll', handleScroll);
         }
 
+        // IDLE DETECTION (v14.0.0)
+        const updateActivity = () => {
+            lastActivityRef.current = Date.now();
+            isIdleRef.current = false;
+        };
+
+        window.addEventListener('mousemove', updateActivity);
+        window.addEventListener('keydown', updateActivity);
+        window.addEventListener('scroll', updateActivity);
+
         return () => {
             if (container) {
                 container.removeEventListener('scroll', handleScroll);
             }
+            window.removeEventListener('mousemove', updateActivity);
+            window.removeEventListener('keydown', updateActivity);
+            window.removeEventListener('scroll', updateActivity);
         };
     }, [resume]); // Only runs if Resume Object changes
 
@@ -120,6 +145,16 @@ const PublicResume: React.FC = () => {
         if (!resume) return;
 
         const intervalId = setInterval(() => {
+            // Check for Idle state (5 minutes = 300,000ms)
+            const idleTime = Date.now() - lastActivityRef.current;
+            if (idleTime > 300000) {
+                if (!isIdleRef.current) {
+                    console.log("[Analytics] Idle detected, pausing heartbeat.");
+                    isIdleRef.current = true;
+                }
+                return;
+            }
+
             if (!document.hidden && viewIdRef.current) {
                 const duration = Math.floor((Date.now() - startTimeRef.current) / 1000);
 
@@ -138,14 +173,14 @@ const PublicResume: React.FC = () => {
                         total_duration: duration,
                         scroll_depth: maxScrollRef.current,
                         current_section: currentSection,
-                        active: !document.hidden
+                        active: !document.hidden && !isIdleRef.current
                     }, user?.id);
 
                     // Legacy Heartbeat pulse (v12 shim)
                     const heartbeatData = { 
                         duration_seconds: duration,
                         max_scroll_depth: maxScrollRef.current,
-                        is_active: !document.hidden
+                        is_active: !document.hidden && !isIdleRef.current
                     };
                     
                     updateViewHeartbeat(viewIdRef.current, heartbeatData as any)

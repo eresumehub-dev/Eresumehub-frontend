@@ -24,11 +24,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      if (session?.access_token) {
-        localStorage.setItem('token', session.access_token);
-      } else {
-        localStorage.removeItem('token');
-      }
       setLoading(false);
     }).catch((err) => {
       console.error("Auth init failed:", err);
@@ -39,11 +34,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
-      if (session?.access_token) {
-        localStorage.setItem('token', session.access_token);
-      } else {
-        localStorage.removeItem('token');
-      }
       setLoading(false);
     });
 
@@ -73,13 +63,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (session) {
         setSession(session);
         setUser(session.user);
-        localStorage.setItem('token', session.access_token);
       }
     }
   };
 
   const signOut = async () => {
-    localStorage.removeItem('token'); // Hard wipe immediate
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
   };

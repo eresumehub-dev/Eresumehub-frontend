@@ -45,8 +45,23 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCropComplete, o
             return null;
         }
 
-        canvas.width = pixelCrop.width;
-        canvas.height = pixelCrop.height;
+        // Staff+ Performance: Force-resize to a maximum of 500x500px to prevent storage bloat
+        const MAX_SIZE = 500;
+        let targetWidth = pixelCrop.width;
+        let targetHeight = pixelCrop.height;
+
+        if (targetWidth > MAX_SIZE || targetHeight > MAX_SIZE) {
+            if (targetWidth > targetHeight) {
+                targetHeight = (MAX_SIZE / targetWidth) * targetHeight;
+                targetWidth = MAX_SIZE;
+            } else {
+                targetWidth = (MAX_SIZE / targetHeight) * targetWidth;
+                targetHeight = MAX_SIZE;
+            }
+        }
+
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
 
         ctx.drawImage(
             image,
@@ -56,8 +71,8 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCropComplete, o
             pixelCrop.height,
             0,
             0,
-            pixelCrop.width,
-            pixelCrop.height
+            targetWidth,
+            targetHeight
         );
 
         return new Promise((resolve, reject) => {

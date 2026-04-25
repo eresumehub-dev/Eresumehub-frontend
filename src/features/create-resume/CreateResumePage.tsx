@@ -137,6 +137,8 @@ const CreateResumePage: React.FC = () => {
                         onGenerate={() => handleGenerate(schema)}
                         canGenerate={formData.jobTitle.trim().length > 2 && formData.country !== '' && !loadingProfile}
                         isEvaluatingRules={isEvaluatingRules}
+                        profile={profile}
+                        jobTitle={formData.jobTitle}
                     />
                 </div>
             </div>

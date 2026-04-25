@@ -4,10 +4,13 @@ import {
     AlertCircle, 
     Loader2,
     CheckCircle2,
-    ArrowUpRight
+    ArrowUpRight,
+    Zap
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ComplianceWarning } from '../../../utils/compliance_check';
+import AIMotivationModal from './AIMotivationModal';
+import { generateMotivationDraft } from '../../../services/ai';
 
 interface ReadinessHubProps {
     score: number;
@@ -19,13 +22,36 @@ interface ReadinessHubProps {
     onGenerate: () => void;
     canGenerate: boolean;
     isEvaluatingRules?: boolean;
+    profile?: any;
+    jobTitle?: string;
 }
 
 const ReadinessHub: React.FC<ReadinessHubProps> = ({
     score, interpretation, warnings,
     isGenerating, generationStep, generationProgress,
-    onGenerate, canGenerate, isEvaluatingRules
+    onGenerate, canGenerate, isEvaluatingRules,
+    profile, jobTitle
 }) => {
+    const [isAIModalOpen, setIsAIModalOpen] = React.useState(false);
+    const [aiDraft, setAIDraft] = React.useState<string | null>(null);
+    const [isAILoading, setIsAILoading] = React.useState(false);
+
+    const handleAIAssist = async () => {
+        if (!profile || !jobTitle) return;
+        
+        setIsAIModalOpen(true);
+        setIsAILoading(true);
+        try {
+            const res = await generateMotivationDraft(profile, jobTitle);
+            if (res.success) {
+                setAIDraft(res.draft);
+            }
+        } catch (err) {
+            console.error("AI Assist failed", err);
+        } finally {
+            setIsAILoading(false);
+        }
+    };
     
     const errors = (warnings || []).filter(w => w.type === 'error');
     const tips = (warnings || []).filter(w => w.type === 'warning' || w.type === 'info');
@@ -99,7 +125,18 @@ const ReadinessHub: React.FC<ReadinessHubProps> = ({
                                     <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" strokeWidth={1.5}/>
                                     <div>
                                         <p className="text-[14px] font-semibold leading-relaxed mb-0.5">{w.title}</p>
-                                        <p className="text-[13px] opacity-80 leading-snug">{w.message}</p>
+                                        <p className="text-[13px] opacity-80 leading-snug mb-3">{w.message}</p>
+                                        
+                                        {/* Gated AI Assist Button (Japan Motivation Only) */}
+                                        {w.id === 'motivation-missing' && (
+                                            <button 
+                                                onClick={handleAIAssist}
+                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#1D1D1F] text-white rounded-lg text-[11px] font-bold uppercase tracking-wider hover:bg-black transition-all shadow-sm active:scale-[0.95]"
+                                            >
+                                                <Zap className="w-3 h-3 text-[#4DCFFF]" fill="currentColor" />
+                                                AI Assist
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             </motion.div>
@@ -171,6 +208,13 @@ const ReadinessHub: React.FC<ReadinessHubProps> = ({
                     )}
                 </AnimatePresence>
             </div>
+
+            <AIMotivationModal 
+                isOpen={isAIModalOpen}
+                onClose={() => setIsAIModalOpen(false)}
+                draft={aiDraft}
+                isLoading={isAILoading}
+            />
         </div>
     );
 };
