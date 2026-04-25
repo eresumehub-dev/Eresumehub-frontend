@@ -39,14 +39,18 @@ class Tracker {
     }
 
     private setupTTVTracker() {
+        if (typeof window === 'undefined') return;
+        
         const handleFirstScroll = () => {
             if (this.ttv === null) {
                 this.ttv = (Date.now() - this.startTime) / 1000;
-                window.removeEventListener('scroll', handleFirstScroll);
                 console.log(`[Tracker] TTV (First Scroll): ${this.ttv}s`);
             }
         };
-        window.addEventListener('scroll', handleFirstScroll);
+        
+        // v16.5.0: Using { once: true } ensures the listener is self-cleaning 
+        // even if navigation occurs before the first scroll.
+        window.addEventListener('scroll', handleFirstScroll, { once: true });
     }
 
     private getContext(): EventContext {

@@ -122,8 +122,10 @@ export const resumeToProfile = (resume: ResumeData): Partial<UserProfile> => {
         profile.work_experiences = experienceSection.content.map(item => {
             // Fix: Split by " - " to avoid breaking YYYY-MM-DD dates
             const dates = (item.date || '').split(' - ').map(d => d.trim());
-            // Fallback for older data or manual edits that might miss spaces
-            const safeDates = dates.length === 1 && dates[0].includes('-') ? dates[0].split('-').map(d => d.trim()) : dates;
+            // Staff+ Recovery (v16.5.0): Fallback for manual edits or AI-generated non-standard separators
+            const safeDates = dates.length === 1
+                ? dates[0].split(/\s*(?:-|to|~)\s*/i).map(d => d.trim())
+                : dates;
 
             return {
                 job_title: item.title || '',

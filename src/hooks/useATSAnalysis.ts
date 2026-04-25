@@ -64,7 +64,7 @@ export const useATSAnalysis = (country: string) => {
 
         try {
             const formData = new FormData();
-            formData.append('file', file);
+            formData.append('file', file, file.name);
             formData.append('job_role', jobRole);
             formData.append('target_country', country);
             formData.append('job_description', jobDescription);

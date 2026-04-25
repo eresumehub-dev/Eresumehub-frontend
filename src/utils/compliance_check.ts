@@ -155,7 +155,7 @@ export const evaluateMarketRules = (profile: UserProfile | null, schema: any): C
     // 4. Required Languages Check (Mirroring Backend Logic)
     const requiredLanguages: string[] = schema.required_languages || [];
     const userLangs = (profile.languages || []).map((l: any) => 
-        (typeof l === 'string' ? l : (l.name || l.language || '')).toLowerCase()
+        (typeof l === 'string' ? l : (l?.name || l?.language || '')).toLowerCase()
     );
 
     requiredLanguages.forEach(langReq => {

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Copy, Check, Mail, MessageCircle, Globe, Lock, EyeOff, Loader2, AlertTriangle } from 'lucide-react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Resume, updateResume } from '../services/resume';
 
 interface ShareModalProps {
@@ -11,23 +12,27 @@ interface ShareModalProps {
 
 const ShareModal: React.FC<ShareModalProps> = ({ resume, username, onClose, onUpdate }) => {
     const [visibility, setVisibility] = useState<'public' | 'unlisted' | 'private'>(resume.visibility || 'public');
-    const [isUpdating, setIsUpdating] = useState(false);
     const [copied, setCopied] = useState(false);
+    const queryClient = useQueryClient();
+
+    const mutation = useMutation({
+        mutationFn: (newVal: 'public' | 'unlisted' | 'private') => 
+            updateResume(resume.id, { visibility: newVal }),
+        onSuccess: (updated, newVal) => {
+            setVisibility(newVal);
+            onUpdate(updated);
+            queryClient.invalidateQueries({ queryKey: ['resumes'] });
+        },
+        onError: (error) => {
+            console.error('Failed to update visibility', error);
+            alert('Failed to update visibility settings');
+        }
+    });
 
     const publicUrl = `${window.location.origin}/${username}/${resume.slug}`;
 
-    const handleVisibilityChange = async (newVal: 'public' | 'unlisted' | 'private') => {
-        setIsUpdating(true);
-        try {
-            const updated = await updateResume(resume.id, { visibility: newVal });
-            setVisibility(newVal);
-            onUpdate(updated);
-        } catch (error) {
-            console.error('Failed to update visibility', error);
-            alert('Failed to update visibility settings');
-        } finally {
-            setIsUpdating(false);
-        }
+    const handleVisibilityChange = (newVal: 'public' | 'unlisted' | 'private') => {
+        mutation.mutate(newVal);
     };
 
     const copyToClipboard = () => {
@@ -77,7 +82,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ resume, username, onClose, onUp
                                 <button
                                     key={opt.id}
                                     onClick={() => handleVisibilityChange(opt.id as 'public' | 'unlisted' | 'private')}
-                                    disabled={isUpdating}
+                                    disabled={mutation.isPending}
                                     className={`flex flex-col items-center p-4 rounded-2xl border-2 transition-all ${visibility === opt.id
                                         ? 'border-[#0A2A6B] bg-[#0A2A6B]/5 text-[#0A2A6B]'
                                         : 'border-slate-100 bg-white text-slate-500 hover:border-slate-200'
@@ -140,7 +145,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ resume, username, onClose, onUp
                     </div>
                 </div>
 
-                {isUpdating && (
+                {mutation.isPending && (
                     <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-10 flex items-center justify-center">
                         <Loader2 className="w-8 h-8 animate-spin text-[#0A2A6B]" />
                     </div>
