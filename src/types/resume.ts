@@ -16,33 +16,27 @@ export interface ResumeItem {
     gpa?: string;
 }
 
-export interface TextSection {
+export interface ResumeSection {
     id: string;
-    type: 'summary' | 'skills';
+    type: 'summary' | 'skills' | 'experience' | 'education' | 'projects' | 'custom';
     title: string;
     isVisible: boolean;
-    content: string;
+    content: string | ResumeItem[];
 }
-
-export interface ItemSection {
-    id: string;
-    type: 'experience' | 'education' | 'projects' | 'custom';
-    title: string;
-    isVisible: boolean;
-    content: ResumeItem[];
-}
-
-export type ResumeSection = TextSection | ItemSection;
 
 export interface ResumeData {
-    id: string;
+    id?: string;
     title: string;
     personalInfo: PersonalInfo;
     sections: ResumeSection[];
+    score?: number;
+    full_name?: string;
+    summary_text?: string;
+    original_pdf_url?: string;
     theme: {
         color: string;
         font: string;
-        layout: 'single' | 'double'; // Currently only 'single' and 'double' native layouts are supported
+        layout: 'single' | 'double';
     };
     created_at: string;
     updated_at: string;

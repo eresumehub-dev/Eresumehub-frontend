@@ -43,7 +43,7 @@ export const getResume = async (id: string) => {
     return response.data.data;
 };
 
-export const updateResume = async (id: string, data: Partial<Resume>): Promise<Resume> => {
+export const updateResume = async (id: string, data: Partial<Omit<Resume, 'resume_data'>> & { resume_data?: Partial<ResumeData> }): Promise<Resume> => {
     const response = await api.patch(`/resumes/${id}`, data);
     return response.data.data;
 };

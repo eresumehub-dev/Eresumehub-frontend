@@ -62,7 +62,7 @@ const INITIAL_RESUME: ResumeData = {
             title: 'Professional Summary',
             isVisible: true,
             content: 'Experienced software engineer with a passion for building scalable web applications. Proven track record of delivering high-quality code and leading teams to success.'
-        },
+        } as ResumeSection,
         {
             id: '2',
             type: 'experience',
@@ -82,7 +82,7 @@ const INITIAL_RESUME: ResumeData = {
                     ]
                 }
             ]
-        },
+        } as ResumeSection,
         {
             id: '3',
             type: 'education',
@@ -98,14 +98,14 @@ const INITIAL_RESUME: ResumeData = {
                     description: ['Graduated with Honors. GPA: 3.8/4.0']
                 }
             ]
-        },
+        } as ResumeSection,
         {
             id: '4',
             type: 'skills',
             title: 'Skills',
             isVisible: true,
             content: 'JavaScript, TypeScript, React, Node.js, Python, SQL, AWS, Docker, Git'
-        },
+        } as ResumeSection,
     ],
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
@@ -219,7 +219,7 @@ const ResumeBuilder: React.FC = () => {
             type: 'custom',
             title: 'New Section',
             isVisible: true,
-            content: [] // Custom sections in ItemSection take ResumeItem[]
+            content: [] as ResumeItem[]
         };
         setResume({ ...resume, sections: [...resume.sections, newSection] });
         setActiveSection(newId);
@@ -249,7 +249,7 @@ const ResumeBuilder: React.FC = () => {
     const updateSectionContent = (sectionId: string, newContent: any) => {
         setResume({
             ...resume,
-            sections: resume.sections.map(s => s.id === sectionId ? { ...s, content: newContent } : s)
+            sections: resume.sections.map(s => s.id === sectionId ? ({ ...s, content: newContent } as ResumeSection) : s)
         });
     };
 
@@ -543,18 +543,18 @@ const ResumeBuilder: React.FC = () => {
 
                                     <div className="min-h-[50px] text-sm text-gray-700 leading-relaxed">
                                         {/* Summary / Skills / Custom (Simple Text) */}
-                                        {(section.type === 'summary' || section.type === 'skills' || section.type === 'custom') && typeof section.content === 'string' && (
+                                        {(section.type === 'summary' || section.type === 'skills') && typeof section.content === 'string' && (
                                             <EditableText
                                                 tagName="div"
                                                 className="whitespace-pre-wrap"
-                                                value={section.content}
+                                                value={section.content as string}
                                                 onChange={(val) => updateSectionContent(section.id, val)}
                                                 placeholder={`Enter ${section.title.toLowerCase()}...`}
                                             />
                                         )}
 
                                         {/* Experience / Education (List Items) */}
-                                        {(section.type === 'experience' || section.type === 'education') && Array.isArray(section.content) && (
+                                        {(section.type === 'experience' || section.type === 'education' || section.type === 'projects' || section.type === 'custom') && Array.isArray(section.content) && (
                                             <Reorder.Group axis="y" values={section.content} onReorder={(newContent) => updateSectionContent(section.id, newContent)}>
                                                 {section.content.map((item: ResumeItem) => (
                                                     <Reorder.Item key={item.id} value={item} className="mb-4 group/item relative pl-6 border-l-2 border-transparent hover:border-gray-200 transition-colors">

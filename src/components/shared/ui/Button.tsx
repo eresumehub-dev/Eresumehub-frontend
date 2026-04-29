@@ -8,6 +8,7 @@ interface ButtonProps extends Omit<HTMLMotionProps<"button">, 'ref'> {
     loading?: boolean;
     icon?: LucideIcon;
     rightIcon?: LucideIcon;
+    children?: React.ReactNode;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(

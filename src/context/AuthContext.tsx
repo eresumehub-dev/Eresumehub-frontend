@@ -21,6 +21,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const queryClient = useQueryClient();
 
+  const signInWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: import.meta.env.VITE_REDIRECT_URL || `${window.location.origin}/`,
+      },
+    });
+    if (error) throw error;
+  };
+
+  const login = async (email: string, password: string) => {
+    const data = await authLogin(email, password);
+    if (data.data.session) {
+      const { data: { session }, error } = await supabase.auth.setSession({
+        access_token: data.data.session.access_token,
+        refresh_token: data.data.session.refresh_token || '',
+      });
+      if (error) throw error;
+
+      // Force state update to prevent race condition during navigation
+      if (session) {
+        setSession(session);
+        setUser(session.user);
+      }
+    }
+  };
+
+  const signOut = async () => {
+    queryClient.clear();
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+  };
+
   const signOutRef = React.useRef(signOut);
   useEffect(() => {
     signOutRef.current = signOut;
@@ -55,39 +88,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         window.removeEventListener('auth:unauthorized', handleUnauthorized);
     };
   }, []);
-
-  const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: import.meta.env.VITE_REDIRECT_URL || `${window.location.origin}/`,
-      },
-    });
-    if (error) throw error;
-  };
-
-  const login = async (email: string, password: string) => {
-    const data = await authLogin(email, password);
-    if (data.data.session) {
-      const { data: { session }, error } = await supabase.auth.setSession({
-        access_token: data.data.session.access_token,
-        refresh_token: data.data.session.refresh_token || '',
-      });
-      if (error) throw error;
-
-      // Force state update to prevent race condition during navigation
-      if (session) {
-        setSession(session);
-        setUser(session.user);
-      }
-    }
-  };
-
-  const signOut = async () => {
-    queryClient.clear();
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
-  };
 
   return (
     <AuthContext.Provider value={{ session, user, loading, signInWithGoogle, login, signOut }}>

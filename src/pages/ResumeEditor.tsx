@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import RefineTooltip from '../components/RefineTooltip';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -22,6 +22,7 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useDebounce } from '../hooks/useDebounce';
 import { Resume } from '../services/resume';
+import api from '../services/api';
 
 
 const ResumeEditor: React.FC = () => {
@@ -82,7 +83,7 @@ const ResumeEditor: React.FC = () => {
     const queryClient = useQueryClient();
     const updateMutation = useMutation({
         mutationFn: (data: any) => updateResume(id!, data),
-        onSuccess: (data: any, variables: any) => {
+        onSuccess: (_data: any, variables: any) => {
             setSaveStatus('saved');
             setLastSaved(new Date());
             

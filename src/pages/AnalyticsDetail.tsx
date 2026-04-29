@@ -9,7 +9,6 @@ import {
     LineChart, Line, ResponsiveContainer 
 } from 'recharts';
 import { useAnalyticsQuery } from '../hooks/queries/useAnalyticsQuery';
-import type { AnalyticsData } from '../services/analytics';
 
 const AnalyticsDetail: React.FC = () => {
     const { type } = useParams<{ type: string }>(); // 'traffic' or 'engagement'

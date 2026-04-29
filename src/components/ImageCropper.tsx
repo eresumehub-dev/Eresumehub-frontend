@@ -87,6 +87,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCropComplete, o
     };
 
     const handleSave = async () => {
+        if (!croppedAreaPixels) return;
         try {
             const croppedImage = await getCroppedImg(imageSrc, croppedAreaPixels);
             if (croppedImage) {

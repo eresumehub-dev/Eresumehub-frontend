@@ -12,7 +12,7 @@ const ViewResume = () => {
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    const [editedData, setEditedData] = useState<Partial<Resume>>({});
+    const [editedData, setEditedData] = useState<any>({});
     const [previewUrl, setPreviewUrl] = useState<string>('');
     const [availableCountries, setAvailableCountries] = useState<string[]>([]);
 
@@ -77,7 +77,7 @@ const ViewResume = () => {
     };
 
     const updateNestedData = (field: string, value: any) => {
-        setEditedData(prev => ({
+        setEditedData((prev: any) => ({
             ...prev,
             resume_data: {
                 ...prev.resume_data,

@@ -74,15 +74,11 @@ const PublicResume: React.FC = () => {
                 sessionStorage.setItem(`viewed_${resume.id}`, 'true');
 
                 // Legacy fallback (v12 shim)
-                const viewData = {
+                const viewData: any = {
                     resume_id: resume.id,
-                    session_id: sessionStorage.getItem('eresume_session_id'),
-                    viewer_user_id: user?.id || null,
+                    viewer_id: user?.id,
                     referrer: document.referrer,
-                    device_type: /Mobi|Android/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
-                    browser: navigator.userAgent.slice(0, 50),
-                    screen_size: `${window.innerWidth}x${window.innerHeight}`,
-                    max_scroll_depth: 0
+                    device_type: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
                 };
 
                 const response = await logView(viewData);
@@ -262,12 +258,9 @@ const PublicResume: React.FC = () => {
                 }, user?.id);
 
                 // Legacy log (v12 shim)
-                const sessionId = sessionStorage.getItem('eresume_session_id');
                 await logDownload({
                     resume_id: resume.id,
-                    session_id: sessionId,
-                    visitor_ip: 'Verified Download',
-                    device_type: 'Desktop',
+                    format: 'pdf',
                 });
 
             } else {

@@ -1,11 +1,11 @@
-import React, { useState, forwardRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    Plus, Upload, CheckCircle, ArrowLeft, ArrowRight,
-    User as UserIcon, Mail, Briefcase, GraduationCap, Award, Code, Globe, BookOpen, Star, MapPin, X, AlertTriangle, Linkedin, Loader2, Sparkles
+    User as UserIcon, Mail, Briefcase, GraduationCap, Award, Code, Globe, BookOpen, Star, MapPin, X, Linkedin, Loader2, Sparkles,
+    CheckCircle, Upload, Plus, ArrowLeft, ArrowRight
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { motion, AnimatePresence, LayoutGroup, MotionProps } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Real Imports
 import { useAuth } from '../context/AuthContext';
@@ -21,6 +21,13 @@ import FlightStepper from '../components/profile-creation/FlightStepper';
 import GlassCard from '../components/profile-creation/GlassCard';
 import { GlassInput, GlassTextarea } from '../components/profile-creation/GlassInput';
 import MagneticButton from '../components/profile-creation/MagneticButton';
+
+const springConfig = {
+    type: "spring" as const,
+    mass: 1,
+    stiffness: 80,
+    damping: 20,
+};
 
 // --- MAIN APP ---
 const STEPS = [
