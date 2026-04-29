@@ -17,6 +17,15 @@ const IntersectionObserverMock = vi.fn(() => ({
 
 vi.stubGlobal('IntersectionObserver', IntersectionObserverMock);
 
+// Mocking ResizeObserver (Required for Framer Motion and Recharts)
+const ResizeObserverMock = vi.fn(() => ({
+  disconnect: vi.fn(),
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+}));
+
+vi.stubGlobal('ResizeObserver', ResizeObserverMock);
+
 // Mocking window.matchMedia (common for responsive UI)
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
@@ -30,4 +39,10 @@ Object.defineProperty(window, 'matchMedia', {
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
   })),
+});
+
+// Mocking URL.createObjectURL (Required for file upload and PDF tests)
+Object.defineProperty(window.URL, 'createObjectURL', {
+  writable: true,
+  value: vi.fn(() => 'mock-url'),
 });

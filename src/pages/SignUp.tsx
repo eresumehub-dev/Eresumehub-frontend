@@ -248,7 +248,6 @@ const SignUp = () => {
                 </p>
                 <div className="flex gap-6 text-[12px] font-medium text-[#86868B]">
                     <Link to="/privacy" className="hover:text-[#1D1D1F] transition-colors">Privacy Policy</Link>
-                    <Link to="/terms" className="hover:text-[#1D1D1F] transition-colors">Terms of Service</Link>
                 </div>
             </motion.footer>
         </div>

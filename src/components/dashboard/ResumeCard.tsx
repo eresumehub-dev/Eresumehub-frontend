@@ -16,21 +16,23 @@ const ResumeCard: React.FC<ResumeCardProps> = ({
     resume, onDelete, onPreview, onShare, onEdit
 }) => {
     // 1. DATA DERIVATION
-    const score = resume.resume_data?.score || 0;
+    // 1. DATA DERIVATION
+    const score = resume.ats_score || resume.resume_data?.score || 0;
     const date = new Date(resume.updated_at || resume.created_at).toLocaleDateString(undefined, {
         month: 'short', day: 'numeric', year: 'numeric'
     });
     
-    // 2. ACTIVITY LOGIC (Recent views detection)
-    // For now, we light up the bell if the resume has any views recorded recently
-    const hasActivity = (resume as any).new_views_count > 0 || score > 90;
+    // 2. ACTIVITY LOGIC (Recent activity detection)
+    const hasActivity = (resume.view_count || 0) > 0 || score > 90;
 
     return (
         <div 
-            onClick={() => onPreview(resume)}
-            className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group hover:bg-[#F5F5F7]/80 transition-all cursor-pointer border-b border-black/[0.04] last:border-0 relative"
+            className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group hover:bg-[#F5F5F7]/80 transition-all border-b border-black/[0.04] last:border-0 relative"
         >
-            <div className="flex items-center gap-4 min-w-0 flex-1">
+            <button 
+                onClick={() => onPreview(resume)}
+                className="flex items-center gap-4 min-w-0 flex-1 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0066CC] rounded-xl p-1 -m-1"
+            >
                 <div className="w-12 h-12 rounded-[14px] bg-[#1D1D1F] text-white flex items-center justify-center shadow-md shrink-0 group-hover:scale-105 transition-transform">
                     <FileText className="w-5 h-5" strokeWidth={1.5} />
                 </div>
@@ -44,7 +46,7 @@ const ResumeCard: React.FC<ResumeCardProps> = ({
                         <span className="whitespace-nowrap">Updated {date}</span>
                     </div>
                 </div>
-            </div>
+            </button>
             
             <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 border-black/[0.04] pt-4 sm:pt-0">
                 <div className="flex flex-col items-start sm:items-end">

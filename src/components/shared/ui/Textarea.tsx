@@ -6,12 +6,16 @@ interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement
 }
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-    ({ className = '', label, hint, rows = 8, ...props }, ref) => {
+    ({ className = '', label, hint, rows = 8, id: providedId, ...props }, ref) => {
+        const id = providedId || props.name || React.useId();
         return (
             <div className="space-y-1.5 w-full">
                 {label && (
                     <div className="flex items-center justify-between px-0.5">
-                        <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mr-auto">
+                        <label 
+                            htmlFor={id}
+                            className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mr-auto cursor-pointer"
+                        >
                             {label}
                         </label>
                         {hint && <span className="text-[10px] text-muted-foreground/60 ml-2">{hint}</span>}
@@ -19,6 +23,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
                 )}
                 <textarea
                     ref={ref}
+                    id={id}
                     rows={rows}
                     className={`
                         block w-full px-3 py-2.5 bg-background border border-border rounded-md 

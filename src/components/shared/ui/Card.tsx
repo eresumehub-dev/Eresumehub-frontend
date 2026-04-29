@@ -1,7 +1,6 @@
 import React from 'react';
-import { motion, HTMLMotionProps } from 'framer-motion';
 
-interface CardProps extends HTMLMotionProps<"div"> {
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
     variant?: 'default' | 'muted' | 'accent' | 'outline' | 'glass';
     padding?: 'none' | 'sm' | 'md' | 'lg';
 }
@@ -25,7 +24,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
         };
 
         return (
-            <motion.div
+            <div
                 ref={ref}
                 className={`
                     border rounded-xl transition-all
@@ -36,7 +35,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
                 {...props}
             >
                 {children}
-            </motion.div>
+            </div>
         );
     }
 );

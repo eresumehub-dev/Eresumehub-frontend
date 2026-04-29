@@ -35,8 +35,8 @@ const AboutUs = () => {
                     <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'linear-gradient(#ffffff 1px, transparent 1px), linear-gradient(90deg, #ffffff 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
                     
                     {/* Immersive Glowing Orbs */}
-                    <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }} transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }} className="absolute top-[-20%] right-[-10%] w-[800px] h-[800px] bg-gradient-to-br from-[#0066CC] to-[#AF52DE] rounded-full blur-[160px] pointer-events-none" />
-                    <motion.div animate={{ scale: [1, 1.5, 1], opacity: [0.2, 0.4, 0.2] }} transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }} className="absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] bg-gradient-to-tr from-[#34C759] to-[#0066CC] rounded-full blur-[140px] pointer-events-none" />
+                    <motion.div initial={{ opacity: 0 }} whileInView={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }} viewport={{ once: false }} transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }} className="absolute top-[-20%] right-[-10%] w-[800px] h-[800px] bg-gradient-to-br from-[#0066CC] to-[#AF52DE] rounded-full blur-[160px] pointer-events-none" />
+                    <motion.div initial={{ opacity: 0 }} whileInView={{ scale: [1, 1.5, 1], opacity: [0.2, 0.4, 0.2] }} viewport={{ once: false }} transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }} className="absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] bg-gradient-to-tr from-[#34C759] to-[#0066CC] rounded-full blur-[140px] pointer-events-none" />
 
                     <div className="relative z-10 grid lg:grid-cols-12 gap-12 items-center w-full">
                         {/* Left: Typography */}
@@ -62,12 +62,14 @@ const AboutUs = () => {
                             className="lg:col-span-5 hidden lg:flex justify-center items-center relative h-[500px] w-full pr-4"
                         >
                             <motion.div 
-                                animate={{ y: [-10, 10, -10] }} 
+                                whileInView={{ y: [-10, 10, -10] }} 
+                                viewport={{ once: false }}
                                 transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }} 
                                 className="w-full max-w-[360px] h-[480px] bg-white/[0.03] backdrop-blur-3xl rounded-[2.5rem] border border-white/10 p-8 shadow-[0_30px_80px_rgba(0,0,0,0.4)] relative overflow-hidden flex flex-col"
                             >
                                 <motion.div 
-                                    animate={{ top: ['-10%', '110%', '-10%'] }} 
+                                    whileInView={{ top: ['-10%', '110%', '-10%'] }} 
+                                    viewport={{ once: false }}
                                     transition={{ duration: 4, repeat: Infinity, ease: "linear" }} 
                                     className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#4DCFFF] to-transparent shadow-[0_0_30px_#4DCFFF] z-20 opacity-80" 
                                 />

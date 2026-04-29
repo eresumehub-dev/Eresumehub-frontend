@@ -20,8 +20,8 @@ const Footer = () => {
                         <h4 className="text-[12px] font-bold uppercase tracking-widest text-[#1D1D1F] mb-6">Company</h4>
                         <ul className="space-y-4">
                             <li><Link to="/about" className="text-[14px] text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">About Us</Link></li>
-                            <li><a href="#" className="text-[14px] text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">Careers</a></li>
-                            <li><a href="#" className="text-[14px] text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">Blog</a></li>
+                             <li><span className="text-[14px] text-[#86868B]/40 font-medium cursor-not-allowed">Careers <span className="text-[10px]">(Coming Soon)</span></span></li>
+                             <li><span className="text-[14px] text-[#86868B]/40 font-medium cursor-not-allowed">Blog <span className="text-[10px]">(Coming Soon)</span></span></li>
                             <li><Link to="/contact" className="text-[14px] text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">Contact</Link></li>
                         </ul>
                     </div>
@@ -32,7 +32,7 @@ const Footer = () => {
                             <li><Link to="/signup" className="text-[14px] text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">AI Resume Builder</Link></li>
                             <li><Link to="/templates" className="text-[14px] text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">Resume Templates</Link></li>
                             <li><Link to="/ats-checker" className="text-[14px] text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">ATS Checker</Link></li>
-                            <li><a href="#" className="text-[14px] text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">Cover Letter Builder</a></li>
+                             <li><span className="text-[14px] text-[#86868B]/40 font-medium cursor-not-allowed">Cover Letter Builder <span className="text-[10px]">(Coming Soon)</span></span></li>
                         </ul>
                     </div>
 
@@ -41,23 +41,22 @@ const Footer = () => {
                         <ul className="space-y-4">
                             <li><Link to="/support" className="text-[14px] text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">Help Center</Link></li>
                             <li><Link to="/privacy" className="text-[14px] text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">Privacy Policy</Link></li>
-                            <li><a href="#" className="text-[14px] text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">Terms of Service</a></li>
                         </ul>
                     </div>
                 </div>
 
                 <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-black/[0.04] gap-4">
-                    <p className="text-[13px] text-[#86868B] font-medium text-center md:text-left">
-                        © 2026 E-ResumeHub. All rights reserved.
-                    </p>
+                     <p className="text-[13px] text-[#86868B] font-medium text-center md:text-left">
+                         © {new Date().getFullYear()} E-ResumeHub. All rights reserved.
+                     </p>
 
                     <div className="flex items-center gap-5">
-                        <a href="#" className="text-[#86868B] hover:text-[#1D1D1F] transition-colors focus:outline-none">
-                            <Linkedin className="w-4 h-4" />
-                        </a>
-                        <a href="#" className="text-[#86868B] hover:text-[#1D1D1F] transition-colors focus:outline-none">
-                            <Instagram className="w-4 h-4" />
-                        </a>
+                         <span className="text-[#86868B]/40 cursor-not-allowed">
+                             <Linkedin className="w-4 h-4" />
+                         </span>
+                         <span className="text-[#86868B]/40 cursor-not-allowed">
+                             <Instagram className="w-4 h-4" />
+                         </span>
                     </div>
                 </div>
             </div>

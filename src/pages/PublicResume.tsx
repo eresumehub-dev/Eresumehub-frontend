@@ -51,13 +51,7 @@ const PublicResume: React.FC = () => {
         startTimeRef.current = Date.now();
 
 
-        // Generate ID
-        let sessionId = sessionStorage.getItem('resumey_session_id');
-        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-        if (!sessionId || !uuidRegex.test(sessionId)) {
-            sessionId = crypto.randomUUID();
-            sessionStorage.setItem('resumey_session_id', sessionId);
-        }
+        // Session ID is handled by tracker.ts centrally.
 
         const initTracking = async () => {
             // Staff+ Bot Guard: Prevent crawlers and automated browsers from skewing analytics (v16.5.0)

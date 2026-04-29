@@ -1,6 +1,5 @@
 import React from 'react';
 import { Check, X, Briefcase } from 'lucide-react';
-// @ts-ignore
 import executivePreview from '../assets/executive.jpg';
 
 interface Template {
@@ -8,7 +7,7 @@ interface Template {
     name: string;
     description: string;
     tagline: string;
-    icon: any;
+    icon: React.ComponentType<{ className?: string }>;
     bestFor: string;
 }
 

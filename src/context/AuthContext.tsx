@@ -21,6 +21,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const queryClient = useQueryClient();
 
+  const signOutRef = React.useRef(signOut);
+  useEffect(() => {
+    signOutRef.current = signOut;
+  }, [signOut]);
+
   useEffect(() => {
     // Check active sessions and sets the user
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -41,7 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // v16.5.0: Handle centralized 401 logout event
     const handleUnauthorized = () => {
-        signOut();
+        signOutRef.current();
     };
     window.addEventListener('auth:unauthorized', handleUnauthorized);
 

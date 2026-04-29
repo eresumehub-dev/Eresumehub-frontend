@@ -1,6 +1,24 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { useReadinessScore } from './useReadinessScore';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+
+vi.mock('../../../services/schema', () => ({
+    getCountrySchema: vi.fn().mockImplementation((country) => {
+        if (country === 'Germany') {
+            return Promise.resolve({
+                country: 'Germany',
+                cv_structure: {
+                    mandatory_sections: {
+                        personal_info: {
+                            required: ['photo']
+                        }
+                    }
+                }
+            });
+        }
+        return Promise.resolve({ country });
+    })
+}));
 
 /**
  * Staff+ Unit Test: useReadinessScore (v6.9.0)
@@ -36,16 +54,18 @@ describe('useReadinessScore', () => {
     });
 
     describe('Germany Compliance', () => {
-        it('adds photo warning for Germany if photo is missing', () => {
+        it('adds photo warning for Germany if photo is missing', async () => {
             const { result } = renderHook(() => 
                 useReadinessScore(mockProfile, 'Dev', '', 'Germany', new Set())
             );
-            const photoWarning = result.current.warnings.find(w => w.id === 'photo-missing');
-            expect(photoWarning).toBeDefined();
-            expect(photoWarning?.type).toBe('info');
+            await waitFor(() => {
+                const photoWarning = result.current.warnings.find(w => w.id === 'photo-missing');
+                expect(photoWarning).toBeDefined();
+                expect(photoWarning?.type).toBe('warning');
+            });
         });
 
-        it('discounts score if warnings are present', () => {
+        it('discounts score if warnings are present', async () => {
             const { result: res1 } = renderHook(() => 
                 useReadinessScore(mockProfile, 'Dev', '', 'USA', new Set())
             );
@@ -53,7 +73,9 @@ describe('useReadinessScore', () => {
                 useReadinessScore(mockProfile, 'Dev', '', 'Germany', new Set())
             );
             // Germany score should be lower due to missing photo warning
-            expect(res2.current.readinessScore).toBeLessThan(res1.current.readinessScore);
+            await waitFor(() => {
+                expect(res2.current.readinessScore).toBeLessThan(res1.current.readinessScore);
+            });
         });
     });
 

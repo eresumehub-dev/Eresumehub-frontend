@@ -1,5 +1,6 @@
 import { UserProfile } from '../services/profile';
 import { ResumeData, ResumeSection, ResumeItem } from '../types/resume';
+import { v4 as uuidv4 } from 'uuid';
 
 export const profileToResume = (profile: UserProfile): ResumeData => {
     const sections: ResumeSection[] = [];
@@ -18,7 +19,7 @@ export const profileToResume = (profile: UserProfile): ResumeData => {
     // Experience
     if (profile.work_experiences && profile.work_experiences.length > 0) {
         const experienceItems: ResumeItem[] = profile.work_experiences.map(exp => ({
-            id: exp.id || Math.random().toString(36).substr(2, 9),
+            id: exp.id || uuidv4(),
             title: exp.job_title,
             subtitle: exp.company,
             date: `${exp.start_date} - ${exp.is_current ? 'Present' : exp.end_date || ''}`,
@@ -38,12 +39,13 @@ export const profileToResume = (profile: UserProfile): ResumeData => {
     // Education
     if (profile.educations && profile.educations.length > 0) {
         const educationItems: ResumeItem[] = profile.educations.map(edu => ({
-            id: edu.id || Math.random().toString(36).substr(2, 9),
+            id: edu.id || uuidv4(),
             title: edu.degree,
             subtitle: edu.institution,
             date: edu.graduation_date,
             location: edu.location,
-            description: edu.field_of_study ? `Field of Study: ${edu.field_of_study}${edu.gpa ? `<br>GPA: ${edu.gpa}` : ''}` : ''
+            field_of_study: edu.field_of_study,
+            gpa: edu.gpa
         }));
 
         sections.push({
@@ -78,6 +80,7 @@ export const profileToResume = (profile: UserProfile): ResumeData => {
     }
 
     return {
+        id: uuidv4(),
         title: profile.full_name ? `${profile.full_name}'s Resume` : 'My Resume',
         personalInfo: {
             fullName: profile.full_name || '',
@@ -90,7 +93,9 @@ export const profileToResume = (profile: UserProfile): ResumeData => {
             color: '#3b82f6',
             font: 'Inter',
             layout: 'single'
-        }
+        },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
     };
 };
 
@@ -134,9 +139,7 @@ export const resumeToProfile = (resume: ResumeData): Partial<UserProfile> => {
                 start_date: safeDates[0] || '',
                 end_date: safeDates[1] === 'Present' ? undefined : safeDates[1],
                 is_current: safeDates[1] === 'Present',
-                achievements: item.description
-                    ? (Array.isArray(item.description) ? item.description : item.description.replace(/<\/?ul>/g, '').split('<li>').map(li => li.replace('</li>', '').trim()).filter(Boolean))
-                    : []
+                achievements: item.description || []
             };
         });
     }
@@ -149,9 +152,8 @@ export const resumeToProfile = (resume: ResumeData): Partial<UserProfile> => {
             institution: item.subtitle || '',
             location: item.location,
             graduation_date: item.date,
-            // Field of study and GPA parsing is approximate
-            field_of_study: item.description?.split('GPA:')[0]?.replace('Field of Study:', '').trim(),
-            gpa: item.description?.split('GPA:')[1]?.trim()
+            field_of_study: item.field_of_study,
+            gpa: item.gpa
         }));
     }
 

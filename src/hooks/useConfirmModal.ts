@@ -13,15 +13,15 @@ export const useConfirmModal = () => {
         setIsOpen(true);
     }, []);
 
-    const close = () => {
+    const close = useCallback(() => {
         setIsOpen(false);
         setOnConfirm(null);
-    };
+    }, []);
 
-    const handleConfirm = () => {
+    const handleConfirm = useCallback(() => {
         if (onConfirm) onConfirm();
         close();
-    };
+    }, [onConfirm, close]);
 
     return {
         isOpen,

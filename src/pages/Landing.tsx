@@ -98,8 +98,20 @@ const Landing = () => {
             <section className="relative min-h-[85vh] sm:min-h-[95vh] flex flex-col justify-center px-4 sm:px-6 lg:px-12 pt-24 sm:pt-28 overflow-hidden w-full">
                 
                 {/* Immersive AI Aura Background */}
-                <div className="absolute top-[-10%] right-[-5%] w-[700px] h-[700px] bg-gradient-to-br from-[#0066CC]/25 to-[#AF52DE]/25 rounded-full filter blur-[130px] pointer-events-none animate-pulse" />
-                <div className="absolute bottom-[10%] left-[-10%] w-[600px] h-[600px] bg-gradient-to-tr from-[#34C759]/15 to-[#0066CC]/15 rounded-full filter blur-[110px] pointer-events-none animate-pulse" />
+                <motion.div 
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: [0.25, 0.4, 0.25] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                    viewport={{ once: false }}
+                    className="absolute top-[-10%] right-[-5%] w-[700px] h-[700px] bg-gradient-to-br from-[#0066CC]/25 to-[#AF52DE]/25 rounded-full filter blur-[130px] pointer-events-none" 
+                />
+                <motion.div 
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: [0.15, 0.25, 0.15] }}
+                    transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                    viewport={{ once: false }}
+                    className="absolute bottom-[10%] left-[-10%] w-[600px] h-[600px] bg-gradient-to-tr from-[#34C759]/15 to-[#0066CC]/15 rounded-full filter blur-[110px] pointer-events-none" 
+                />
 
                 <div className="relative z-10 grid lg:grid-cols-2 gap-16 lg:gap-12 items-center w-full mt-10 lg:mt-0">
                     
@@ -157,7 +169,7 @@ const Landing = () => {
                     >
                         {/* Clean, minimalist resume card */}
                         <motion.div 
-                            animate={{ y: [-8, 8, -8] }}
+                            whileInView={{ y: [-8, 8, -8] }}
                             transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
                             className="w-[380px] bg-white rounded-[2rem] shadow-[0_20px_40px_rgb(0,0,0,0.08)] border border-black/[0.04] p-8 relative z-10"
                         >
@@ -183,7 +195,7 @@ const Landing = () => {
 
                         {/* Floating ATS Badge */}
                         <motion.div 
-                            animate={{ y: [8, -8, 8] }}
+                            whileInView={{ y: [8, -8, 8] }}
                             transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
                             className="absolute right-[5%] bottom-[25%] bg-white/90 backdrop-blur-xl rounded-[1.25rem] shadow-[0_15px_30px_rgb(0,0,0,0.12)] border border-white p-5 z-20 flex items-center gap-4"
                         >

@@ -1,4 +1,5 @@
 import api from './api';
+import { ResumeData } from '../types/resume';
 
 export interface Resume {
     id: string;
@@ -10,7 +11,7 @@ export interface Resume {
     pdf_url?: string;
     created_at: string;
     updated_at?: string;
-    resume_data: any;
+    resume_data: ResumeData;
     thumbnail_url?: string;
     view_count?: number;
     download_count?: number;
@@ -19,6 +20,7 @@ export interface Resume {
     archived_at?: string;
     parent_resume_id?: string;
     regenerate_pdf?: boolean;
+    ats_score?: number;
 }
 
 export interface JobStatusResponse {
@@ -52,8 +54,7 @@ export const deleteResume = async (id: string): Promise<boolean> => {
 };
 
 export const createResume = async (data: any): Promise<{ success: boolean; data: { id: string }; job_id?: string }> => {
-    // Staff+ Tip: Synchronous Pivot (v16.4.9) - We use 120s to handle the full AI pipeline
-    const response = await api.post('/resume/create', data, { timeout: 120000 });
+    const response = await api.post('/resume/create', data);
     return response.data;
 };
 
@@ -194,14 +195,20 @@ export const getPublicResume = async (username: string, slug: string): Promise<R
 };
 
 /**
- * Optimized PDF Download: Utilizes the backend's RedirectResponse pattern 
- * to stream the file securely with zero API-server RAM overhead.
+ * Optimized PDF Download: Uses authenticated fetch with blob response 
+ * to prevent token exposure in URL parameters.
  */
-export const downloadResumePDF = (resumeId: string) => {
-    const baseUrl = import.meta.env.VITE_API_URL || '';
-    const token = localStorage.getItem('token');
+export const downloadResumePDF = async (resumeId: string) => {
+    const response = await api.get(`/resume/${resumeId}/pdf`, {
+        responseType: 'blob'
+    });
     
-    // Redirect browser to the secure download endpoint
-    // The browser will handle the 307 redirect automatically.
-    window.location.href = `${baseUrl}/api/v1/resume/${resumeId}/pdf?token=${token}`;
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `resume-${resumeId}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
 };

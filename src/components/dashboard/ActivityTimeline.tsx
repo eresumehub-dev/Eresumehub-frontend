@@ -1,8 +1,11 @@
 import React from 'react';
 import { Eye, Download, Activity, ChevronRight } from 'lucide-react';
+import type { AnalyticsData } from '../../services/analytics';
+
+type ActivityType = NonNullable<AnalyticsData['activities']>[number];
 
 interface ActivityTimelineProps {
-    activities: any[];
+    activities: ActivityType[];
 }
 
 const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }) => {
@@ -23,35 +26,38 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }) => {
             <div className="p-5">
                 {activities.length > 0 ? (
                     <div className="space-y-5">
-                        {activities.map((activity: any) => (
-                            <div key={activity.id} className="flex items-start gap-3.5 group/item">
-                                <div className={`p-2 rounded-xl shrink-0 ${activity.type === 'view' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600'}`}>
-                                    {activity.type === 'view' ? <Eye className="w-4 h-4" /> : <Download className="w-4 h-4" />}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-bold text-slate-950 truncate">
-                                        {activity.type === 'view' ? 'Resume Viewed' : 'Resume Downloaded'}
-                                    </p>
-                                    <p className="text-xs text-slate-500 truncate mt-0.5">
-                                        {activity.resume_title}
-                                    </p>
-                                    <div className="flex items-center gap-2 mt-1.5">
-                                        <span className="text-[10px] font-semibold text-slate-400">
-                                            {new Date(activity.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                        </span>
-                                        {activity.country && (
-                                            <>
-                                                <span className="text-slate-200">·</span>
-                                                <span className="text-[10px] font-semibold text-slate-400">
-                                                    {activity.country}
-                                                </span>
-                                            </>
-                                        )}
+                        {activities.map((activity) => {
+                            const isView = activity.event_name?.toLowerCase().includes('view');
+                            return (
+                                <div key={activity.id} className="flex items-start gap-3.5 group/item">
+                                    <div className={`p-2 rounded-xl shrink-0 ${isView ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                                        {isView ? <Eye className="w-4 h-4" /> : <Download className="w-4 h-4" />}
                                     </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-bold text-slate-950 truncate">
+                                            {isView ? 'Resume Viewed' : 'Resume Downloaded'}
+                                        </p>
+                                        <p className="text-xs text-slate-500 truncate mt-0.5">
+                                            {activity.resume_title}
+                                        </p>
+                                        <div className="flex items-center gap-2 mt-1.5">
+                                            <span className="text-[10px] font-semibold text-slate-400">
+                                                {new Date(activity.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </span>
+                                            {activity.country && (
+                                                <>
+                                                    <span className="text-slate-200">·</span>
+                                                    <span className="text-[10px] font-semibold text-slate-400">
+                                                        {activity.country}
+                                                    </span>
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <ChevronRight className="w-4 h-4 text-slate-300 opacity-0 group-hover/item:opacity-100 transition-opacity self-center" />
                                 </div>
-                                <ChevronRight className="w-4 h-4 text-slate-300 opacity-0 group-hover/item:opacity-100 transition-opacity self-center" />
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 ) : (
                     /* GUIDED EMPTY STATE — urgency + outcome-driven */

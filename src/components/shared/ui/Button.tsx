@@ -1,8 +1,8 @@
 import React from 'react';
 import { LucideIcon, Loader2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, HTMLMotionProps } from 'framer-motion';
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps extends Omit<HTMLMotionProps<"button">, 'ref'> {
     variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
     size?: 'sm' | 'md' | 'lg';
     loading?: boolean;
@@ -31,17 +31,17 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             <motion.button
                 ref={ref}
                 disabled={disabled || loading}
-                whileHover={!(disabled || loading) ? { y: -1 } : {}}
                 whileTap={!(disabled || loading) ? { scale: 0.98 } : {}}
                 className={`
                     inline-flex items-center justify-center gap-2 font-medium 
                     transition-all duration-150 focus:outline-none focus:ring-2 
                     focus:ring-foreground/10 disabled:opacity-50 disabled:cursor-not-allowed
+                    hover:-translate-y-px
                     ${variants[variant]}
                     ${sizes[size]}
                     ${className}
                 `}
-                {...(props as any)}
+                {...props}
             >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : Icon && <Icon className="w-4 h-4" />}
                 {children}

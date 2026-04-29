@@ -9,6 +9,23 @@ export interface ComplianceWarning {
     actionLink?: string;
 }
 
+export interface MarketSchema {
+    country?: string;
+    cv_structure?: {
+        mandatory_sections?: {
+            personal_info?: {
+                required?: string[];
+            };
+            education?: boolean;
+        };
+        header?: {
+            required?: string[];
+        };
+        order?: string[];
+    };
+    required_languages?: string[];
+}
+
 /**
  * Basic Completeness Check (Dashboard use)
  * Ensures standard fields are present before showing health stats.
@@ -44,20 +61,11 @@ export const checkBasicCompleteness = (profile: UserProfile | null): ComplianceW
  * Dynamic Market Compliance Engine
  * Uses the RAG JSON knowledge_base schema dynamically to enforce regional rules.
  */
-export const evaluateMarketRules = (profile: UserProfile | null, schema: any): ComplianceWarning[] => {
+export const evaluateMarketRules = (profile: UserProfile | null, schema: MarketSchema): ComplianceWarning[] => {
     if (!profile || !schema) return [];
     
     const warnings: ComplianceWarning[] = [];
     const country = schema.country || 'Target market';
-
-    // 1. Basic Identity Check (Mandatory for all RAG-enabled countries)
-    if (!profile.full_name?.trim()) {
-        warnings.push({
-            id: 'basic-name', type: 'error', title: 'Name Required',
-            message: 'Your full name is required for any resume.',
-            actionLabel: 'Add', actionLink: '/profile'
-        });
-    }
 
     // 2. Parse Mandatory Personal Info from RAG
     const cvStructure = schema.cv_structure || {};
@@ -98,7 +106,7 @@ export const evaluateMarketRules = (profile: UserProfile | null, schema: any): C
     const locationRequired = allContactReqs.some(k => typeof k === 'string' && ['City', 'Location', 'Current City and State'].includes(k));
     
     if (locationRequired) {
-        const city = profile.city || (profile as any).location;
+        const city = profile.city || profile.location;
         if (!city || city.trim().length < 2) {
             warnings.push({
                 id: 'location-missing', type: 'error', title: 'Location Required',
@@ -132,7 +140,7 @@ export const evaluateMarketRules = (profile: UserProfile | null, schema: any): C
         }
     }
 
-    if (requiresMotivation && !(profile as any).motivation?.trim()) {
+    if (requiresMotivation && !profile.motivation?.trim()) {
         warnings.push({
             id: 'motivation-missing', type: 'error', title: 'Motivation Required',
             message: `A Motivation section (志望動機) is a critical requirement for ${country}.`,
@@ -142,7 +150,7 @@ export const evaluateMarketRules = (profile: UserProfile | null, schema: any): C
 
     // Education
     if (mandatorySections.education || order.some(o => typeof o === 'string' && o.toLowerCase().includes('education'))) {
-        const educations = Array.isArray(profile.educations) ? profile.educations : (Array.isArray((profile as any).education) ? (profile as any).education : []);
+        const educations = profile.educations;
         if (!educations || educations.length === 0) {
             warnings.push({
                 id: 'education-missing', type: 'error', title: 'Education Required',

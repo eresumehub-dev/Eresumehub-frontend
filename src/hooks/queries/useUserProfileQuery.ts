@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getProfile } from '../../services/profile';
 
 /**
@@ -7,6 +7,8 @@ import { getProfile } from '../../services/profile';
  * Provides consistent standardizing for names and initials.
  */
 export const useUserProfileQuery = () => {
+    const queryClient = useQueryClient();
+
     return useQuery({
         queryKey: ['profile'],
         queryFn: async () => {
@@ -14,6 +16,8 @@ export const useUserProfileQuery = () => {
             return { profile, exists };
         },
         staleTime: 10 * 60 * 1000, // 10 minutes (profile changes rarely)
+        // Only fetch independently if bootstrap hasn't already seeded the cache
+        enabled: !queryClient.getQueryData(['bootstrap']),
     });
 };
 

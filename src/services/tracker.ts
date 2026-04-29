@@ -54,8 +54,11 @@ class Tracker {
     }
 
     private getContext(): EventContext {
+        const isTablet = /Tablet|iPad/i.test(navigator.userAgent);
+        const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+        
         return {
-            device_type: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+            device_type: isTablet ? 'tablet' : isMobile ? 'mobile' : 'desktop',
             browser: navigator.userAgent,
             screen_width: window.innerWidth,
             screen_height: window.innerHeight,

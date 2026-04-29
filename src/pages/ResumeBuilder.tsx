@@ -37,14 +37,16 @@ const EditableText = ({
             className={`outline-none empty:before:content-[attr(data-placeholder)] empty:before:text-gray-400 cursor-text transition-colors hover:bg-blue-50/30 focus:bg-blue-50/50 rounded px-1 -mx-1 ${className}`}
             data-placeholder={placeholder}
             onBlur={(e: React.FocusEvent) => onChange(e.currentTarget.textContent || '')}
-            dangerouslySetInnerHTML={{ __html: value }}
             style={style}
-        />
+        >
+            {value}
+        </Tag>
     );
 };
 
 // --- Mock Data (Fallback) ---
 const INITIAL_RESUME: ResumeData = {
+    id: 'initial-mock-id',
     title: 'My Professional Resume',
     personalInfo: {
         fullName: 'Alex Morgan',
@@ -73,7 +75,11 @@ const INITIAL_RESUME: ResumeData = {
                     subtitle: 'Tech Solutions Inc.',
                     date: '2021 - Present',
                     location: 'San Francisco, CA',
-                    description: '<ul><li>Led migration of legacy codebase to React 18.</li><li>Improved site performance by 40% through code splitting and lazy loading.</li><li>Mentored junior developers and conducted code reviews.</li></ul>'
+                    description: [
+                        'Led migration of legacy codebase to React 18.',
+                        'Improved site performance by 40% through code splitting and lazy loading.',
+                        'Mentored junior developers and conducted code reviews.'
+                    ]
                 }
             ]
         },
@@ -89,7 +95,7 @@ const INITIAL_RESUME: ResumeData = {
                     subtitle: 'University of Technology',
                     date: '2015 - 2019',
                     location: 'Boston, MA',
-                    description: 'Graduated with Honors. GPA: 3.8/4.0'
+                    description: ['Graduated with Honors. GPA: 3.8/4.0']
                 }
             ]
         },
@@ -100,7 +106,9 @@ const INITIAL_RESUME: ResumeData = {
             isVisible: true,
             content: 'JavaScript, TypeScript, React, Node.js, Python, SQL, AWS, Docker, Git'
         },
-    ]
+    ],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
 };
 
 const ResumeBuilder: React.FC = () => {
@@ -211,7 +219,7 @@ const ResumeBuilder: React.FC = () => {
             type: 'custom',
             title: 'New Section',
             isVisible: true,
-            content: ''
+            content: [] // Custom sections in ItemSection take ResumeItem[]
         };
         setResume({ ...resume, sections: [...resume.sections, newSection] });
         setActiveSection(newId);
@@ -255,10 +263,10 @@ const ResumeBuilder: React.FC = () => {
             subtitle: 'Company Name',
             date: 'Date Range',
             location: 'Location',
-            description: '<ul><li>Description of your responsibilities and achievements.</li></ul>'
+            description: ['Description of your responsibilities and achievements.']
         };
 
-        updateSectionContent(sectionId, [newItem, ...section.content]);
+        updateSectionContent(sectionId, [newItem, ...(section.content as ResumeItem[])]);
     };
 
     const deleteSectionItem = (sectionId: string, itemId: string) => {
@@ -590,13 +598,42 @@ const ResumeBuilder: React.FC = () => {
                                                                 placeholder="Location"
                                                             />
                                                         </div>
-                                                        <EditableText
-                                                            tagName="div"
-                                                            className="ml-4"
-                                                            value={item.description || ''}
-                                                            onChange={(val) => updateSectionItem(section.id, item.id, 'description', val)}
-                                                            placeholder="Description (bullet points)"
-                                                        />
+                                                        <div className="ml-4 space-y-2 mt-1">
+                                                            {(item.description || []).map((bullet, bIdx) => (
+                                                                <div key={bIdx} className="flex gap-2 group/bullet">
+                                                                    <span className="text-gray-400 mt-1.5 w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0" />
+                                                                    <EditableText
+                                                                        tagName="div"
+                                                                        className="flex-1"
+                                                                        value={bullet}
+                                                                        onChange={(val) => {
+                                                                            const newDesc = [...(item.description || [])];
+                                                                            newDesc[bIdx] = val;
+                                                                            updateSectionItem(section.id, item.id, 'description' as any, newDesc as any);
+                                                                        }}
+                                                                        placeholder="Achievement..."
+                                                                    />
+                                                                    <button 
+                                                                        onClick={() => {
+                                                                            const newDesc = item.description?.filter((_, i) => i !== bIdx);
+                                                                            updateSectionItem(section.id, item.id, 'description' as any, newDesc as any);
+                                                                        }}
+                                                                        className="opacity-0 group-hover/bullet:opacity-100 p-1 text-gray-400 hover:text-red-500 transition-opacity"
+                                                                    >
+                                                                        <X className="w-3 h-3" />
+                                                                    </button>
+                                                                </div>
+                                                            ))}
+                                                            <button 
+                                                                onClick={() => {
+                                                                    const newDesc = [...(item.description || []), ""];
+                                                                    updateSectionItem(section.id, item.id, 'description' as any, newDesc as any);
+                                                                }}
+                                                                className="text-xs text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity"
+                                                            >
+                                                                <Plus className="w-3 h-3" /> Add Achievement
+                                                            </button>
+                                                        </div>
                                                     </Reorder.Item>
                                                 ))}
                                             </Reorder.Group>

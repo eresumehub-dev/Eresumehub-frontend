@@ -1,4 +1,5 @@
 import api from './api';
+import { MarketSchema } from '../utils/compliance_check';
 
 export const getAvailableCountries = async (): Promise<string[]> => {
     try {
@@ -13,7 +14,7 @@ export const getAvailableCountries = async (): Promise<string[]> => {
     }
 };
 
-export const getCountrySchema = async (country: string): Promise<any> => {
+export const getCountrySchema = async (country: string): Promise<MarketSchema | null> => {
     try {
         const response = await api.get(`/schemas/${country}`);
         return response.data;

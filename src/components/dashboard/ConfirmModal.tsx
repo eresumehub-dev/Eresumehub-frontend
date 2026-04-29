@@ -7,9 +7,10 @@ interface ConfirmModalProps {
     message: string;
     onConfirm: () => void;
     onClose: () => void;
+    confirmLabel?: string;
 }
 
-const ConfirmModal: React.FC<ConfirmModalProps> = ({ isOpen, title, message, onConfirm, onClose }) => {
+const ConfirmModal: React.FC<ConfirmModalProps> = ({ isOpen, title, message, onConfirm, onClose, confirmLabel }) => {
     if (!isOpen) return null;
 
     return (
@@ -41,7 +42,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({ isOpen, title, message, onC
                             onClick={onConfirm}
                             className="flex-1 py-3 bg-rose-500 text-white font-bold rounded-xl shadow-lg shadow-rose-500/20 hover:bg-rose-600 transition-all text-sm"
                         >
-                            Yes, Delete
+                            {confirmLabel || 'Confirm'}
                         </button>
                     </div>
                 </div>

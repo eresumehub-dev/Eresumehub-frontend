@@ -56,6 +56,19 @@ const RefineTooltip: React.FC<RefineTooltipProps> = ({
         }
     };
 
+    // Resize listener to re-calculate clamping
+    const [, setTick] = useState(0);
+    useEffect(() => {
+        const handleResize = () => setTick(t => t + 1);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    const clampedPosition = React.useMemo(() => ({
+        left: Math.min(window.innerWidth - 340, Math.max(20, position.x - 160)),
+        top: position.y - 80
+    }), [position, window.innerWidth]);
+
     if (!visible) return null;
 
     return (
@@ -65,10 +78,7 @@ const RefineTooltip: React.FC<RefineTooltipProps> = ({
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 10 }}
                 className="fixed z-[9999] bg-white rounded-xl shadow-2xl border border-slate-200 p-3 w-80 font-sans"
-                style={{
-                    left: Math.min(window.innerWidth - 340, Math.max(20, position.x - 160)),
-                    top: position.y - 80 // Position above selection
-                }}
+                style={clampedPosition}
             >
                 {/* Header */}
                 <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-100">

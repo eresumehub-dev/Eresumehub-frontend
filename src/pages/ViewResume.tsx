@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getResume, updateResume, Resume } from '../services/resume';
 import { Download, ArrowLeft, Edit3, Save, X, Loader2, Globe, Layout as LayoutIcon, Type } from 'lucide-react';
 import { getAvailableCountries } from '../services/schema';
+import api from '../services/api';
 
 const ViewResume = () => {
     const { id } = useParams<{ id: string }>();
@@ -45,11 +46,17 @@ const ViewResume = () => {
         }
     };
 
-    const updatePreviewUrl = (url?: string) => {
+    const updatePreviewUrl = async (url?: string) => {
         if (!url) return;
-        const token = localStorage.getItem('token');
-        const finalUrl = `${url}${url.includes('?') ? '&' : '?'}token=${token}&t=${Date.now()}`;
-        setPreviewUrl(finalUrl);
+        try {
+            // Remove full URL domain if present to use the api instance cleanly
+            const apiPath = url.replace(import.meta.env.VITE_API_URL || '', '');
+            const response = await api.get(apiPath, { responseType: 'blob' });
+            const blobUrl = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+            setPreviewUrl(blobUrl);
+        } catch (err) {
+            console.error('Failed to load PDF preview securely', err);
+        }
     };
 
     const handleSave = async () => {

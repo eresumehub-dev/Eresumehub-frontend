@@ -49,8 +49,8 @@ const Navbar = () => {
 
     const navLinks = [
         { name: "Dashboard", icon: <LayoutDashboard className="w-4 h-4" />, href: "/dashboard" },
-        { name: "My Resumes", icon: <FileText className="w-4 h-4" />, href: "/dashboard/resumes" },
-        { name: "Analytics", icon: <TrendingUp className="w-4 h-4" />, href: "/analytics/overview" },
+        { name: "My Resumes", icon: <FileText className="w-4 h-4" />, href: "/dashboard" },
+        { name: "Analytics", icon: <TrendingUp className="w-4 h-4" />, href: "/analytics/traffic" },
         { name: "ATS Scanner", icon: <ScanSearch className="w-4 h-4" />, href: "/ats-checker" },
         { name: "Templates", icon: <HelpCircle className="w-4 h-4" />, href: "/templates" }
     ];
@@ -148,7 +148,7 @@ const Navbar = () => {
                                             </div>
                                             <div className="flex flex-col min-w-0">
                                                 <span className="text-[14px] font-semibold text-[#1D1D1F] truncate">{userProfile?.full_name || 'Member'}</span>
-                                                <span className="text-[12px] text-[#86868B] truncate">{userProfile?.contact?.email}</span>
+                                                <span className="text-[12px] text-[#86868B] truncate">{userProfile?.email}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -166,7 +166,7 @@ const Navbar = () => {
                                                 Settings
                                             </div>
                                         </Link>
-                                        <Link to="/help" className="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-[#F5F5F7] transition-colors group">
+                                        <Link to="/support" className="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-[#F5F5F7] transition-colors group">
                                             <div className="flex items-center gap-2.5 text-[#1D1D1F] text-[14px] font-medium">
                                                 <HelpCircle className="w-4 h-4 text-[#86868B] group-hover:text-[#1D1D1F]" />
                                                 Support

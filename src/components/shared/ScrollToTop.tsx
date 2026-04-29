@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ArrowUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -6,13 +6,13 @@ const ScrollToTop = () => {
     const [isVisible, setIsVisible] = useState(false);
 
     // Show button when page is scrolled down
-    const toggleVisibility = () => {
-        if (window.pageYOffset > 300) {
+    const toggleVisibility = useCallback(() => {
+        if (window.scrollY > 300) {
             setIsVisible(true);
         } else {
             setIsVisible(false);
         }
-    };
+    }, []);
 
     const scrollToTop = () => {
         window.scrollTo({
@@ -24,7 +24,7 @@ const ScrollToTop = () => {
     useEffect(() => {
         window.addEventListener('scroll', toggleVisibility);
         return () => window.removeEventListener('scroll', toggleVisibility);
-    }, []);
+    }, [toggleVisibility]);
 
     return (
         <AnimatePresence>

@@ -9,6 +9,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useBootstrapQuery } from '../hooks/queries/useBootstrapQuery';
 import { useResumesQuery } from '../hooks/queries/useResumesQuery';
+import { Resume } from '../services/resume';
 import { useAnalyticsQuery } from '../hooks/queries/useAnalyticsQuery';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 
@@ -41,7 +42,7 @@ const Dashboard: React.FC = () => {
 
     // UI state
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-    const [sharingResume, setSharingResume] = useState<any>(null);
+    const [sharingResume, setSharingResume] = useState<Resume | null>(null);
 
     const firstName = (userProfile?.full_name || user?.user_metadata?.full_name || 'there').split(' ')[0];
     const totalViews = analyticsData?.summary?.total_views || 0;
@@ -135,7 +136,7 @@ const Dashboard: React.FC = () => {
                                     </div>
                                 ) : (
                                     <div className="flex flex-col">
-                                        {resumes.map((resume: any) => (
+                                        {resumes.map((resume: Resume) => (
                                             <ResumeCard 
                                                 key={resume.id} 
                                                 resume={resume} 
@@ -229,7 +230,7 @@ const Dashboard: React.FC = () => {
             {isShareModalOpen && sharingResume && userProfile && (
                 <ShareModal
                     resume={sharingResume}
-                    username={(userProfile as any)?.username || user?.user_metadata?.username}
+                    username={userProfile?.username || user?.user_metadata?.username}
                     onClose={() => setIsShareModalOpen(false)}
                     onUpdate={() => setIsShareModalOpen(false)}
                 />

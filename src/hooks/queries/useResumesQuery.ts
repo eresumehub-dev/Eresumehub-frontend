@@ -14,8 +14,7 @@ export const useResumesQuery = () => {
         queryKey: ['resumes'],
         queryFn: async () => {
             const data = await getResumes();
-            // Consistent standardizing (v3.30.0 logic)
-            return Array.isArray(data) ? data : ((data as any).resumes || []);
+            return data;
         },
         staleTime: 5 * 60 * 1000, // 5 minutes
     });
@@ -23,11 +22,18 @@ export const useResumesQuery = () => {
     // 2. Delete Mutation
     const deleteMutation = useMutation({
         mutationFn: deleteResume,
-        onSuccess: (_, id) => {
-            // Optimistic / Simple invalidation
+        onMutate: async (id) => {
+            await queryClient.cancelQueries({ queryKey: ['resumes'] });
+            const previous = queryClient.getQueryData<Resume[]>(['resumes']);
             queryClient.setQueryData(['resumes'], (old: Resume[] | undefined) => 
                 old ? old.filter(r => r.id !== id) : []
             );
+            return { previous };
+        },
+        onError: (_err, _id, context) => {
+            if (context?.previous) {
+                queryClient.setQueryData(['resumes'], context.previous);
+            }
         },
     });
 

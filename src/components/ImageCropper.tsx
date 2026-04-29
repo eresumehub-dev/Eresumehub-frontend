@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import Cropper from 'react-easy-crop';
+import Cropper, { Area } from 'react-easy-crop';
 
 interface ImageCropperProps {
     imageSrc: string;
@@ -10,7 +10,7 @@ interface ImageCropperProps {
 const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCropComplete, onCancel }) => {
     const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
-    const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+    const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
 
     const onCropChange = (crop: { x: number; y: number }) => {
         setCrop(crop);
@@ -20,7 +20,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCropComplete, o
         setZoom(zoom);
     };
 
-    const onCropCompleteHandler = useCallback((_croppedArea: any, croppedAreaPixels: any) => {
+    const onCropCompleteHandler = useCallback((_croppedArea: Area, croppedAreaPixels: Area) => {
         setCroppedAreaPixels(croppedAreaPixels);
     }, []);
 
@@ -35,7 +35,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCropComplete, o
 
     const getCroppedImg = async (
         imageSrc: string,
-        pixelCrop: any
+        pixelCrop: Area
     ): Promise<Blob | null> => {
         const image = await createImage(imageSrc);
         const canvas = document.createElement('canvas');

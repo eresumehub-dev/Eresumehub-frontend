@@ -1,6 +1,8 @@
 import { useState, useCallback, useEffect } from 'react';
 import api from '../services/api';
 
+import { UserProfile } from '../services/profile';
+
 export interface ATSResult {
     score: number;
     country: string;
@@ -10,7 +12,7 @@ export interface ATSResult {
     errors: string[];
     keywords: { found: number; recommended: number; missing: string[] };
     countrySpecific: string[];
-    debug_parsed_profile?: any;
+    debug_parsed_profile?: Partial<UserProfile>;
 }
 
 const STAGES = [
@@ -28,30 +30,16 @@ export const useATSAnalysis = (country: string) => {
     const [error, setError] = useState<string | null>(null);
     const [elapsedTime, setElapsedTime] = useState(0);
 
-    // Timer for loading feedback (elapsed time)
+    // Stage rotation and timer logic
     useEffect(() => {
-        let timer: NodeJS.Timeout;
-        if (analyzing) {
-            const start = Date.now();
-            timer = setInterval(() => {
-                setElapsedTime(Math.floor((Date.now() - start) / 1000));
-            }, 1000);
-        } else {
-            setElapsedTime(0);
-        }
+        if (!analyzing) { setElapsedTime(0); return; }
+        setLoadingStage(0);
+        const start = Date.now();
+        const timer = setInterval(() => {
+            setElapsedTime(Math.floor((Date.now() - start) / 1000));
+            setLoadingStage(prev => (prev + 1) % STAGES.length);
+        }, 3000);
         return () => clearInterval(timer);
-    }, [analyzing]);
-
-    // Stage rotation logic
-    useEffect(() => {
-        let interval: NodeJS.Timeout;
-        if (analyzing) {
-            setLoadingStage(0);
-            interval = setInterval(() => {
-                setLoadingStage(prev => (prev + 1) % STAGES.length);
-            }, 3000);
-        }
-        return () => clearInterval(interval);
     }, [analyzing]);
 
     const analyzeResume = useCallback(async (file: File, jobRole: string, jobDescription: string) => {
@@ -81,7 +69,7 @@ export const useATSAnalysis = (country: string) => {
             }
         } catch (err: any) {
             console.error('ATS Analysis Error:', err);
-            if (err.name === 'AbortError') {
+            if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED') {
                 setError('AI processing took too long (60s). Try again.');
             } else {
                 setError(err.response?.data?.detail || err.message || 'Analysis failed');

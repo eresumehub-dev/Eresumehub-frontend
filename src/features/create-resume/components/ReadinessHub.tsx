@@ -11,6 +11,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ComplianceWarning } from '../../../utils/compliance_check';
 import AIMotivationModal from './AIMotivationModal';
 import { generateMotivationDraft } from '../../../services/ai';
+import { UserProfile } from '../../../services/profile';
+import { toast } from 'react-hot-toast';
 
 interface ReadinessHubProps {
     score: number;
@@ -22,7 +24,7 @@ interface ReadinessHubProps {
     onGenerate: () => void;
     canGenerate: boolean;
     isEvaluatingRules?: boolean;
-    profile?: any;
+    profile?: UserProfile;
     jobTitle?: string;
 }
 
@@ -35,21 +37,39 @@ const ReadinessHub: React.FC<ReadinessHubProps> = ({
     const [isAIModalOpen, setIsAIModalOpen] = React.useState(false);
     const [aiDraft, setAIDraft] = React.useState<string | null>(null);
     const [isAILoading, setIsAILoading] = React.useState(false);
+    const [aiError, setAIError] = React.useState<string | null>(null);
+
+    const isMountedRef = React.useRef(true);
+    React.useEffect(() => {
+        return () => { isMountedRef.current = false; };
+    }, []);
 
     const handleAIAssist = async () => {
         if (!profile || !jobTitle) return;
         
         setIsAIModalOpen(true);
         setIsAILoading(true);
+        setAIError(null);
         try {
-            const res = await generateMotivationDraft(profile, jobTitle);
+            const res = await generateMotivationDraft({ 
+                user_data: profile, 
+                job_title: jobTitle,
+                country: profile.country || 'Japan'
+            });
+            if (!isMountedRef.current) return;
             if (res.success) {
                 setAIDraft(res.draft);
             }
         } catch (err) {
             console.error("AI Assist failed", err);
+            if (isMountedRef.current) {
+                setAIError('Failed to generate draft. Please try again.');
+                toast.error('AI Assist failed. Please try again.');
+            }
         } finally {
-            setIsAILoading(false);
+            if (isMountedRef.current) {
+                setIsAILoading(false);
+            }
         }
     };
     
@@ -57,7 +77,7 @@ const ReadinessHub: React.FC<ReadinessHubProps> = ({
     const tips = (warnings || []).filter(w => w.type === 'warning' || w.type === 'info');
 
     return (
-        <div className="h-full flex flex-col p-8 md:p-10 bg-[#F5F5F7] backdrop-blur-3xl overflow-y-auto custom-scrollbar">
+        <div data-testid="readiness-hub" className="h-full flex flex-col p-8 md:p-10 bg-[#F5F5F7] backdrop-blur-3xl overflow-y-auto custom-scrollbar">
             <div className="flex-1">
                 {/* Header Context */}
                 <div className="flex items-center gap-3 mb-10">
@@ -214,6 +234,8 @@ const ReadinessHub: React.FC<ReadinessHubProps> = ({
                 onClose={() => setIsAIModalOpen(false)}
                 draft={aiDraft}
                 isLoading={isAILoading}
+                error={aiError}
+                country={profile?.country}
             />
         </div>
     );

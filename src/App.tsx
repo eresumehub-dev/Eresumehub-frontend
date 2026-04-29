@@ -6,7 +6,6 @@ import ProtectedRoute from './components/ProtectedRoute'
 // --- LAZY LOADED FEATURES (Performance Optimization) ---
 const Landing = lazy(() => import('./pages/Landing'))
 const Login = lazy(() => import('./pages/Login'))
-const Register = lazy(() => import('./pages/Register'))
 const SignUp = lazy(() => import('./pages/SignUp'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const CreateResume = lazy(() => import('./pages/CreateResume'))
@@ -35,36 +34,36 @@ const PageLoader = () => (
 
 function App() {
     return (
-        <Suspense fallback={<PageLoader />}>
-            <Routes>
-                <Route path="/" element={<Layout />}>
-                    <Route index element={<Landing />} />
-                    <Route path="login" element={<Login />} />
-                    <Route path="register" element={<Register />} />
-                    <Route path="signup" element={<SignUp />} />
-                    <Route path="ats-checker" element={<ATSChecker />} />
-                    <Route path="templates" element={<Templates />} />
-                    <Route path="about" element={<AboutUs />} />
-                    <Route path="privacy" element={<PrivacyPolicy />} />
-                    <Route path="contact" element={<ContactUs />} />
-                    <Route path="support" element={<SupportCenter />} />
+        <Routes>
+            <Route path="/" element={<Layout />}>
+                <Route index element={<Suspense fallback={<PageLoader />}><Landing /></Suspense>} />
+                <Route path="login" element={<Suspense fallback={<PageLoader />}><Login /></Suspense>} />
+                <Route path="signup" element={<Suspense fallback={<PageLoader />}><SignUp /></Suspense>} />
+                
+                {/* Public Feature Routes */}
+                <Route path="ats-checker" element={<Suspense fallback={<PageLoader />}><ATSChecker /></Suspense>} />
+                <Route path="templates" element={<Suspense fallback={<PageLoader />}><Templates /></Suspense>} />
+                <Route path="about" element={<Suspense fallback={<PageLoader />}><AboutUs /></Suspense>} />
+                <Route path="privacy" element={<Suspense fallback={<PageLoader />}><PrivacyPolicy /></Suspense>} />
+                <Route path="contact" element={<Suspense fallback={<PageLoader />}><ContactUs /></Suspense>} />
+                <Route path="support" element={<Suspense fallback={<PageLoader />}><SupportCenter /></Suspense>} />
 
-                    <Route path="/:username/:slug" element={<PublicResume />} />
+                <Route path="/:username/:slug" element={<Suspense fallback={<PageLoader />}><PublicResume /></Suspense>} />
 
-                    <Route element={<ProtectedRoute />}>
-                        <Route path="dashboard" element={<Dashboard />} />
-                        <Route path="analytics/:type" element={<AnalyticsDetail />} />
-                        <Route path="profile" element={<ProfileCreationMultiStep />} />
-                        <Route path="upload-resume" element={<ResumeUploadWizard />} />
-                        <Route path="create" element={<CreateResume />} />
-                        <Route path="resume/:id" element={<ViewResume />} />
-                        <Route path="resume/edit/:id" element={<ResumeEditor />} />
-                        <Route path="builder" element={<ResumeBuilder />} />
-                        <Route path="settings" element={<Settings />} />
-                    </Route>
+                {/* Protected Workspace Routes */}
+                <Route element={<ProtectedRoute />}>
+                    <Route path="dashboard" element={<Suspense fallback={<PageLoader />}><Dashboard /></Suspense>} />
+                    <Route path="analytics/:type" element={<Suspense fallback={<PageLoader />}><AnalyticsDetail /></Suspense>} />
+                    <Route path="profile" element={<Suspense fallback={<PageLoader />}><ProfileCreationMultiStep /></Suspense>} />
+                    <Route path="upload-resume" element={<Suspense fallback={<PageLoader />}><ResumeUploadWizard /></Suspense>} />
+                    <Route path="create" element={<Suspense fallback={<PageLoader />}><CreateResume /></Suspense>} />
+                    <Route path="resume/:id" element={<Suspense fallback={<PageLoader />}><ViewResume /></Suspense>} />
+                    <Route path="resume/edit/:id" element={<Suspense fallback={<PageLoader />}><ResumeEditor /></Suspense>} />
+                    <Route path="builder" element={<Suspense fallback={<PageLoader />}><ResumeBuilder /></Suspense>} />
+                    <Route path="settings" element={<Suspense fallback={<PageLoader />}><Settings /></Suspense>} />
                 </Route>
-            </Routes>
-        </Suspense>
+            </Route>
+        </Routes>
     )
 }
 

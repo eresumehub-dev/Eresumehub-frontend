@@ -40,6 +40,9 @@ export const useUIStore = create<UIState>()(
             name: 'eresumehub-ui-storage',
             onRehydrateStorage: () => (state) => {
                 state?.setHasHydrated(true);
+                if (typeof window !== 'undefined') {
+                    window.dispatchEvent(new CustomEvent('ui-store-hydrated'));
+                }
             }
         }
     )

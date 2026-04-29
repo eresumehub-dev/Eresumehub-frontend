@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Copy, Check, Mail, MessageCircle, Globe, Lock, EyeOff, Loader2, AlertTriangle } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Resume, updateResume } from '../services/resume';
+import { toast } from 'react-hot-toast';
 
 interface ShareModalProps {
     resume: Resume;
@@ -25,7 +26,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ resume, username, onClose, onUp
         },
         onError: (error) => {
             console.error('Failed to update visibility', error);
-            alert('Failed to update visibility settings');
+            toast.error('Failed to update visibility. Please try again.');
         }
     });
 
@@ -35,11 +36,15 @@ const ShareModal: React.FC<ShareModalProps> = ({ resume, username, onClose, onUp
         mutation.mutate(newVal);
     };
 
-    const copyToClipboard = () => {
+    const copyToClipboard = async () => {
         if (visibility === 'private') return;
-        navigator.clipboard.writeText(publicUrl);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+        try {
+            await navigator.clipboard.writeText(publicUrl);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch {
+            toast.error('Copy failed. Please copy the link manually.');
+        }
     };
 
     const shareEmail = () => {

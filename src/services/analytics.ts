@@ -10,6 +10,9 @@ export interface AnalyticsSummary {
     conversion_rate: number;
     power_score: number; // Based on probabilistic engagement (v13.0.0)
     total_resumes?: number;
+    views_trend?: number;
+    downloads_trend?: number;
+    score_trend?: number;
 }
 
 export interface AnalyticsSegments {
@@ -72,7 +75,21 @@ export interface MagicNudge {
     impact: string;
 }
 
-export const logView = async (data: any) => {
+export interface ViewEvent {
+    resume_id: string;
+    viewer_id?: string;
+    referrer?: string;
+    device_type?: 'desktop' | 'mobile' | 'tablet';
+    country?: string;
+}
+
+export interface DownloadEvent {
+    resume_id: string;
+    format: string;
+    country?: string;
+}
+
+export const logView = async (data: ViewEvent) => {
     const response = await api.post('/analytics/view', data);
     return response.data;
 };
@@ -87,7 +104,7 @@ export const getDashboardAnalytics = async () => {
     return response.data;
 };
 
-export const logDownload = async (data: any) => {
+export const logDownload = async (data: DownloadEvent) => {
     const response = await api.post('/analytics/download', data);
     return response.data;
 };

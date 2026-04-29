@@ -1,8 +1,10 @@
 import React from 'react';
 import { Eye, Download, TrendingUp, FileText } from 'lucide-react';
 
+import type { AnalyticsData } from '../../services/analytics';
+
 interface StatsGridProps {
-    analyticsData: any;
+    analyticsData: AnalyticsData | null | undefined;
     resumeCount: number;
 }
 
@@ -12,25 +14,31 @@ const StatsGrid: React.FC<StatsGridProps> = ({ analyticsData, resumeCount }) => 
     const totalDownloads = analyticsData?.summary?.total_downloads || 0;
     const avgAtsScore = analyticsData?.summary?.power_score || 0; // Using power_score as Avg ATS proxy
     
+    const formatTrend = (trend?: number) => {
+        if (trend === undefined || trend === null) return null;
+        const prefix = trend > 0 ? '+' : '';
+        return `${prefix}${trend}%`;
+    };
+
     const stats = [
         {
             label: 'Total Views', 
             val: totalViews.toLocaleString(), 
-            trend: analyticsData?.summary?.views_trend || null, 
+            trend: formatTrend(analyticsData?.summary?.views_trend), 
             icon: <Eye className="w-5 h-5 text-[#0066CC]"/>, 
             bg: 'bg-[#0066CC]/10'
         }, 
         {
             label: 'Downloads', 
             val: totalDownloads.toLocaleString(), 
-            trend: analyticsData?.summary?.downloads_trend || null, 
+            trend: formatTrend(analyticsData?.summary?.downloads_trend), 
             icon: <Download className="w-5 h-5 text-[#34C759]"/>, 
             bg: 'bg-[#34C759]/10'
         }, 
         {
             label: 'Avg ATS Score', 
             val: `${avgAtsScore}%`, 
-            trend: analyticsData?.summary?.score_trend || null, 
+            trend: formatTrend(analyticsData?.summary?.score_trend), 
             icon: <TrendingUp className="w-5 h-5 text-[#AF52DE]"/>, 
             bg: 'bg-[#AF52DE]/10'
         }, 

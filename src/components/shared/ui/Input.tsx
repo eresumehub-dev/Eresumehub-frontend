@@ -7,12 +7,16 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-    ({ className = '', label, hint, rightElement, ...props }, ref) => {
+    ({ className = '', label, hint, rightElement, id: providedId, ...props }, ref) => {
+        const id = providedId || props.name || React.useId();
         return (
             <div className="space-y-1.5 w-full">
                 {label && (
                     <div className="flex items-center justify-between px-0.5">
-                        <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mr-auto">
+                        <label 
+                            htmlFor={id}
+                            className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mr-auto cursor-pointer"
+                        >
                             {label}
                         </label>
                         {hint && <span className="text-[10px] text-muted-foreground/60 ml-2">{hint}</span>}
@@ -21,6 +25,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 <div className="relative group">
                     <input
                         ref={ref}
+                        id={id}
                         className={`
                             block w-full px-3 py-2.5 bg-background border border-border rounded-md 
                             text-sm font-medium text-foreground placeholder:text-muted-foreground/50 

@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '../../test/utils';
+import { render, screen, fireEvent, waitFor, within } from '../../test/utils';
 import CreateResumePage from './CreateResumePage';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as resumeService from '../../services/resume';
@@ -21,6 +21,7 @@ vi.mock('../../services/resume', () => ({
 
 vi.mock('../../services/schema', () => ({
     getAvailableCountries: vi.fn().mockResolvedValue(['Germany', 'USA', 'India']),
+    getCountrySchema: vi.fn().mockResolvedValue({ country: 'USA' })
 }));
 
 vi.mock('../../hooks/queries/useUserProfileQuery', () => ({
@@ -41,6 +42,7 @@ describe('Resume Generation Integration', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        vi.spyOn(window, 'confirm').mockImplementation(() => true);
         (profileQuery.useUserProfileQuery as any).mockReturnValue({
             data: { profile: mockProfile },
             isLoading: false
@@ -51,19 +53,29 @@ describe('Resume Generation Integration', () => {
         render(<CreateResumePage />);
 
         // 1. Initial State: Button should be disabled (title empty)
-        const generateBtn = screen.getByTestId('generate-button');
+        const sidebar = screen.getByTestId('readiness-hub');
+        let generateBtn = within(sidebar).getByRole('button', { name: /generate perfect resume/i });
         expect(generateBtn).toBeDisabled();
 
         // 2. User Action: Enter Job Title
         const titleInput = screen.getByPlaceholderText(/e.g. senior frontend engineer/i);
         fireEvent.change(titleInput, { target: { value: 'Staff Software Engineer' } });
 
+        await waitFor(() => {
+            expect(screen.getByRole('option', { name: 'USA' })).toBeInTheDocument();
+        });
+        const countrySelect = screen.getByRole('combobox');
+        fireEvent.change(countrySelect, { target: { value: 'USA' } });
+
         // 3. Verification: Button should be enabled
-        expect(generateBtn).toBeEnabled();
+        await waitFor(() => {
+            generateBtn = within(sidebar).getByRole('button', { name: /generate perfect resume/i });
+            expect(generateBtn).toBeEnabled();
+        });
 
         // 4. Verification: Readiness Score should be visible
         await waitFor(() => {
-            expect(screen.getByText(/Ready/i)).toBeInTheDocument();
+            expect(screen.getByText(/Elite Match/i)).toBeInTheDocument();
         });
 
         // 5. User Action: Click Generate
@@ -72,7 +84,7 @@ describe('Resume Generation Integration', () => {
 
         // 6. Verification: Loading state and step feedback
         await waitFor(() => {
-            expect(screen.getByText(/Initializing.../i)).toBeInTheDocument();
+            expect(screen.getByText(/Architecting your resume.../i)).toBeInTheDocument();
         });
         
         expect(resumeService.createResume).toHaveBeenCalled();
@@ -85,10 +97,21 @@ describe('Resume Generation Integration', () => {
         const titleInput = screen.getByPlaceholderText(/e.g. senior frontend engineer/i);
         fireEvent.change(titleInput, { target: { value: 'Staff Software Engineer' } });
 
-        const generateBtn = screen.getByRole('button', { name: /generate resume/i });
-        
+        await waitFor(() => {
+            expect(screen.getByRole('option', { name: 'USA' })).toBeInTheDocument();
+        });
+        const countrySelect = screen.getByRole('combobox');
+        fireEvent.change(countrySelect, { target: { value: 'USA' } });
+
         // Mock error
         (resumeService.createResume as any).mockRejectedValue(new Error('API Down'));
+        
+        const sidebar = screen.getByTestId('readiness-hub');
+        let generateBtn: any;
+        await waitFor(() => {
+            generateBtn = within(sidebar).getByRole('button', { name: /generate perfect resume/i });
+            expect(generateBtn).toBeEnabled();
+        });
         
         fireEvent.click(generateBtn);
 

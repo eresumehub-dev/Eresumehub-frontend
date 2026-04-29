@@ -11,6 +11,7 @@ import {
     Building2
 } from 'lucide-react';
 import Footer from '../components/shared/Footer';
+import api from '../services/api';
 
 const ContactUs = () => {
     const [formState, setFormState] = useState<'idle' | 'loading' | 'success'>('idle');
@@ -32,19 +33,23 @@ const ContactUs = () => {
         visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setFormState('loading');
         
-        // Mock API Call
-        setTimeout(() => {
+        try {
+            await api.post('/system/contact', formData);
             setFormState('success');
             // Reset form after a few seconds to allow sending another message
             setTimeout(() => {
                 setFormState('idle');
                 setFormData({ name: '', email: '', topic: 'General Support', message: '' });
             }, 5000);
-        }, 1500);
+        } catch (error) {
+            console.error('Failed to send message:', error);
+            setFormState('idle');
+            // Normally we'd show a toast here, but simple reset is fine for now
+        }
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {

@@ -8,17 +8,24 @@ interface AIMotivationModalProps {
     onClose: () => void;
     draft: string | null;
     isLoading: boolean;
+    error?: string | null;
+    country?: string;
 }
 
-const AIMotivationModal: React.FC<AIMotivationModalProps> = ({ isOpen, onClose, draft, isLoading }) => {
+const AIMotivationModal: React.FC<AIMotivationModalProps> = ({ 
+    isOpen, onClose, draft, isLoading, error, country 
+}) => {
     const [copied, setCopied] = React.useState(false);
 
-    const handleCopy = () => {
-        if (draft) {
-            navigator.clipboard.writeText(draft);
+    const handleCopy = async () => {
+        if (!draft) return;
+        try {
+            await navigator.clipboard.writeText(draft);
             setCopied(true);
             toast.success("Motivation draft copied!");
             setTimeout(() => setCopied(false), 2000);
+        } catch {
+            toast.error("Copy failed. Please select and copy the text manually.");
         }
     };
 
@@ -48,7 +55,9 @@ const AIMotivationModal: React.FC<AIMotivationModalProps> = ({ isOpen, onClose, 
                                 </div>
                                 <div>
                                     <h3 className="text-[17px] font-semibold text-[#1D1D1F]">AI Motivation Draft</h3>
-                                    <p className="text-[12px] text-[#86868B] font-medium uppercase tracking-widest">Optimized for Japanese Market</p>
+                                    <p className="text-[12px] text-[#86868B] font-medium uppercase tracking-widest">
+                                        Optimized for {country || 'Target'} Market
+                                    </p>
                                 </div>
                             </div>
                             <button onClick={onClose} className="p-2 hover:bg-[#F5F5F7] rounded-full transition-colors">
@@ -62,6 +71,19 @@ const AIMotivationModal: React.FC<AIMotivationModalProps> = ({ isOpen, onClose, 
                                 <div className="py-20 flex flex-col items-center justify-center gap-4">
                                     <Loader2 className="w-8 h-8 animate-spin text-[#1D1D1F]" strokeWidth={1.5} />
                                     <p className="text-[14px] text-[#86868B] font-medium animate-pulse">Engineering your draft...</p>
+                                </div>
+                            ) : error ? (
+                                <div className="py-20 flex flex-col items-center justify-center gap-4">
+                                    <div className="p-4 bg-red-50 text-red-500 rounded-full">
+                                        <X className="w-8 h-8" />
+                                    </div>
+                                    <p className="text-[15px] text-[#1D1D1F] font-semibold">{error}</p>
+                                    <button 
+                                        onClick={onClose}
+                                        className="text-[#86868B] text-[13px] hover:text-[#1D1D1F] font-medium transition-colors"
+                                    >
+                                        Try again later
+                                    </button>
                                 </div>
                             ) : (
                                 <div className="space-y-6">

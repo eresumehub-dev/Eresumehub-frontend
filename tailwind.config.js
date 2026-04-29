@@ -10,6 +10,12 @@ export default {
                 primary: "#2563eb",
                 secondary: "#475569",
                 accent: "#0f172a",
+                background: "hsl(var(--background))",
+                foreground: "hsl(var(--foreground))",
+                muted: {
+                    DEFAULT: "hsl(var(--muted))",
+                    foreground: "hsl(var(--muted-foreground))",
+                },
             },
             fontFamily: {
                 sans: ['Inter', 'sans-serif'],

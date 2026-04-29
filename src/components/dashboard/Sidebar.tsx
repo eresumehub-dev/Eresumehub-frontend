@@ -11,16 +11,13 @@ import {
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
-interface SidebarProps {
-}
-
-const Sidebar: React.FC<SidebarProps> = () => {
+const Sidebar: React.FC = () => {
     const location = useLocation();
 
     const navItems = [
         { to: "/dashboard", icon: TrendingUp, label: "Dashboard" },
-        { to: "/dashboard/resumes", icon: FileText, label: "My Resumes" },
-        { to: "/analytics", icon: Eye, label: "Analytics" },
+        { to: "/dashboard", icon: FileText, label: "My Resumes" },
+        { to: "/analytics/traffic", icon: Eye, label: "Analytics" },
         { to: "/ats-checker", icon: ShieldCheck, label: "ATS Checker", mt: true },
         { to: "/templates", icon: LayoutTemplate, label: "Templates" },
         { to: "/profile", icon: User, label: "Profile Data" },

@@ -11,9 +11,10 @@ export const useAnalyticsQuery = () => {
         queryKey: ['analytics'],
         queryFn: async () => {
             const result = await getDashboardAnalytics();
-            return result?.data || result;
+            return result.data;
         },
         staleTime: 15 * 60 * 1000, 
-        gcTime: 30 * 60 * 1000,   
+        gcTime: 30 * 60 * 1000,
+        retry: 1,
     });
 };

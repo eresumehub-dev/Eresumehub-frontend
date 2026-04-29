@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { 
     ArrowLeft, Clock, FileText, Globe, 
@@ -8,36 +8,17 @@ import {
 import { 
     LineChart, Line, ResponsiveContainer 
 } from 'recharts';
-import { getDashboardAnalytics } from '../services/analytics';
+import { useAnalyticsQuery } from '../hooks/queries/useAnalyticsQuery';
 import type { AnalyticsData } from '../services/analytics';
 
 const AnalyticsDetail: React.FC = () => {
     const { type } = useParams<{ type: string }>(); // 'traffic' or 'engagement'
-    const [loading, setLoading] = useState(true);
-    const [data, setData] = useState<AnalyticsData | null>(null);
-    const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const navigate = useNavigate();
 
-    const fetchData = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            const response = await getDashboardAnalytics();
-            setData(response.data);
-        } catch (err: any) {
-            console.error("Failed to fetch analytics details", err);
-            setError("We couldn't load your analytics. Please try again.");
-        } finally {
-            setLoading(false);
-        }
-    };
+    const { data, isLoading, isError, error: queryError, refetch } = useAnalyticsQuery();
 
-    useEffect(() => {
-        fetchData();
-    }, []);
-
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
                 <Loader2 className="w-10 h-10 animate-spin text-[#0A2A6B]" />
@@ -45,7 +26,7 @@ const AnalyticsDetail: React.FC = () => {
         );
     }
 
-    if (error || !data) {
+    if (isError || !data) {
         return (
             <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-6">
                 <div className="bg-white p-10 rounded-[32px] border border-slate-100 shadow-xl shadow-slate-200/20 max-w-md w-full text-center">
@@ -53,10 +34,10 @@ const AnalyticsDetail: React.FC = () => {
                         <AlertCircle className="w-10 h-10" />
                     </div>
                     <h3 className="text-xl font-bold text-slate-900 mb-2">Service Unavailable</h3>
-                    <p className="text-slate-500 mb-8">{error || "Failed to load data"}</p>
+                    <p className="text-slate-500 mb-8">{queryError?.message || "Failed to load data"}</p>
                     <div className="flex flex-col gap-3">
                         <button 
-                            onClick={fetchData} 
+                            onClick={() => refetch()} 
                             className="bg-[#0A2A6B] text-white py-3 px-6 rounded-xl font-bold hover:opacity-90 transition-all"
                         >
                             Try Again

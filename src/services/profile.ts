@@ -1,4 +1,6 @@
 import api from './api';
+import { Resume } from './resume';
+import { AnalyticsData } from './analytics';
 
 export interface WorkExperience {
     id?: string;
@@ -83,11 +85,13 @@ export interface ProfileExtras {
 export interface UserProfile {
     id?: string;
     user_id?: string;
+    username?: string;
     full_name?: string;
     email?: string;
     phone?: string;
     city?: string;
     country?: string;
+    location?: string;
     linkedin_url?: string;
     photo_url?: string;
     date_of_birth?: string;
@@ -176,9 +180,9 @@ export const generateSummary = async (profileData: Partial<UserProfile>): Promis
 export const getBootstrapData = async (): Promise<{ 
     success: boolean; 
     data: { 
-        profile: any; 
-        resumes: any[]; 
-        analytics: any; 
+        profile: UserProfile; 
+        resumes: Resume[]; 
+        analytics: AnalyticsData; 
         timestamp: string; 
     } 
 }> => {

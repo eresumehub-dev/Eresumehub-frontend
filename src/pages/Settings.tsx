@@ -462,11 +462,6 @@ const SettingsPage = () => {
             </AnimatePresence>
             <Footer />
 
-            {/* Hide scrollbar utility for mobile tabs */}
-            <style dangerouslySetInnerHTML={{__html: `
-                .scrollbar-hide::-webkit-scrollbar { display: none; }
-                .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-            `}} />
         </div>
     );
 };

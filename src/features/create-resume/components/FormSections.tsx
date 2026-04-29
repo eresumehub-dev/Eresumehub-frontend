@@ -6,17 +6,25 @@ import {
     ChevronRight
 } from 'lucide-react';
 
+export interface CreateResumeFormData {
+    jobTitle: string;
+    country: string;
+    template: 'executive' | 'modern';
+    jobDescription: string;
+    language: 'English' | 'German' | 'Japanese';
+}
+
 interface FormSectionsProps {
-    formData: any;
-    setFormData: (val: any) => void;
+    formData: CreateResumeFormData;
+    setFormData: (val: CreateResumeFormData) => void;
     countries: string[];
 }
+
+const ROLE_EXAMPLES = ["Product Manager", "Software Engineer", "Marketing Lead", "UX Researcher"] as const;
 
 const FormSections: React.FC<FormSectionsProps> = ({
     formData, setFormData, countries
 }) => {
-    
-    const roleExamples = ["Product Manager", "Software Engineer", "Marketing Lead", "UX Researcher"];
 
     return (
         <div className="space-y-10">
@@ -38,7 +46,7 @@ const FormSections: React.FC<FormSectionsProps> = ({
                     />
                 </div>
                 <div className="flex flex-wrap gap-2">
-                    {roleExamples.map(role => (
+                    {ROLE_EXAMPLES.map(role => (
                         <button
                             key={role}
                             onClick={() => setFormData({ ...formData, jobTitle: role })}
@@ -79,7 +87,7 @@ const FormSections: React.FC<FormSectionsProps> = ({
                         Visual Style
                     </label>
                     <div className="flex gap-2 p-1.5 bg-[#F5F5F7]/50 rounded-2xl border border-black/[0.02]">
-                        {['executive', 'modern'].map((style) => (
+                        {(['executive', 'modern'] as const).map((style) => (
                             <button
                                 key={style}
                                 onClick={() => setFormData({ ...formData, template: style })}
@@ -116,7 +124,7 @@ const FormSections: React.FC<FormSectionsProps> = ({
             <div className="flex items-center gap-4 pt-4">
                 <p className="text-[13px] text-[#86868B]">Output Language</p>
                 <div className="flex gap-1">
-                    {['English', 'German', 'Japanese'].map(lang => (
+                    {(['English', 'German', 'Japanese'] as const).map(lang => (
                         <button
                             key={lang}
                             onClick={() => setFormData({ ...formData, language: lang })}

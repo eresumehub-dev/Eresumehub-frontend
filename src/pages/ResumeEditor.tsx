@@ -239,21 +239,14 @@ const ResumeEditor: React.FC = () => {
     const handleRefineSubmit = async (instruction: string, sectionId: string) => {
         if (!resume) return;
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/resume/refine`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: JSON.stringify({
-                    resumeId: resume.id,
-                    selectedText: refineState.selectedText,
-                    userInstruction: instruction,
-                    sectionId: sectionId
-                })
+            const response = await api.post('/resume/refine', {
+                resumeId: resume.id,
+                selectedText: refineState.selectedText,
+                userInstruction: instruction,
+                sectionId: sectionId
             });
 
-            const data = await response.json();
+            const data = response.data;
             if (data.success && data.updatedText) {
                 setResumeContent((prev: any) => {
                     const newState = JSON.parse(JSON.stringify(prev));
