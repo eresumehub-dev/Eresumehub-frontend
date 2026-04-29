@@ -123,7 +123,7 @@ export const useCreateResumeFlow = () => {
             experience: (p.work_experiences || []).map((exp: any) => ({
                 title: exp.job_title || 'Position',
                 company: exp.company || 'Company',
-                city: exp.location || '',
+                city: exp.city || exp.location || '',
                 start_date: exp.start_date || '2000-01-01',
                 end_date: exp.end_date || null,
                 description: Array.isArray(exp.achievements) ? exp.achievements.join('\n') : (exp.achievements || '')
@@ -131,7 +131,7 @@ export const useCreateResumeFlow = () => {
             education: (p.educations || []).map((edu: any) => ({
                 degree: edu.degree || 'Degree',
                 institution: edu.institution || 'University',
-                city: edu.location || '',
+                city: edu.city || edu.location || '',
                 graduation_date: edu.graduation_date || ''
             })),
             projects: (p.projects || []).map((proj: any) => ({
