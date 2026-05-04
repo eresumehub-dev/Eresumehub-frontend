@@ -9,7 +9,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 // Hooks
 import { useAuth } from '../context/AuthContext';
-import { useBootstrapQuery } from '../hooks/queries/useBootstrapQuery';
 import {
     getProfile, createOrUpdateProfile, createProfileFromResume,
     uploadProfilePicture, UserProfile as APIUserProfile, generateSummary
@@ -93,9 +92,8 @@ const ProfileCreationMultiStep: React.FC = () => {
     const [success, setSuccess] = useState(false);
     const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
 
-    // Point 6: Near-instant load using React Query cache (Prefetched on Dashboard)
-    const { data: bootData, isLoading: isQueryLoading, isError } = useBootstrapQuery();
-    const isLoadingProfile = isQueryLoading;
+    const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+    const [isError, setIsError] = useState(false);
 
     const [photoUploading, setPhotoUploading] = useState(false);
 
@@ -154,29 +152,41 @@ const ProfileCreationMultiStep: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        if (bootData?.profile) {
-            const backendProfile = bootData.profile;
-            // ADAPTER: Transform Backend Objects -> Frontend Strings
-            const uiExtras = {
-                interests: backendProfile.extras?.interests || [],
-                awards: backendProfile.extras?.awards?.map(a => typeof a === 'string' ? a : a.title) || [],
-                publications: backendProfile.extras?.publications?.map(p => typeof p === 'string' ? p : p.title) || [],
-                volunteering: backendProfile.extras?.volunteering?.map(v => typeof v === 'string' ? v : v.role + ' at ' + v.organization) || []
-            };
+        const fetchFullProfile = async () => {
+            try {
+                setIsLoadingProfile(true);
+                const { profile: backendProfile } = await getProfile(); // Hits the full graph query
+                
+                if (backendProfile) {
+                    const uiExtras = {
+                        interests: backendProfile.extras?.interests || [],
+                        awards: backendProfile.extras?.awards?.map((a: any) => typeof a === 'string' ? a : a.title) || [],
+                        publications: backendProfile.extras?.publications?.map((p: any) => typeof p === 'string' ? p : p.title) || [],
+                        volunteering: backendProfile.extras?.volunteering?.map((v: any) => typeof v === 'string' ? v : v.role + ' at ' + v.organization) || []
+                    };
 
-            setProfile({
-                ...backendProfile,
-                work_experiences: backendProfile.work_experiences || [],
-                educations: backendProfile.educations || [],
-                projects: backendProfile.projects || [],
-                certifications: backendProfile.certifications || [],
-                skills: backendProfile.skills || [],
-                languages: backendProfile.languages || [],
-                photo_url: backendProfile.photo_url || '', // Explicit mapping
-                extras: uiExtras
-            } as LocalUserProfile);
-        }
-    }, [bootData]);
+                    setProfile({
+                        ...backendProfile,
+                        work_experiences: backendProfile.work_experiences || [],
+                        educations: backendProfile.educations || [],
+                        projects: backendProfile.projects || [],
+                        certifications: backendProfile.certifications || [],
+                        skills: backendProfile.skills || [],
+                        languages: backendProfile.languages || [],
+                        photo_url: backendProfile.photo_url || '',
+                        extras: uiExtras
+                    } as LocalUserProfile);
+                }
+            } catch (error) {
+                console.error("Failed to load full profile data", error);
+                setIsError(true);
+            } finally {
+                setIsLoadingProfile(false);
+            }
+        };
+
+        fetchFullProfile();
+    }, []);
 
     const [cropImage, setCropImage] = useState<string | null>(null);
 
