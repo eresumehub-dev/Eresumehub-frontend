@@ -48,8 +48,6 @@ function App() {
                 <Route path="contact" element={<Suspense fallback={<PageLoader />}><ContactUs /></Suspense>} />
                 <Route path="support" element={<Suspense fallback={<PageLoader />}><SupportCenter /></Suspense>} />
 
-                <Route path="/:username/:slug" element={<Suspense fallback={<PageLoader />}><PublicResume /></Suspense>} />
-
                 {/* Protected Workspace Routes */}
                 <Route element={<ProtectedRoute />}>
                     <Route path="dashboard" element={<Suspense fallback={<PageLoader />}><Dashboard /></Suspense>} />
@@ -63,6 +61,9 @@ function App() {
                     <Route path="settings" element={<Suspense fallback={<PageLoader />}><Settings /></Suspense>} />
                 </Route>
             </Route>
+
+            {/* v16.5.11: Public Resume View (Standalone - No standard Navbar) */}
+            <Route path="/:username/:slug" element={<Suspense fallback={<PageLoader />}><PublicResume /></Suspense>} />
         </Routes>
     )
 }

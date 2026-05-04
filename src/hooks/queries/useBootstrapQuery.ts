@@ -6,7 +6,7 @@ import { getBootstrapData } from '../../services/profile';
  * Consolidates Profile and Resumes into a single <100ms query.
  * EXCLUDES Analytics to prevent UI blocking during heavy computation.
  */
-export const useBootstrapQuery = () => {
+export const useBootstrapQuery = (options: { enabled?: boolean } = {}) => {
     const queryClient = useQueryClient();
 
     return useQuery({
@@ -24,5 +24,6 @@ export const useBootstrapQuery = () => {
         staleTime: 5 * 60 * 1000, 
         gcTime: 30 * 60 * 1000,   
         retry: 1, // Fail fast for UX
+        ...options
     });
 };

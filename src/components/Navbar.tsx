@@ -23,8 +23,10 @@ const Navbar = () => {
     const location = useLocation();
     
     // Auth & Profile Data for real initials/info
-    const { data: bootData } = useBootstrapQuery();
-    const userProfile = bootData?.profile;
+    // v16.5.11: Only trigger bootstrap if a session exists to prevent 401s for public visitors
+    const { session } = useAuth();
+    const { data: bootData } = useBootstrapQuery({ enabled: !!session });
+    const userProfile = session ? bootData?.profile : null;
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
