@@ -19,7 +19,7 @@ const Sidebar: React.FC = () => {
 
     const navItems = [
         { to: "/dashboard", icon: TrendingUp, label: "Dashboard" },
-        { to: "/dashboard", icon: FileText, label: "My Resumes" },
+        { to: "/dashboard#resumes", icon: FileText, label: "My Resumes" },
         { to: "/analytics/traffic", icon: Eye, label: "Analytics" },
         { to: "/ats-checker", icon: ShieldCheck, label: "ATS Checker", mt: true },
         { to: "/templates", icon: LayoutTemplate, label: "Templates" },
@@ -28,9 +28,19 @@ const Sidebar: React.FC = () => {
         { to: "/support", icon: HelpCircle, label: "Support" },
     ];
 
-    const isActive = (path: string) => {
-        if (path === '/dashboard') return location.pathname === '/dashboard';
-        return location.pathname.startsWith(path);
+    const isActive = (item: typeof navItems[0]) => {
+        const { to, label } = item;
+        const currentPath = location.pathname;
+        const currentHash = location.hash;
+
+        if (to === '/dashboard') {
+            return currentPath === '/dashboard' && !currentHash;
+        }
+        if (to === '/dashboard#resumes') {
+            return currentPath === '/dashboard' && currentHash === '#resumes';
+        }
+        
+        return currentPath.startsWith(to);
     };
 
     return (
@@ -39,7 +49,7 @@ const Sidebar: React.FC = () => {
             
             <nav className="flex-1 space-y-1.5 mt-4">
                 {navItems.map((item) => {
-                    const active = isActive(item.to);
+                    const active = isActive(item);
                     const isProfileLink = item.to === '/profile';
                     
                     return (

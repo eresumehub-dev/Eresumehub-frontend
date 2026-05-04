@@ -13,8 +13,8 @@ export const useAnalyticsQuery = () => {
             const result = await getDashboardAnalytics();
             return result.data;
         },
-        staleTime: 15 * 60 * 1000, 
-        gcTime: 30 * 60 * 1000,
+        staleTime: 30 * 60 * 1000, 
+        gcTime: 60 * 60 * 1000,
         retry: 1,
     });
 };

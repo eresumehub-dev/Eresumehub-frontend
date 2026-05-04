@@ -8,7 +8,7 @@ interface ActivityTimelineProps {
     activities: ActivityType[];
 }
 
-const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }) => {
+const ActivityTimeline: React.FC<ActivityTimelineProps> = React.memo(({ activities }) => {
     return (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-lg shadow-slate-200/20 overflow-hidden">
             <div className="p-5 border-b border-slate-100 flex items-center justify-between">
@@ -95,6 +95,6 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }) => {
             </div>
         </div>
     );
-};
+});
 
 export default ActivityTimeline;

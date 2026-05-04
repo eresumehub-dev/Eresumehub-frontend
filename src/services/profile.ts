@@ -182,7 +182,6 @@ export const getBootstrapData = async (): Promise<{
     data: { 
         profile: UserProfile; 
         resumes: Resume[]; 
-        analytics: AnalyticsData; 
         timestamp: string; 
     } 
 }> => {

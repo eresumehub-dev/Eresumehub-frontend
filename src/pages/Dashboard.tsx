@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
     Plus, FileText, TrendingUp, Sparkles, ArrowRight
@@ -31,9 +31,9 @@ const Dashboard: React.FC = () => {
     const { data: analyticsData } = useAnalyticsQuery();
     const { deleteResumeAction } = useResumesQuery();
 
-    const resumes = bootData?.resumes || [];
+    const resumes = useMemo(() => bootData?.resumes || [], [bootData?.resumes]);
     const userProfile = bootData?.profile;
-    const activities = analyticsData?.activities || [];
+    const activities = useMemo(() => analyticsData?.activities || [], [analyticsData?.activities]);
 
     const { 
         isOpen: isConfirmOpen, title: confirmTitle, message: confirmMessage, 
