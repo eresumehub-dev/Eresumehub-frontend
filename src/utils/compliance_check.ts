@@ -160,6 +160,18 @@ export const evaluateMarketRules = (profile: UserProfile | null, schema: MarketS
         }
     }
 
+    // Projects (Sync with backend validation)
+    if ((mandatorySections as any).projects || order.some(o => typeof o === 'string' && o.toLowerCase().includes('projects'))) {
+        const projects = profile.projects;
+        if (!projects || projects.length === 0) {
+            warnings.push({
+                id: 'projects-missing', type: 'error', title: 'Projects Required',
+                message: `Projects section is a mandatory section for ${country} (especially for freshers/students).`,
+                actionLabel: 'Add', actionLink: '/profile'
+            });
+        }
+    }
+
     // 4. Required Languages Check (Mirroring Backend Logic)
     const requiredLanguages: string[] = Array.isArray(schema.required_languages) ? schema.required_languages : [];
     const userLangs = (Array.isArray(profile.languages) ? profile.languages : []).map((l: any) => 
