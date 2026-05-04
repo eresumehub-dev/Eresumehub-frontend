@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 // Hooks
 import { useAuth } from '../context/AuthContext';
+import { useQuery } from '@tanstack/react-query';
 import {
     getProfile, createOrUpdateProfile, createProfileFromResume,
     uploadProfilePicture, UserProfile as APIUserProfile, generateSummary
@@ -92,8 +93,15 @@ const ProfileCreationMultiStep: React.FC = () => {
     const [success, setSuccess] = useState(false);
     const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
 
-    const [isLoadingProfile, setIsLoadingProfile] = useState(true);
-    const [isError, setIsError] = useState(false);
+    // Point 6: Near-instant load using React Query cache (Prefetched on Dashboard)
+    const { data: backendProfile, isLoading: isLoadingProfile, isError } = useQuery({
+        queryKey: ['fullProfile'],
+        queryFn: async () => {
+            const { profile } = await getProfile();
+            return profile;
+        },
+        staleTime: 1000 * 60 * 5, // cache for 5 minutes
+    });
 
     const [photoUploading, setPhotoUploading] = useState(false);
 
@@ -152,41 +160,27 @@ const ProfileCreationMultiStep: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        const fetchFullProfile = async () => {
-            try {
-                setIsLoadingProfile(true);
-                const { profile: backendProfile } = await getProfile(); // Hits the full graph query
-                
-                if (backendProfile) {
-                    const uiExtras = {
-                        interests: backendProfile.extras?.interests || [],
-                        awards: backendProfile.extras?.awards?.map((a: any) => typeof a === 'string' ? a : a.title) || [],
-                        publications: backendProfile.extras?.publications?.map((p: any) => typeof p === 'string' ? p : p.title) || [],
-                        volunteering: backendProfile.extras?.volunteering?.map((v: any) => typeof v === 'string' ? v : v.role + ' at ' + v.organization) || []
-                    };
+        if (backendProfile) {
+            const uiExtras = {
+                interests: backendProfile.extras?.interests || [],
+                awards: backendProfile.extras?.awards?.map((a: any) => typeof a === 'string' ? a : a.title) || [],
+                publications: backendProfile.extras?.publications?.map((p: any) => typeof p === 'string' ? p : p.title) || [],
+                volunteering: backendProfile.extras?.volunteering?.map((v: any) => typeof v === 'string' ? v : v.role + ' at ' + v.organization) || []
+            };
 
-                    setProfile({
-                        ...backendProfile,
-                        work_experiences: backendProfile.work_experiences || [],
-                        educations: backendProfile.educations || [],
-                        projects: backendProfile.projects || [],
-                        certifications: backendProfile.certifications || [],
-                        skills: backendProfile.skills || [],
-                        languages: backendProfile.languages || [],
-                        photo_url: backendProfile.photo_url || '',
-                        extras: uiExtras
-                    } as LocalUserProfile);
-                }
-            } catch (error) {
-                console.error("Failed to load full profile data", error);
-                setIsError(true);
-            } finally {
-                setIsLoadingProfile(false);
-            }
-        };
-
-        fetchFullProfile();
-    }, []);
+            setProfile({
+                ...backendProfile,
+                work_experiences: backendProfile.work_experiences || [],
+                educations: backendProfile.educations || [],
+                projects: backendProfile.projects || [],
+                certifications: backendProfile.certifications || [],
+                skills: backendProfile.skills || [],
+                languages: backendProfile.languages || [],
+                photo_url: backendProfile.photo_url || '',
+                extras: uiExtras
+            } as LocalUserProfile);
+        }
+    }, [backendProfile]);
 
     const [cropImage, setCropImage] = useState<string | null>(null);
 
