@@ -23,17 +23,41 @@ export const useResumesQuery = () => {
     const deleteMutation = useMutation({
         mutationFn: deleteResume,
         onMutate: async (id) => {
+            // Cancel outgoing refetches
             await queryClient.cancelQueries({ queryKey: ['resumes'] });
-            const previous = queryClient.getQueryData<Resume[]>(['resumes']);
+            await queryClient.cancelQueries({ queryKey: ['bootstrap'] });
+
+            const previousResumes = queryClient.getQueryData<Resume[]>(['resumes']);
+            const previousBootstrap = queryClient.getQueryData<any>(['bootstrap']);
+
+            // Optimistically update 'resumes' cache
             queryClient.setQueryData(['resumes'], (old: Resume[] | undefined) => 
                 old ? old.filter(r => r.id !== id) : []
             );
-            return { previous };
+
+            // Optimistically update 'bootstrap' cache (v16.5.10)
+            queryClient.setQueryData(['bootstrap'], (old: any) => {
+                if (!old) return old;
+                return {
+                    ...old,
+                    resumes: old.resumes?.filter((r: any) => r.id !== id) || []
+                };
+            });
+
+            return { previousResumes, previousBootstrap };
         },
         onError: (_err, _id, context) => {
-            if (context?.previous) {
-                queryClient.setQueryData(['resumes'], context.previous);
+            if (context?.previousResumes) {
+                queryClient.setQueryData(['resumes'], context.previousResumes);
             }
+            if (context?.previousBootstrap) {
+                queryClient.setQueryData(['bootstrap'], context.previousBootstrap);
+            }
+        },
+        onSettled: () => {
+            // Always refetch to ensure synchronization
+            queryClient.invalidateQueries({ queryKey: ['resumes'] });
+            queryClient.invalidateQueries({ queryKey: ['bootstrap'] });
         },
     });
 
