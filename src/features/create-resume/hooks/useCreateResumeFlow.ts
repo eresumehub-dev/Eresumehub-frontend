@@ -60,6 +60,7 @@ export const useCreateResumeFlow = () => {
             trackEvent('generation_succeeded');
             localStorage.removeItem(LS_KEY); 
             queryClient.invalidateQueries({ queryKey: ['resumes'] });
+            queryClient.invalidateQueries({ queryKey: ['bootstrap'] });
         },
         onError: (err: any) => {
             trackEvent('generation_failed', { error: err.message });

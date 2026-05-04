@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { 
     ChevronLeft, Sparkles, Check, 
@@ -18,6 +19,7 @@ import { useATSAnalysis } from '../hooks/useATSAnalysis';
 
 const ATSChecker = () => {
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const [step, setStep] = useState<'upload' | 'options' | 'analyzing' | 'results'>('upload');
     const [countries, setCountries] = useState<string[]>([]);
     const [targetCountry, setTargetCountry] = useState('United States');
@@ -79,6 +81,10 @@ const ATSChecker = () => {
                 results
             );
             toast.success("Resume created! Redirecting to editor...", { id: loadingToast });
+            
+            // ⚡ Invalidate bootstrap so the new resume appears in the dashboard
+            queryClient.invalidateQueries({ queryKey: ['bootstrap'] });
+            
             navigate(`/resume/edit/${newResume.id}`);
         } catch (err) {
             toast.error("Failed to create optimized resume", { id: loadingToast });
