@@ -7,8 +7,9 @@ import {
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Real Imports
+// Hooks
 import { useAuth } from '../context/AuthContext';
+import { useBootstrapQuery } from '../hooks/queries/useBootstrapQuery';
 import {
     getProfile, createOrUpdateProfile, createProfileFromResume,
     uploadProfilePicture, UserProfile as APIUserProfile, generateSummary
@@ -59,6 +60,29 @@ interface LocalUserProfile extends Omit<APIUserProfile, 'extras'> {
     };
 }
 
+const ProfileSkeleton = () => (
+    <div className="space-y-8 animate-pulse">
+        <div className="flex justify-between">
+            <div className="space-y-3">
+                <div className="h-8 w-48 bg-slate-200 rounded-lg" />
+                <div className="h-4 w-32 bg-slate-100 rounded-lg" />
+            </div>
+            <div className="h-10 w-36 bg-slate-200 rounded-xl" />
+        </div>
+        <div className="flex flex-col md:flex-row gap-8">
+            <div className="w-32 h-32 bg-slate-200 rounded-2xl" />
+            <div className="flex-1 space-y-5">
+                <div className="grid grid-cols-2 gap-5">
+                    <div className="h-12 bg-slate-100 rounded-xl col-span-2" />
+                    <div className="h-12 bg-slate-100 rounded-xl" />
+                    <div className="h-12 bg-slate-100 rounded-xl" />
+                </div>
+                <div className="h-32 bg-slate-100 rounded-xl" />
+            </div>
+        </div>
+    </div>
+);
+
 const ProfileCreationMultiStep: React.FC = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
@@ -68,6 +92,10 @@ const ProfileCreationMultiStep: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+
+    // Point 6: Near-instant load using React Query cache (Prefetched on Dashboard)
+    const { data: bootData, isLoading: isQueryLoading, isError } = useBootstrapQuery();
+    const isLoadingProfile = isQueryLoading;
 
     const [photoUploading, setPhotoUploading] = useState(false);
 
@@ -108,9 +136,16 @@ const ProfileCreationMultiStep: React.FC = () => {
 
     useEffect(() => {
         const fetchCountries = async () => {
+            // Check localStorage first
+            const cached = localStorage.getItem('available_countries');
+            if (cached) {
+                setAvailableCountries(JSON.parse(cached));
+                return;
+            }
             try {
                 const countries = await getAvailableCountries();
                 setAvailableCountries(countries);
+                localStorage.setItem('available_countries', JSON.stringify(countries));
             } catch (err) {
                 setAvailableCountries(['Germany', 'India', 'USA', 'UK', 'Canada']);
             }
@@ -119,36 +154,29 @@ const ProfileCreationMultiStep: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        const loadProfile = async () => {
-            try {
-                const { profile: backendProfile, exists } = await getProfile();
-                if (exists && backendProfile) {
-                    // ADAPTER: Transform Backend Objects -> Frontend Strings
-                    const uiExtras = {
-                        interests: backendProfile.extras?.interests || [],
-                        awards: backendProfile.extras?.awards?.map(a => typeof a === 'string' ? a : a.title) || [],
-                        publications: backendProfile.extras?.publications?.map(p => typeof p === 'string' ? p : p.title) || [],
-                        volunteering: backendProfile.extras?.volunteering?.map(v => typeof v === 'string' ? v : v.role + ' at ' + v.organization) || []
-                    };
+        if (bootData?.profile) {
+            const backendProfile = bootData.profile;
+            // ADAPTER: Transform Backend Objects -> Frontend Strings
+            const uiExtras = {
+                interests: backendProfile.extras?.interests || [],
+                awards: backendProfile.extras?.awards?.map(a => typeof a === 'string' ? a : a.title) || [],
+                publications: backendProfile.extras?.publications?.map(p => typeof p === 'string' ? p : p.title) || [],
+                volunteering: backendProfile.extras?.volunteering?.map(v => typeof v === 'string' ? v : v.role + ' at ' + v.organization) || []
+            };
 
-                    setProfile({
-                        ...backendProfile,
-                        work_experiences: backendProfile.work_experiences || [],
-                        educations: backendProfile.educations || [],
-                        projects: backendProfile.projects || [],
-                        certifications: backendProfile.certifications || [],
-                        skills: backendProfile.skills || [],
-                        languages: backendProfile.languages || [],
-                        photo_url: backendProfile.photo_url || '', // Explicit mapping
-                        extras: uiExtras
-                    } as LocalUserProfile);
-                }
-            } catch (err) {
-                console.error('Failed to load profile:', err);
-            }
-        };
-        loadProfile();
-    }, []);
+            setProfile({
+                ...backendProfile,
+                work_experiences: backendProfile.work_experiences || [],
+                educations: backendProfile.educations || [],
+                projects: backendProfile.projects || [],
+                certifications: backendProfile.certifications || [],
+                skills: backendProfile.skills || [],
+                languages: backendProfile.languages || [],
+                photo_url: backendProfile.photo_url || '', // Explicit mapping
+                extras: uiExtras
+            } as LocalUserProfile);
+        }
+    }, [bootData]);
 
     const [cropImage, setCropImage] = useState<string | null>(null);
 
@@ -178,7 +206,7 @@ const ProfileCreationMultiStep: React.FC = () => {
             // Critical: Update state with the SERVER returned URL, which is the public one
             setProfile(prev => ({ ...prev, photo_url }));
 
-            // Force a profile refresh to ensure consistency
+            // Force a profile refresh (Standard getProfile) to ensure consistency after photo upload
             const { profile: updatedProfile } = await getProfile();
             if (updatedProfile?.photo_url) {
                 setProfile(prev => ({ ...prev, photo_url: updatedProfile.photo_url }));
@@ -416,6 +444,18 @@ const ProfileCreationMultiStep: React.FC = () => {
     };
 
     const renderContent = () => {
+        if (isLoadingProfile) return <ProfileSkeleton />;
+        if (isError) return (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+                <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mb-4">
+                    <X className="w-8 h-8 text-destructive" />
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-2">Failed to load profile</h3>
+                <p className="text-muted-foreground mb-6">There was an issue connecting to the server. Please try refreshing the page.</p>
+                <MagneticButton onClick={() => window.location.reload()}>Refresh Page</MagneticButton>
+            </div>
+        );
+
         switch (currentStep) {
             case 1: // Personal Information
                 return (

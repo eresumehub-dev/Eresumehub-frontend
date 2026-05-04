@@ -10,9 +10,12 @@ import {
     Settings as SettingsIcon
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
+import { getBootstrapData } from '../../services/profile';
 
 const Sidebar: React.FC = () => {
     const location = useLocation();
+    const queryClient = useQueryClient();
 
     const navItems = [
         { to: "/dashboard", icon: TrendingUp, label: "Dashboard" },
@@ -37,10 +40,25 @@ const Sidebar: React.FC = () => {
             <nav className="flex-1 space-y-1.5 mt-4">
                 {navItems.map((item) => {
                     const active = isActive(item.to);
+                    const isProfileLink = item.to === '/profile';
+                    
                     return (
                         <Link
                             key={item.label}
                             to={item.to}
+                            onMouseEnter={() => {
+                                // Point 6: Prefetch bootstrap when hovering over profile link
+                                if (isProfileLink) {
+                                    queryClient.prefetchQuery({
+                                        queryKey: ['bootstrap'],
+                                        queryFn: async () => {
+                                            const response = await getBootstrapData();
+                                            return response.data;
+                                        },
+                                        staleTime: 1000 * 60 * 5, // don't re-prefetch if fresh within 5 min
+                                    });
+                                }
+                            }}
                             className={`px-4 py-2.5 rounded-[12px] font-medium text-[14px] flex items-center gap-3 transition-all ${
                                 active 
                                 ? 'bg-white shadow-[0_2px_10px_rgb(0,0,0,0.02)] text-[#1D1D1F]' 
