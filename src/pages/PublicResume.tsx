@@ -10,7 +10,6 @@ import {
     Loader2, 
     AlertCircle, 
     Check, 
-    Copy, 
     ShieldCheck,
     BadgeCheck,
     Clock,
@@ -23,7 +22,6 @@ import { getPublicResume, Resume } from '../services/resume';
 import { logView, updateViewHeartbeat, logDownload } from '../services/analytics';
 import { tracker } from '../services/tracker';
 import { useAuth } from '../context/AuthContext';
-import Footer from '../components/shared/Footer';
 
 // --- SHARED UI COMPONENTS ---
 
@@ -76,13 +74,6 @@ const PublicResume: React.FC = () => {
     // Helper: Build Initials for Avatar
     const getInitials = (name: string) => {
         return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-    };
-
-    // Logic: Copy Link
-    const handleCopyLink = () => {
-        navigator.clipboard.writeText(window.location.href);
-        setIsCopied(true);
-        setTimeout(() => setIsCopied(false), 2000);
     };
 
     // Logic: Verified Download (Staff+ Hardened)
@@ -267,7 +258,7 @@ const PublicResume: React.FC = () => {
 
             {/* Glassy Public Header - Unified with Brand Design */}
             <header className="fixed top-0 left-0 right-0 h-[72px] z-[100] glass-panel border-b border-black/[0.04]">
-                <div className="flex items-center justify-between h-full px-6 md:px-10 lg:px-12 max-w-[1800px] mx-auto w-full">
+                <div className="flex items-center justify-between h-full px-6 md:px-10 lg:px-12 max-w-[1400px] mx-auto w-full">
                     
                     <Link to="/" className="flex items-center group shrink-0">
                         <span className="text-[19px] font-bold text-[#1D1D1F] tracking-tight group-hover:opacity-70 transition-opacity">
@@ -292,7 +283,7 @@ const PublicResume: React.FC = () => {
                 </div>
             </header>
 
-            <main className="max-w-[1600px] mx-auto w-full px-4 md:px-10 lg:px-12 py-10 flex flex-col xl:flex-row gap-10 items-start">
+            <main className="max-w-[1400px] mx-auto w-full px-6 md:px-10 lg:px-12 py-16 flex flex-col xl:flex-row gap-16 items-start">
                 
                 {/* Left Column - The Artifact (PDF Viewer) */}
                 <motion.div 
@@ -484,7 +475,11 @@ const PublicResume: React.FC = () => {
             </main>
 
             {/* Official Shared Footer */}
-            <Footer />
+            <footer className="mt-auto py-12 px-6 text-center">
+                <p className="text-[13px] font-medium text-muted-foreground/60 tracking-wide">
+                    © 2026 E-ResumeHub. All rights reserved.
+                </p>
+            </footer>
         </div>
     );
 };
