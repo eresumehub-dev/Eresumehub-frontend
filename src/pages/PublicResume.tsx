@@ -239,89 +239,88 @@ const PublicResume: React.FC = () => {
     const resumeData = (resume.resume_data as any) || {};
 
     return (
-        <div className="min-h-screen bg-[#F5F5F7] flex flex-col font-ibm text-[#1D1D1F] pt-[72px] selection:bg-black/10">
+        <div className="min-h-screen bg-[#F5F5F7] gradient-mesh flex flex-col font-ibm text-[#1D1D1F] pt-[72px] selection:bg-black/10">
             {/* Import IBM Plex Sans */}
             <style dangerouslySetInnerHTML={{__html: `
                 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
                 .font-ibm { font-family: 'IBM Plex Sans', sans-serif; }
-                ::-webkit-scrollbar { width: 8px; }
-                ::-webkit-scrollbar-track { background: transparent; }
-                ::-webkit-scrollbar-thumb { background: #E5E5EA; border-radius: 10px; }
-                ::-webkit-scrollbar-thumb:hover { background: #D1D1D6; }
             `}} />
 
-            {/* Glassy Public Header */}
-            <header className="fixed top-0 left-0 right-0 h-[72px] z-[100] bg-[#F5F5F7]/80 backdrop-blur-2xl border-b border-black/[0.04]">
+            {/* Glassy Public Header - Unified with Landing Page Design */}
+            <header className="fixed top-0 left-0 right-0 h-[72px] z-[100] glass-panel border-b border-black/[0.04]">
                 <div className="flex items-center justify-between h-full px-6 md:px-10 lg:px-12 max-w-[1600px] mx-auto w-full">
                     
                     <Link to="/" className="flex items-center group shrink-0">
-                        <span className="text-[19px] font-bold text-[#1D1D1F] tracking-tight group-hover:opacity-70 transition-opacity">
-                            E-resume<span className="text-[#86868B] font-medium">hub</span>
+                        <span className="text-[20px] font-bold text-[#1D1D1F] tracking-tighter group-hover:opacity-70 transition-opacity">
+                            E-resume<span className="text-muted-foreground font-medium">hub</span>
                         </span>
                     </Link>
 
                     <div className="flex items-center gap-6">
-                        <span className="hidden md:block text-[13px] font-medium text-[#86868B] tracking-wide">
-                            Craft a resume that gets noticed
+                        <span className="hidden md:block text-[13px] font-medium text-muted-foreground tracking-wide">
+                            The future of professional sharing
                         </span>
                         <Tooltip content="Takes 2 minutes. 100% Free." position="bottom">
                             <Link 
                                 to="/signup" 
-                                className="flex items-center gap-2.5 px-5 py-2.5 bg-white border border-black/[0.06] hover:border-black/[0.12] text-[#1D1D1F] rounded-full text-[14px] font-semibold transition-all active:scale-[0.97] shadow-sm"
+                                className="flex items-center gap-2.5 px-6 py-2.5 bg-[#1D1D1F] text-white rounded-full text-[14px] font-semibold transition-all active:scale-[0.97] shadow-xl shadow-black/10 hover:shadow-black/20"
                             >
                                 Build Yours Free
-                                <ArrowRight className="w-4 h-4 text-[#86868B]" />
+                                <ArrowRight className="w-4 h-4" />
                             </Link>
                         </Tooltip>
                     </div>
                 </div>
             </header>
 
-            <main className="max-w-[1600px] mx-auto w-full px-4 md:px-10 lg:px-12 py-8 flex flex-col xl:flex-row gap-8 items-start">
+            <main className="max-w-[1600px] mx-auto w-full px-4 md:px-10 lg:px-12 py-10 flex flex-col xl:flex-row gap-10 items-start">
                 
                 {/* Left Column - The Artifact (PDF Viewer) */}
                 <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, ease: "easeOut" }}
-                    className="flex-1 w-full flex flex-col gap-4 min-w-0"
+                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                    className="flex-1 w-full flex flex-col gap-5 min-w-0"
                 >
                     <div className="flex items-center justify-between px-1">
-                        <h1 className="text-[18px] font-bold text-[#1D1D1F] tracking-tight truncate pr-4">
-                            {resume.title}
-                        </h1>
+                        <div className="flex flex-col">
+                            <h1 className="text-[22px] font-bold text-[#1D1D1F] tracking-tight truncate pr-4">
+                                {resume.title}
+                            </h1>
+                            <p className="text-[13px] text-muted-foreground font-medium">Standardized Candidate Artifact • Secure Stream</p>
+                        </div>
                         
                         <div className="hidden sm:flex items-center gap-3 shrink-0">
-                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-black/[0.03] text-[12px] font-semibold text-[#86868B]">
-                                <Globe className="w-3.5 h-3.5" /> 
-                                <span>Public View</span>
+                            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/[0.03] text-[11px] font-bold text-[#86868B] uppercase tracking-wider">
+                                <Globe className="w-3 h-3" /> 
+                                <span>Public Access</span>
                             </div>
-                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 text-[12px] font-semibold text-emerald-600 border border-emerald-100">
-                                <ShieldCheck className="w-3.5 h-3.5" /> 
-                                <span>Secure Link</span>
+                            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 text-[11px] font-bold text-emerald-600 border border-emerald-100 uppercase tracking-wider">
+                                <ShieldCheck className="w-3 h-3" /> 
+                                <span>Verified SSL</span>
                             </div>
                         </div>
                     </div>
 
                     {/* Premium Immersive PDF Stage */}
-                    <div className="w-full bg-white rounded-[24px] overflow-hidden border border-black/[0.04] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] ring-1 ring-black/[0.02] relative flex flex-col group">
+                    <div className="w-full bg-white rounded-[28px] overflow-hidden border border-black/[0.04] shadow-2xl shadow-black/5 ring-1 ring-black/[0.02] relative flex flex-col group">
                         
-                        {/* macOS Window Bar */}
-                        <div className="w-full bg-[#f6f6f6] h-11 flex items-center justify-between px-4 border-b border-black/[0.06] select-none backdrop-blur-md">
-                            <div className="flex items-center gap-2 opacity-60">
-                                <div className="w-3 h-3 rounded-full bg-[#FF5F56] border border-black/10"></div>
-                                <div className="w-3 h-3 rounded-full bg-[#FFBD2E] border border-black/10"></div>
-                                <div className="w-3 h-3 rounded-full bg-[#27C93F] border border-black/10"></div>
+                        {/* macOS Window Bar - Refined Spacing */}
+                        <div className="w-full bg-[#f6f6f6] h-12 flex items-center justify-between px-5 border-b border-black/[0.06] select-none">
+                            <div className="flex items-center gap-2 opacity-80">
+                                <div className="w-3 h-3 rounded-full bg-[#FF5F56]"></div>
+                                <div className="w-3 h-3 rounded-full bg-[#FFBD2E]"></div>
+                                <div className="w-3 h-3 rounded-full bg-[#27C93F]"></div>
                             </div>
-                            <span className="text-[#86868B] text-[12px] font-semibold tracking-wide">
-                                {resumeData.full_name?.replace(' ', '_') || 'Candidate'}_Resume.pdf
+                            <span className="text-[#86868B] text-[12px] font-bold tracking-widest uppercase">
+                                {resumeData.full_name?.replace(/\s/g, '_') || 'PROFILE'}_DOCUMENT.PDF
                             </span>
                             <div className="w-14"></div>
                         </div>
 
                         <div 
                             ref={scrollContainerRef}
-                            className="w-full h-[78vh] min-h-[750px] bg-[#EBEBEB] overflow-hidden"
+                            className="w-full h-[80vh] min-h-[800px] bg-[#EBEBEB] overflow-hidden"
                         >
                             <object
                                 data={previewUrl}
@@ -330,15 +329,15 @@ const PublicResume: React.FC = () => {
                                 title="Candidate Resume PDF"
                             >
                                 <div className="flex flex-col items-center justify-center h-full bg-white p-12 text-center">
-                                    <AlertCircle className="w-12 h-12 text-[#86868B] mb-4 opacity-20" />
-                                    <p className="text-[#86868B] font-medium text-[14px] mb-6">
-                                        Your browser doesn't support inline PDF viewing.
+                                    <AlertCircle className="w-16 h-16 text-muted-foreground/20 mb-6" />
+                                    <p className="text-muted-foreground font-medium text-[15px] mb-8">
+                                        Enhanced PDF preview requires a modern browser.
                                     </p>
                                     <button 
                                         onClick={handleVerifiedDownload}
-                                        className="px-6 py-2.5 bg-[#1D1D1F] text-white rounded-xl text-sm font-bold"
+                                        className="px-8 py-3.5 bg-[#1D1D1F] text-white rounded-2xl text-[15px] font-bold shadow-lg shadow-black/20"
                                     >
-                                        Download PDF Instead
+                                        Download Secure Copy
                                     </button>
                                 </div>
                             </object>
@@ -347,95 +346,99 @@ const PublicResume: React.FC = () => {
                 </motion.div>
 
                 {/* Right Column - The Action Hub */}
-                <aside className="w-full xl:w-[360px] flex flex-col gap-6 sticky top-[104px] shrink-0">
+                <aside className="w-full xl:w-[380px] flex flex-col gap-8 sticky top-[112px] shrink-0">
                     <motion.div 
-                        initial={{ opacity: 0, x: 20 }}
+                        initial={{ opacity: 0, x: 40 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-                        className="bg-white rounded-[24px] shadow-sm border border-black/[0.04] p-7"
+                        transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                        className="glass-panel-elevated rounded-[32px] p-8"
                     >
-                        <div className="flex items-center gap-4 mb-8">
+                        <div className="flex items-center gap-5 mb-10">
                             <div className="relative">
-                                <div className="w-[60px] h-[60px] rounded-full bg-gradient-to-b from-[#2C2C2E] to-[#1D1D1F] text-white flex items-center justify-center text-[20px] font-bold shadow-md tracking-widest ring-4 ring-white">
+                                <div className="w-[72px] h-[72px] rounded-[24px] bg-gradient-to-br from-[#2C2C2E] to-[#000000] text-white flex items-center justify-center text-[24px] font-bold shadow-2xl tracking-tighter ring-4 ring-white">
                                     {getInitials(resumeData.full_name || 'C P')}
                                 </div>
-                                <Tooltip content="Verified Member" position="top">
-                                    <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-[2px]">
-                                        <BadgeCheck className="w-5 h-5 text-blue-500" fill="#EBF5FF" />
+                                <Tooltip content="Verified Talent" position="top">
+                                    <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-1 shadow-lg border border-black/[0.04]">
+                                        <BadgeCheck className="w-6 h-6 text-indigo-600" fill="#EEF2FF" />
                                     </div>
                                 </Tooltip>
                             </div>
                             <div className="flex flex-col min-w-0">
-                                <h3 className="text-[18px] font-bold text-[#1D1D1F] leading-tight truncate tracking-tight">
+                                <h3 className="text-[20px] font-bold text-[#1D1D1F] leading-tight truncate tracking-tight">
                                     {resumeData.full_name || 'Candidate Name'}
                                 </h3>
-                                <p className="text-[14px] text-[#86868B] font-medium mt-0.5 truncate">
+                                <p className="text-[14px] text-muted-foreground font-medium mt-1 truncate">
                                     {resume.title}
                                 </p>
-                                <p className="text-[12px] text-black/40 font-medium mt-1 truncate flex items-center gap-1">
-                                    <Clock className="w-3 h-3" /> Updated {new Date(resume.updated_at).toLocaleDateString()}
-                                </p>
+                                <div className="flex items-center gap-2 mt-2">
+                                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    <p className="text-[11px] text-emerald-600 font-bold uppercase tracking-widest">Available for hire</p>
+                                </div>
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-3">
+                        <div className="flex flex-col gap-4">
                             <button 
                                 onClick={handleVerifiedDownload}
-                                className="w-full h-[52px] bg-[#1D1D1F] hover:bg-black text-white font-semibold rounded-[14px] flex items-center justify-center gap-2.5 transition-all active:scale-[0.98] group relative overflow-hidden"
+                                className="w-full h-[58px] bg-[#1D1D1F] hover:bg-black text-white font-bold rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-xl shadow-black/10 group overflow-hidden"
                             >
-                                <Download className="w-[18px] h-[18px] opacity-90 group-hover:-translate-y-0.5 transition-transform" />
-                                <span className="text-[15px]">Download Resume</span>
+                                <Download className="w-[20px] h-[20px] group-hover:-translate-y-0.5 transition-transform" />
+                                <span className="text-[16px]">Download Document</span>
                             </button>
                             
-                            <div className="flex gap-3">
+                            <div className="flex gap-4">
                                 {resumeData.email && (
                                     <a 
                                         href={`mailto:${resumeData.email}`}
-                                        className="flex-1 h-[52px] bg-white hover:bg-[#F9F9FA] border border-black/[0.08] text-[#1D1D1F] font-semibold rounded-[14px] flex items-center justify-center gap-2 transition-all"
+                                        className="flex-1 h-[58px] bg-white hover:bg-[#F9F9FA] border border-black/[0.08] text-[#1D1D1F] font-bold rounded-2xl flex items-center justify-center gap-2.5 transition-all shadow-sm"
                                     >
-                                        <Mail className="w-[18px] h-[18px] text-[#86868B]" />
-                                        <span className="text-[14px]">Email</span>
+                                        <Mail className="w-[20px] h-[20px] text-muted-foreground" />
+                                        <span className="text-[15px]">Inquire</span>
                                     </a>
                                 )}
 
                                 <Tooltip content={isCopied ? "Link Copied!" : "Copy Link"} position="top">
                                     <button 
                                         onClick={handleCopyLink}
-                                        className={`w-[52px] h-[52px] flex items-center justify-center rounded-[14px] border transition-all
-                                            ${isCopied ? 'bg-emerald-50 border-emerald-200 text-emerald-600' : 'bg-white border-black/[0.08] text-[#86868B]'}`}
+                                        className={`w-[58px] h-[58px] flex items-center justify-center rounded-2xl border transition-all shadow-sm
+                                            ${isCopied ? 'bg-emerald-50 border-emerald-200 text-emerald-600' : 'bg-white border-black/[0.08] text-muted-foreground'}`}
                                     >
-                                        {isCopied ? <Check className="w-[18px] h-[18px]" /> : <Copy className="w-[18px] h-[18px]" />}
+                                        {isCopied ? <Check className="w-[20px] h-[20px]" /> : <Copy className="w-[20px] h-[20px]" />}
                                     </button>
                                 </Tooltip>
                             </div>
                         </div>
                     </motion.div>
 
-                    {/* Guest Call to Action */}
+                    {/* Guest Call to Action - High Impact Conversion */}
                     <motion.div 
-                        initial={{ opacity: 0, y: 10 }}
+                        initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.4 }}
-                        className="p-6 bg-indigo-50/50 rounded-[24px] border border-indigo-100/50 text-center"
+                        transition={{ duration: 0.8, delay: 0.4 }}
+                        className="p-8 bg-[#1D1D1F] rounded-[32px] text-center shadow-2xl shadow-black/20 group relative overflow-hidden"
                     >
-                        <h4 className="text-[14px] font-bold text-indigo-900 mb-2">Impressed by this layout?</h4>
-                        <p className="text-[12px] text-indigo-700/70 mb-4 leading-relaxed">
-                            Join 10,000+ professionals using AI to build and share premium resumes.
+                        {/* Abstract background glow */}
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/20 blur-[60px] rounded-full"></div>
+                        
+                        <h4 className="text-[16px] font-bold text-white mb-3 relative z-10">Stand out like this.</h4>
+                        <p className="text-[13px] text-white/60 mb-6 leading-relaxed relative z-10 px-2">
+                            Join the elite 1% of talent using AI to land interviews at top companies.
                         </p>
-                        <Link to="/signup" className="text-[13px] font-bold text-indigo-600 hover:text-indigo-800 flex items-center justify-center gap-1 group">
-                            Create your profile <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                        <Link to="/signup" className="inline-flex items-center justify-center px-6 py-3 bg-white text-[#1D1D1F] rounded-full text-[14px] font-bold group-hover:scale-105 transition-transform relative z-10">
+                            Build Your Free Profile <ArrowRight className="w-4 h-4 ml-2" />
                         </Link>
                     </motion.div>
                 </aside>
             </main>
 
-            {/* Subtle Footer */}
-            <footer className="mt-auto py-12 px-6 border-t border-black/[0.04] text-center">
-                <p className="text-[11px] font-bold text-black/20 uppercase tracking-[0.4em] mb-4">Powered by E-resumehub Premium</p>
-                <div className="flex justify-center gap-6 text-[12px] font-semibold text-[#86868B]">
-                    <Link to="/about" className="hover:text-[#1D1D1F]">About</Link>
-                    <Link to="/privacy" className="hover:text-[#1D1D1F]">Privacy</Link>
-                    <Link to="/support" className="hover:text-[#1D1D1F]">Support</Link>
+            {/* Subtle Design-Aligned Footer */}
+            <footer className="mt-auto py-16 px-6 border-t border-black/[0.04] text-center">
+                <p className="text-[11px] font-bold text-black/20 uppercase tracking-[0.5em] mb-6">Designed for Excellence • E-resumehub</p>
+                <div className="flex justify-center gap-8 text-[13px] font-bold text-muted-foreground">
+                    <Link to="/about" className="hover:text-black transition-colors">Platform</Link>
+                    <Link to="/privacy" className="hover:text-black transition-colors">Trust</Link>
+                    <Link to="/support" className="hover:text-black transition-colors">Concierge</Link>
                 </div>
             </footer>
         </div>
