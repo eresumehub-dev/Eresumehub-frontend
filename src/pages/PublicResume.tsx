@@ -70,6 +70,32 @@ const PublicResume: React.FC = () => {
         }
     };
 
+    // Helper Logic: URL Building
+    const getAbsolutePdfUrl = (url: string) => {
+        if (!url) return '';
+        if (url.startsWith('http://localhost') && window.location.hostname !== 'localhost') {
+            const base = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || '';
+            try { return `${base}${new URL(url).pathname}`; } catch { return url; }
+        }
+        if (url.startsWith('http')) return url;
+        const base = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || '';
+        return `${base}${url}`;
+    };
+
+    const buildPdfUrl = (rawUrl: string, extraParams: Record<string, string>) => {
+        const absolute = getAbsolutePdfUrl(rawUrl);
+        if (!absolute) return '';
+        try {
+            const url = new URL(absolute);
+            Object.entries(extraParams).forEach(([k, v]) => url.searchParams.set(k, v));
+            return url.toString();
+        } catch {
+            return `${absolute}${absolute.includes('?') ? '&' : '?'}${new URLSearchParams(extraParams).toString()}`;
+        }
+    };
+
+    const previewUrl = resume?.pdf_url ? buildPdfUrl(resume.pdf_url, { inline: 'true', preview: 'true' }) : '';
+
     // Helper: Build Initials for Avatar
     const getInitials = (name: string) => {
         return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
@@ -107,32 +133,6 @@ const PublicResume: React.FC = () => {
             if (err.name !== 'AbortError') console.error("Download failed:", err);
         }
     };
-
-    // Helper Logic: URL Building
-    const getAbsolutePdfUrl = (url: string) => {
-        if (!url) return '';
-        if (url.startsWith('http://localhost') && window.location.hostname !== 'localhost') {
-            const base = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || '';
-            try { return `${base}${new URL(url).pathname}`; } catch { return url; }
-        }
-        if (url.startsWith('http')) return url;
-        const base = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || '';
-        return `${base}${url}`;
-    };
-
-    const buildPdfUrl = (rawUrl: string, extraParams: Record<string, string>) => {
-        const absolute = getAbsolutePdfUrl(rawUrl);
-        if (!absolute) return '';
-        try {
-            const url = new URL(absolute);
-            Object.entries(extraParams).forEach(([k, v]) => url.searchParams.set(k, v));
-            return url.toString();
-        } catch {
-            return `${absolute}${absolute.includes('?') ? '&' : '?'}${new URLSearchParams(extraParams).toString()}`;
-        }
-    };
-
-    const previewUrl = resume?.pdf_url ? buildPdfUrl(resume.pdf_url, { inline: 'true', preview: 'true' }) : '';
 
     // --- EFFECTS ---
 
@@ -280,6 +280,7 @@ const PublicResume: React.FC = () => {
                                     Build Yours - It's Free
                                     <ArrowRight className="w-4 h-4" />
                                 </Link>
+                            </Tooltip>
                         </div>
                     </div>
                 </header>
@@ -320,8 +321,8 @@ const PublicResume: React.FC = () => {
                         <div className="w-full aspect-[1/1.4] md:aspect-auto md:h-[800px] lg:h-[1000px] bg-[#525659] relative">
                             <iframe
                                 src={window.innerWidth < 768 
-                                    ? `https://docs.google.com/viewer?url=${encodeURIComponent(resume.pdf_url)}&embedded=true` 
-                                    : `${resume.pdf_url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`
+                                    ? `https://docs.google.com/viewer?url=${encodeURIComponent(resume.pdf_url || '')}&embedded=true` 
+                                    : `${previewUrl || resume.pdf_url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`
                                 }
                                 className="w-full h-full border-none"
                                 title="Resume Viewer"
