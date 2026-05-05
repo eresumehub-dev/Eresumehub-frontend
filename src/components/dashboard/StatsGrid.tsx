@@ -12,7 +12,7 @@ const StatsGrid: React.FC<StatsGridProps> = ({ analyticsData, resumeCount }) => 
     // 1. EXTRACT REAL-TIME TELEMETRY (Unified with Backend Schema)
     const totalViews = analyticsData?.summary?.total_views || 0;
     const totalDownloads = analyticsData?.summary?.total_downloads || 0;
-    const avgAtsScore = analyticsData?.summary?.power_score || 0; // Using power_score as Avg ATS proxy
+    const avgAtsScore = analyticsData?.summary?.avg_ats_score || 0;
     
     const formatTrend = (trend?: number) => {
         if (trend === undefined || trend === null) return null;

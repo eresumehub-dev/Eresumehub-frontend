@@ -9,6 +9,7 @@ export interface AnalyticsSummary {
     ttv_median: number; // Time-to-Value (v13.0.0)
     conversion_rate: number;
     power_score: number; // Based on probabilistic engagement (v13.0.0)
+    avg_ats_score?: number; // True average ATS score based on resume content
     total_resumes?: number;
     views_trend?: number;
     downloads_trend?: number;

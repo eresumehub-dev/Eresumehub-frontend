@@ -54,6 +54,8 @@ const PublicResume: React.FC = () => {
     // Analytics Refs
     const viewIdRef = useRef<string | null>(null);
     const startTimeRef = useRef<number>(Date.now());
+    const activeTimeRef = useRef<number>(0);
+    const lastVisibleAtRef = useRef<number>(Date.now());
     const analyticsInitialized = useRef(false);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const maxScrollRef = useRef<number>(0);
@@ -205,16 +207,49 @@ const PublicResume: React.FC = () => {
 
     useEffect(() => {
         if (!resume) return;
+
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                activeTimeRef.current += Date.now() - lastVisibleAtRef.current;
+            } else {
+                lastVisibleAtRef.current = Date.now();
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        const sendFinalHeartbeat = () => {
+            if (viewIdRef.current) {
+                const finalActive = document.hidden 
+                    ? activeTimeRef.current 
+                    : activeTimeRef.current + (Date.now() - lastVisibleAtRef.current);
+                const duration = Math.floor(finalActive / 1000);
+                if (duration > 0) {
+                    const baseUrl = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || '';
+                    const blob = new Blob([duration.toString()], { type: 'application/json' });
+                    navigator.sendBeacon(`${baseUrl}/analytics/view/${viewIdRef.current}/heartbeat`, blob);
+                }
+            }
+        };
+
+        window.addEventListener('beforeunload', sendFinalHeartbeat);
+
         const interval = setInterval(() => {
             if (Date.now() - lastActivityRef.current > 300000) return;
             if (!document.hidden && viewIdRef.current) {
-                const duration = Math.floor((Date.now() - startTimeRef.current) / 1000);
+                const currentActive = activeTimeRef.current + (Date.now() - lastVisibleAtRef.current);
+                const duration = Math.floor(currentActive / 1000);
                 if (duration > 0) {
                     updateViewHeartbeat(viewIdRef.current, duration).catch(() => {});
                 }
             }
         }, 10000);
-        return () => clearInterval(interval);
+        
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('beforeunload', sendFinalHeartbeat);
+            clearInterval(interval);
+            sendFinalHeartbeat();
+        };
     }, [resume]);
 
     // --- RENDERING ---
