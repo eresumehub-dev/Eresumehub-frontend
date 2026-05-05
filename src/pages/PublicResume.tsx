@@ -218,8 +218,15 @@ const PublicResume: React.FC = () => {
         );
     }
 
+    const getAbsolutePdfUrl = (url: string) => {
+        if (!url) return '';
+        if (url.startsWith('http')) return url;
+        const baseUrl = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || '';
+        return `${baseUrl}${url}`;
+    };
+
     const previewUrl = resume.pdf_url
-        ? `${resume.pdf_url}${resume.pdf_url.includes('?') ? '&' : '?'}t=${Date.now()}&inline=true`
+        ? `${getAbsolutePdfUrl(resume.pdf_url)}${resume.pdf_url.includes('?') ? '&' : '?'}t=${Date.now()}&inline=true`
         : '';
 
     const handleVerifiedDownload = async () => {
@@ -331,7 +338,7 @@ const PublicResume: React.FC = () => {
                         src={`${previewUrl}${previewUrl.includes('?') ? '&' : '?'}preview=true`}
                         className="w-full h-[1122px] border-none"
                         title="Resume View"
-                        sandbox="allow-scripts allow-same-origin"
+                        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
                         loading="lazy"
                     />
                 </div>
