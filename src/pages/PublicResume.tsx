@@ -53,7 +53,6 @@ const PublicResume: React.FC = () => {
 
     // Analytics Refs
     const viewIdRef = useRef<string | null>(null);
-    const startTimeRef = useRef<number>(Date.now());
     const activeTimeRef = useRef<number>(0);
     const lastVisibleAtRef = useRef<number>(Date.now());
     const analyticsInitialized = useRef(false);
