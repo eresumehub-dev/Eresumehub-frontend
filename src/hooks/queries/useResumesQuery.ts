@@ -58,6 +58,7 @@ export const useResumesQuery = () => {
             // Always refetch to ensure synchronization
             queryClient.invalidateQueries({ queryKey: ['resumes'] });
             queryClient.invalidateQueries({ queryKey: ['bootstrap'] });
+            queryClient.invalidateQueries({ queryKey: ['analytics'] });
         },
     });
 

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
     Plus, FileText, TrendingUp, Sparkles, ArrowRight
@@ -47,6 +47,37 @@ const Dashboard: React.FC = () => {
     const firstName = (userProfile?.full_name || user?.user_metadata?.full_name || 'there').split(' ')[0];
     const totalViews = analyticsData?.summary?.total_views || 0;
 
+    // Derived: First available resume for the recommendation
+    const handleEdit = useCallback((id: string) => navigate(`/resume/edit/${id}`), [navigate]);
+    
+    const handlePreview = useCallback((r: Resume) => {
+        if (r.pdf_url) {
+            window.open(`${r.pdf_url}${r.pdf_url.includes('?') ? '&' : '?'}inline=true`, '_blank');
+        }
+    }, []);
+
+    const handleShare = useCallback((r: Resume) => {
+        setSharingResume(r);
+        setIsShareModalOpen(true);
+    }, []);
+
+    const handleDelete = useCallback(async (id: string) => {
+        return new Promise<boolean>((resolve) => {
+            confirmAction(
+                "Delete Document?", 
+                "This cannot be undone. All activity tracking will be lost.",
+                async () => {
+                    try {
+                        await deleteResumeAction(id);
+                        resolve(true);
+                    } catch (err) {
+                        resolve(false);
+                    }
+                }
+            );
+        });
+    }, [confirmAction, deleteResumeAction]);
+    
     // Derived: First available resume for the recommendation
     const firstResume = resumes.length > 0 ? resumes[0] : null;
 
@@ -140,25 +171,10 @@ const Dashboard: React.FC = () => {
                                             <ResumeCard 
                                                 key={resume.id} 
                                                 resume={resume} 
-                                                onEdit={(id) => navigate(`/resume/edit/${id}`)}
-                                                onPreview={(r) => r.pdf_url && window.open(`${r.pdf_url}${r.pdf_url.includes('?') ? '&' : '?'}inline=true`, '_blank')}
-                                                onShare={(r) => { setSharingResume(r); setIsShareModalOpen(true); }}
-                                                onDelete={async (id) => {
-                                                    return new Promise<boolean>((resolve) => {
-                                                        confirmAction(
-                                                            "Delete Document?", 
-                                                            "This cannot be undone. All activity tracking will be lost.",
-                                                            async () => {
-                                                                try {
-                                                                    await deleteResumeAction(id);
-                                                                    resolve(true);
-                                                                } catch (err) {
-                                                                    resolve(false);
-                                                                }
-                                                            }
-                                                        );
-                                                    });
-                                                }}
+                                                onEdit={handleEdit}
+                                                onPreview={handlePreview}
+                                                onShare={handleShare}
+                                                onDelete={handleDelete}
                                             />
                                         ))}
                                     </div>

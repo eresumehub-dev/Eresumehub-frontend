@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { 
     FileText, Edit2, Share2, Trash2, Bell
 } from 'lucide-react';
@@ -12,7 +12,7 @@ interface ResumeCardProps {
     onEdit: (id: string) => void;
 }
 
-const ResumeCard: React.FC<ResumeCardProps> = ({ 
+const ResumeCard: React.FC<ResumeCardProps> = memo(({ 
     resume, onDelete, onPreview, onShare, onEdit
 }) => {
     // 1. DATA DERIVATION
@@ -98,6 +98,6 @@ const ResumeCard: React.FC<ResumeCardProps> = ({
             </div>
         </div>
     );
-};
+});
 
 export default ResumeCard;
