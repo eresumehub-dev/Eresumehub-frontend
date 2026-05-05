@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 // Hooks
 import { useAuth } from '../context/AuthContext';
 import { useQuery } from '@tanstack/react-query';
+import { useBootstrapQuery } from '../hooks/queries/useBootstrapQuery';
 import {
     getProfile, createOrUpdateProfile, createProfileFromResume,
     uploadProfilePicture, UserProfile as APIUserProfile, generateSummary
@@ -93,15 +94,21 @@ const ProfileCreationMultiStep: React.FC = () => {
     const [success, setSuccess] = useState(false);
     const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
 
-    // Point 6: Near-instant load using React Query cache (Prefetched on Dashboard)
-    const { data: backendProfile, isLoading: isLoadingProfile, isError } = useQuery({
+    // Step 1: Use Fast Bootstrap for instant skeleton & basic fields
+    const { data: bootData, isLoading: isBootLoading, isError: isBootError } = useBootstrapQuery();
+    
+    // Step 2: Use Full Profile for deep hydration (Experience, Education, etc.)
+    const { data: fullProfile, isLoading: isFullLoading, isError: isFullError } = useQuery({
         queryKey: ['fullProfile'],
         queryFn: async () => {
             const { profile } = await getProfile();
             return profile;
         },
-        staleTime: 1000 * 60 * 5, // cache for 5 minutes
+        staleTime: 1000 * 60 * 5,
     });
+
+    const isLoadingProfile = isBootLoading;
+    const isError = isBootError || (isFullError && !profile.full_name);
 
     const [photoUploading, setPhotoUploading] = useState(false);
 
@@ -159,28 +166,46 @@ const ProfileCreationMultiStep: React.FC = () => {
         fetchCountries();
     }, []);
 
+    // Effect A: Fast-track Basic Info from Bootstrap
     useEffect(() => {
-        if (backendProfile) {
+        if (bootData?.profile) {
+            const backendProfile = bootData.profile;
+            setProfile(prev => ({
+                ...prev,
+                full_name: backendProfile.full_name || prev.full_name,
+                email: backendProfile.email || prev.email,
+                phone: backendProfile.phone || prev.phone,
+                city: backendProfile.city || prev.city,
+                country: backendProfile.country || prev.country,
+                photo_url: backendProfile.photo_url || prev.photo_url,
+                professional_summary: backendProfile.professional_summary || prev.professional_summary
+            }));
+        }
+    }, [bootData]);
+
+    // Effect B: Deep Hydration from Full Profile Graph
+    useEffect(() => {
+        if (fullProfile) {
             const uiExtras = {
-                interests: backendProfile.extras?.interests || [],
-                awards: backendProfile.extras?.awards?.map((a: any) => typeof a === 'string' ? a : a.title) || [],
-                publications: backendProfile.extras?.publications?.map((p: any) => typeof p === 'string' ? p : p.title) || [],
-                volunteering: backendProfile.extras?.volunteering?.map((v: any) => typeof v === 'string' ? v : v.role + ' at ' + v.organization) || []
+                interests: fullProfile.extras?.interests || [],
+                awards: fullProfile.extras?.awards?.map((a: any) => typeof a === 'string' ? a : a.title) || [],
+                publications: fullProfile.extras?.publications?.map((p: any) => typeof p === 'string' ? p : p.title) || [],
+                volunteering: fullProfile.extras?.volunteering?.map((v: any) => typeof v === 'string' ? v : v.role + ' at ' + v.organization) || []
             };
 
             setProfile({
-                ...backendProfile,
-                work_experiences: backendProfile.work_experiences || [],
-                educations: backendProfile.educations || [],
-                projects: backendProfile.projects || [],
-                certifications: backendProfile.certifications || [],
-                skills: backendProfile.skills || [],
-                languages: backendProfile.languages || [],
-                photo_url: backendProfile.photo_url || '',
+                ...fullProfile,
+                work_experiences: fullProfile.work_experiences || [],
+                educations: fullProfile.educations || [],
+                projects: fullProfile.projects || [],
+                certifications: fullProfile.certifications || [],
+                skills: fullProfile.skills || [],
+                languages: fullProfile.languages || [],
+                photo_url: fullProfile.photo_url || '',
                 extras: uiExtras
             } as LocalUserProfile);
         }
-    }, [backendProfile]);
+    }, [fullProfile]);
 
     const [cropImage, setCropImage] = useState<string | null>(null);
 
