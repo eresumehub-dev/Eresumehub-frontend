@@ -204,13 +204,8 @@ const PublicResume: React.FC = () => {
                     }, user?.id);
 
                     // Legacy Heartbeat pulse (v12 shim)
-                    const heartbeatData = { 
-                        duration_seconds: duration,
-                        max_scroll_depth: maxScrollRef.current,
-                        is_active: !document.hidden && !isIdleRef.current
-                    };
-                    
-                    updateViewHeartbeat(viewIdRef.current, heartbeatData as any)
+                    // Fixed: passing just 'duration' as a number to match service signature
+                    updateViewHeartbeat(viewIdRef.current, duration)
                         .catch(e => console.error(`[Analytics] Heartbeat Fail`, e));
                 }
             }
@@ -257,6 +252,19 @@ const PublicResume: React.FC = () => {
 
     const getAbsolutePdfUrl = (url: string) => {
         if (!url) return '';
+        
+        // v16.5.12 Hardening: If server returns localhost but we are in production, 
+        // force override with VITE_API_URL to prevent "Refused to connect" errors.
+        if (url.startsWith('http://localhost') && window.location.hostname !== 'localhost') {
+            try {
+                const path = new URL(url).pathname;
+                const base = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || '';
+                return `${base}${path}`;
+            } catch (e) {
+                // Fallback if URL parsing fails
+            }
+        }
+
         if (url.startsWith('http')) return url;
         const base = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || '';
         return `${base}${url}`;
