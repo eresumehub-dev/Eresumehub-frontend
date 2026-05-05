@@ -11,7 +11,8 @@ import {
     Check, 
     BadgeCheck,
     Clock,
-    Linkedin
+    Linkedin,
+    FileText
 } from 'lucide-react';
 
 // Services
@@ -317,17 +318,35 @@ const PublicResume: React.FC = () => {
                             <div className="w-10 md:w-14"></div>
                         </div>
 
-                        {/* Enhanced PDF Bridge - Works on Mobile/Tablet/Desktop */}
-                        <div className="w-full aspect-[1/1.4] md:aspect-auto md:h-[800px] lg:h-[1000px] bg-[#525659] relative">
-                            <iframe
-                                src={window.innerWidth < 768 
-                                    ? `https://docs.google.com/viewer?url=${encodeURIComponent(resume.pdf_url || '')}&embedded=true` 
-                                    : `${previewUrl || resume.pdf_url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`
-                                }
-                                className="w-full h-full border-none"
+                        {/* High-Performance Native PDF Stage - Optimized for Instant Load */}
+                        <div className="w-full aspect-[1/1.4] md:aspect-auto md:h-[800px] lg:h-[1000px] bg-slate-100 relative">
+                            <object
+                                data={previewUrl}
+                                type="application/pdf"
+                                className="w-full h-full"
                                 title="Resume Viewer"
-                                loading="eager"
-                            />
+                            >
+                                {/* Elite Fallback for non-native PDF environments (Mobile/Legacy) */}
+                                <div className="flex flex-col items-center justify-center h-full p-12 text-center bg-[#f8f9fa]">
+                                    <div className="w-20 h-20 bg-black/[0.03] rounded-full flex items-center justify-center mb-6">
+                                        <FileText className="w-10 h-10 text-muted-foreground/30" />
+                                    </div>
+                                    <h4 className="text-[18px] font-bold text-[#1D1D1F] mb-3">View Resume Document</h4>
+                                    <p className="text-[#86868B] text-[14px] mb-8 max-w-[240px] mx-auto leading-relaxed">
+                                        Your browser's native viewer is ready. Tap below to open the professional PDF.
+                                    </p>
+                                    <a 
+                                        href={previewUrl} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        onClick={() => tracker.trackEvent('resume_mobile_fallback_opened', { resume_id: resume.id }, user?.id)}
+                                        className="inline-flex items-center gap-2.5 px-8 py-4 bg-[#1D1D1F] text-white rounded-2xl text-[15px] font-bold shadow-xl shadow-black/10 active:scale-[0.98] transition-all hover:bg-black"
+                                    >
+                                        Open Professional PDF
+                                        <ArrowRight className="w-4 h-4" />
+                                    </a>
+                                </div>
+                            </object>
                         </div>
                     </div>
                 </motion.div>
