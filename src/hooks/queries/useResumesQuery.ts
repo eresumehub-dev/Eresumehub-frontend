@@ -74,6 +74,8 @@ export const useResumesQuery = () => {
             );
             // Also invalidate single resume if we ever have useResumeQuery(id)
             queryClient.invalidateQueries({ queryKey: ['resume', updatedResume.id] });
+            queryClient.invalidateQueries({ queryKey: ['analytics'] });
+            queryClient.invalidateQueries({ queryKey: ['bootstrap'] });
         },
     });
 
