@@ -105,10 +105,8 @@ const ProfileCreationMultiStep: React.FC = () => {
             return profile;
         },
         staleTime: 1000 * 60 * 5,
+        enabled: !!bootData, // Only fire after bootstrap confirms the user context
     });
-
-    const isLoadingProfile = isBootLoading;
-    const isError = isBootError || (isFullError && !profile.full_name);
 
     const [photoUploading, setPhotoUploading] = useState(false);
 
@@ -142,7 +140,8 @@ const ProfileCreationMultiStep: React.FC = () => {
             publications: [],
             volunteering: []
         }
-    });
+    const isLoadingProfile = isBootLoading;
+    const isError = isBootError || (isFullError && !profile.full_name);
 
     const [availableCountries, setAvailableCountries] = useState<string[]>([]);
 
@@ -193,7 +192,8 @@ const ProfileCreationMultiStep: React.FC = () => {
                 volunteering: fullProfile.extras?.volunteering?.map((v: any) => typeof v === 'string' ? v : v.role + ' at ' + v.organization) || []
             };
 
-            setProfile({
+            setProfile(prev => ({
+                ...prev, // Keep any edits user made during loading
                 ...fullProfile,
                 work_experiences: fullProfile.work_experiences || [],
                 educations: fullProfile.educations || [],
@@ -201,9 +201,9 @@ const ProfileCreationMultiStep: React.FC = () => {
                 certifications: fullProfile.certifications || [],
                 skills: fullProfile.skills || [],
                 languages: fullProfile.languages || [],
-                photo_url: fullProfile.photo_url || '',
+                photo_url: fullProfile.photo_url || prev.photo_url || '',
                 extras: uiExtras
-            } as LocalUserProfile);
+            } as LocalUserProfile));
         }
     }, [fullProfile]);
 
