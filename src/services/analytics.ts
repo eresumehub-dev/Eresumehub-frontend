@@ -97,7 +97,10 @@ export const logView = async (data: ViewEvent) => {
 };
 
 export const updateViewHeartbeat = async (viewId: string, durationSeconds: number) => {
-    const response = await api.post(`/analytics/view/${viewId}/heartbeat`, { duration_seconds: durationSeconds });
+    // Optimization (v16.7.0): Send raw integer to bypass object-parsing overhead on backend
+    const response = await api.post(`/analytics/view/${viewId}/heartbeat`, durationSeconds, {
+        headers: { 'Content-Type': 'application/json' }
+    });
     return response.data;
 };
 

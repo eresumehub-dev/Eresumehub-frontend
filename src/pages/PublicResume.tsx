@@ -180,8 +180,13 @@ const PublicResume: React.FC = () => {
         const initTracking = async () => {
             if (isbot(navigator.userAgent)) return;
             try {
-                await tracker.trackEvent('resume_view_started', { resume_id: resume.id }, user?.id);
-                const response = await logView({ resume_id: resume.id, viewer_id: user?.id, referrer: document.referrer });
+                // Optimization (v16.7.0): Single-request initialization. 
+                // backend logs 'resume_view_started' event automatically when logView is called.
+                const response = await logView({ 
+                    resume_id: resume.id, 
+                    viewer_id: user?.id, 
+                    referrer: document.referrer 
+                });
                 if (response.success) viewIdRef.current = response.view_id;
             } catch (e) { console.error(e); }
         };
@@ -250,11 +255,6 @@ const PublicResume: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-[#F5F5F7] gradient-mesh flex flex-col font-ibm text-[#1D1D1F] pt-[72px] selection:bg-black/10">
-            {/* Import IBM Plex Sans */}
-            <style dangerouslySetInnerHTML={{__html: `
-                @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
-                .font-ibm { font-family: 'IBM Plex Sans', sans-serif; }
-            `}} />
 
             {/* Conditional Header: Official App Navbar for Members, Premium CTA for Guests */}
             {session ? (
