@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { isbot } from 'isbot';
 import { useParams, Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { 
     Download, 
     Mail, 
@@ -13,8 +13,7 @@ import {
     Copy, 
     ShieldCheck,
     BadgeCheck,
-    Clock,
-    Maximize2
+    Clock
 } from 'lucide-react';
 
 // Services
@@ -58,7 +57,6 @@ const PublicResume: React.FC = () => {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const maxScrollRef = useRef<number>(0);
     const lastActivityRef = useRef<number>(Date.now());
-    const isIdleRef = useRef<boolean>(false);
 
     const loadResume = async (u: string, s: string) => {
         try {
@@ -154,12 +152,30 @@ const PublicResume: React.FC = () => {
 
     useEffect(() => {
         if (resume) {
-            const resumeData = resume.resume_data as any;
+            const resumeData = (resume.resume_data as any) || {};
             const title = `${resumeData?.full_name || 'Resume'} - ${resume.title}`;
             const description = resumeData?.professional_summary || `View professional resume on E-resumehub.`;
-            document.title = title;
             
-            // SEO Meta tags... (already verified in previous turns)
+            document.title = title;
+
+            // Update Meta Tags for Social Sharing
+            const updateMeta = (name: string, content: string, isProperty = false) => {
+                const attr = isProperty ? 'property' : 'name';
+                let el = document.querySelector(`meta[${attr}="${name}"]`);
+                if (!el) {
+                    el = document.createElement('meta');
+                    el.setAttribute(attr, name);
+                    document.head.appendChild(el);
+                }
+                el.setAttribute('content', content);
+            };
+
+            updateMeta('description', description);
+            updateMeta('og:title', title, true);
+            updateMeta('og:description', description, true);
+            updateMeta('og:url', window.location.href, true);
+            updateMeta('twitter:title', title);
+            updateMeta('twitter:description', description);
         }
     }, [resume]);
 
