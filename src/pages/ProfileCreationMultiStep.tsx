@@ -98,7 +98,7 @@ const ProfileCreationMultiStep: React.FC = () => {
     const { data: bootData, isLoading: isBootLoading, isError: isBootError } = useBootstrapQuery();
     
     // Step 2: Use Full Profile for deep hydration (Experience, Education, etc.)
-    const { data: fullProfile, isLoading: isFullLoading, isError: isFullError } = useQuery({
+    const { data: fullProfile, isError: isFullError } = useQuery({
         queryKey: ['fullProfile'],
         queryFn: async () => {
             const { profile } = await getProfile();

@@ -1,6 +1,5 @@
 import api from './api';
 import { Resume } from './resume';
-import { AnalyticsData } from './analytics';
 
 export interface WorkExperience {
     id?: string;

@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { getProfile, getBootstrapData } from '../../services/profile';
+import { getProfile } from '../../services/profile';
 
 const Sidebar: React.FC = () => {
     const location = useLocation();
@@ -29,7 +29,7 @@ const Sidebar: React.FC = () => {
     ];
 
     const isActive = (item: typeof navItems[0]) => {
-        const { to, label } = item;
+        const { to } = item;
         const currentPath = location.pathname;
         const currentHash = location.hash;
 
