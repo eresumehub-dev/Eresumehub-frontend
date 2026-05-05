@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { 
     ArrowLeft, Clock, FileText, Globe, 
     Smartphone, Search, Loader2, AlertCircle, 
-    Zap, Target, Link as LinkIcon 
+    Zap, Target, Link as LinkIcon, Download, MousePointer2, Users
 } from 'lucide-react';
 import { 
     LineChart, Line, ResponsiveContainer 
@@ -84,7 +84,7 @@ const AnalyticsDetail: React.FC = () => {
                                 {title}
                             </h1>
                             <span className="px-3 py-1 bg-indigo-50 text-[#0A2A6B] text-[10px] font-black uppercase tracking-widest rounded-full border border-indigo-100">
-                                Decision Intelligence v13
+                                Decision Intelligence v16
                             </span>
                         </div>
                         <p className="text-slate-500 font-medium max-w-2xl">
@@ -92,7 +92,7 @@ const AnalyticsDetail: React.FC = () => {
                         </p>
                     </div>
                     
-                    {/* Behavioral Funnel (v13.0.0) */}
+                    {/* Behavioral Funnel (v16.0.0) */}
                     {data.funnel && (
                         <div className="bg-white p-4 sm:p-5 rounded-[24px] border border-slate-100 shadow-xl shadow-slate-200/10 grid grid-cols-3 sm:flex sm:gap-8 items-center divide-x divide-slate-100 sm:divide-x-0">
                             <div className="text-center px-2 sm:px-0">
@@ -111,11 +111,11 @@ const AnalyticsDetail: React.FC = () => {
                     )}
                 </div>
 
-                {/* Intelligence Stats Cards (v13.0.0) */}
+                {/* Intelligence Stats Cards (v16.5.0 Premium Redesign) */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-xl shadow-slate-200/20 group hover:border-[#0A2A6B]/20 transition-all">
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-blue-50 text-[#0A2A6B] rounded-2xl">
+                            <div className="p-3 bg-blue-50 text-[#0A2A6B] rounded-2xl group-hover:scale-110 transition-transform">
                                 <Zap className="w-6 h-6" />
                             </div>
                             <div>
@@ -123,73 +123,73 @@ const AnalyticsDetail: React.FC = () => {
                                 <p className="text-2xl font-bold text-slate-900">{data.summary.power_score}%</p>
                             </div>
                         </div>
-                        <div className="mt-4 pt-4 border-t border-slate-50">
-                            <p className="text-[10px] text-slate-400 font-medium">
-                                Probabilistic score based on duration + scroll + interactions.
-                            </p>
+                        <div className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between">
+                            <p className="text-[10px] text-slate-400 font-medium">Interaction Velocity</p>
+                            <span className="flex items-center gap-1 text-[10px] text-emerald-500 font-bold">
+                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                                Live
+                            </span>
                         </div>
                     </div>
 
                     <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-xl shadow-slate-200/20 group hover:border-emerald-500/20 transition-all">
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl">
+                            <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl group-hover:scale-110 transition-transform">
                                 <Clock className="w-6 h-6" />
                             </div>
                             <div>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Time-to-Value (TTV)</p>
-                                <p className="text-2xl font-bold text-slate-900">{data.summary.ttv_median?.toFixed(1) || '0.0'}s</p>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Avg. Session Time</p>
+                                <p className="text-2xl font-bold text-slate-900">{data.summary.avg_time_spent?.toFixed(1) || '0.0'}s</p>
                             </div>
                         </div>
                         <div className="mt-4 pt-4 border-t border-slate-50">
                             <p className="text-[10px] text-slate-400 font-medium">
-                                Median time until the first recruiter interaction/scroll.
+                                Median reading duration per visitor.
                             </p>
                         </div>
                     </div>
 
-                    <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-xl shadow-slate-200/20">
+                    <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-xl shadow-slate-200/20 group hover:border-indigo-500/20 transition-all">
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-amber-50 text-amber-600 rounded-2xl">
-                                <Smartphone className="w-6 h-6" />
+                            <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl group-hover:scale-110 transition-transform">
+                                <Download className="w-6 h-6" />
                             </div>
                             <div>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Top Platform</p>
-                                <p className="text-2xl font-bold text-slate-900 capitalize">{topDevice?.[0] || 'Desktop'}</p>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Downloads</p>
+                                <p className="text-2xl font-bold text-slate-900">{data.summary.total_downloads}</p>
                             </div>
                         </div>
                         <div className="mt-4 pt-4 border-t border-slate-50">
                             <p className="text-[10px] text-slate-400 font-medium">
-                                {topDevice ? `Yields ${Math.round(topDevice[1] * 100)}% engagement.` : 'Waiting for more traffic data.'}
+                                {data.summary.conversion_rate}% Conversion from views.
                             </p>
                         </div>
                     </div>
 
-                    <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-xl shadow-slate-200/20">
+                    <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-xl shadow-slate-200/20 group hover:border-amber-500/20 transition-all">
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl">
-                                <Target className="w-6 h-6" />
+                            <div className="p-3 bg-amber-50 text-amber-600 rounded-2xl group-hover:scale-110 transition-transform">
+                                <Users className="w-6 h-6" />
                             </div>
                             <div>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Success Prob.</p>
-                                <p className="text-2xl font-bold text-slate-900">
-                                    {(Math.max(...(data.resume_performance || []).map(r => r.success_probability), 0.1) * 100).toFixed(0)}%
-                                </p>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Unique Reach</p>
+                                <p className="text-2xl font-bold text-slate-900">{data.summary.unique_viewers}</p>
                             </div>
                         </div>
                         <div className="mt-4 pt-4 border-t border-slate-50">
                             <p className="text-[10px] text-slate-400 font-medium">
-                                Predicted download probability for your top resume.
+                                Distinct recruiter sessions captured.
                             </p>
                         </div>
                     </div>
                 </div>
 
-                {/* Predictive Performance Table (v13.0.0) */}
+                {/* Diagnostic Performance Table (v16.5.0) */}
                 <div className="bg-white rounded-[40px] border border-slate-100 shadow-2xl shadow-slate-200/30 overflow-hidden">
                     <div className="p-10 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-gradient-to-r from-white to-slate-50/50">
                         <div>
                             <h2 className="text-2xl font-bold text-slate-900">Resume Diagnostic Engine</h2>
-                            <p className="text-sm text-slate-400 font-medium mt-1">Causal-aware performance tracking and conversion prediction.</p>
+                            <p className="text-sm text-slate-400 font-medium mt-1">Real-time performance tracking and behavioral engagement metrics.</p>
                         </div>
                         <div className="relative group">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-[#0A2A6B] transition-colors" />
@@ -207,9 +207,10 @@ const AnalyticsDetail: React.FC = () => {
                             <thead>
                                 <tr className="bg-slate-50/50 border-b border-slate-100 text-slate-400">
                                     <th className="px-10 py-5 text-left text-[10px] font-black uppercase tracking-widest">Resume Artifact</th>
-                                    <th className="px-10 py-5 text-left text-[10px] font-black uppercase tracking-widest">Causal Trend</th>
-                                    <th className="px-10 py-5 text-left text-[10px] font-black uppercase tracking-widest">Engagement Score</th>
-                                    <th className="px-10 py-5 text-left text-[10px] font-black uppercase tracking-widest">Success Prob.</th>
+                                    <th className="px-10 py-5 text-left text-[10px] font-black uppercase tracking-widest text-center">Views</th>
+                                    <th className="px-10 py-5 text-left text-[10px] font-black uppercase tracking-widest text-center">Downloads</th>
+                                    <th className="px-10 py-5 text-left text-[10px] font-black uppercase tracking-widest">Engagement</th>
+                                    <th className="px-10 py-5 text-left text-[10px] font-black uppercase tracking-widest">Avg. Duration</th>
                                     <th className="px-10 py-5 text-right text-[10px] font-black uppercase tracking-widest">Actions</th>
                                 </tr>
                             </thead>
@@ -225,42 +226,34 @@ const AnalyticsDetail: React.FC = () => {
                                                     <div>
                                                         <h4 className="font-bold text-slate-900 text-base group-hover:text-[#0A2A6B] transition-colors">{item.title}</h4>
                                                         <div className="flex items-center gap-2 mt-2">
-                                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Views: {item.views}</span>
-                                                            <div className="w-1 h-1 rounded-full bg-slate-200"></div>
-                                                            {item.insight_tag && (
-                                                                <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-tighter ${
-                                                                    item.insight_tag === 'Top Performer' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' :
-                                                                    item.insight_tag === 'Discovery Friction' ? 'bg-amber-500 text-white' :
-                                                                    item.insight_tag === 'Weak Narrative' ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20' :
-                                                                    item.insight_tag === 'Trending' ? 'bg-[#0A2A6B] text-white' :
-                                                                    'bg-slate-100 text-slate-500'
-                                                                }`}>
-                                                                    {item.insight_tag}
+                                                            <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-tighter bg-slate-100 text-slate-500">
+                                                                {item.insight_tag || 'Stable'}
+                                                            </span>
+                                                            {item.downloads > 0 && (
+                                                                <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-tighter bg-emerald-50 text-emerald-600 flex items-center gap-1">
+                                                                    <Download className="w-2 h-2" />
+                                                                    Converted
                                                                 </span>
                                                             )}
                                                         </div>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-10 py-8">
-                                                <div className="w-32 h-12">
-                                                    <ResponsiveContainer width="100%" height="100%">
-                                                        <LineChart data={data.resume_trends?.[item.id] || data.trends}>
-                                                            <Line 
-                                                                type="monotone" 
-                                                                dataKey="views" 
-                                                                stroke={item.engagement_score > 0.6 ? '#10B981' : item.engagement_score < 0.3 ? '#EF4444' : '#0A2A6B'} 
-                                                                strokeWidth={3} 
-                                                                dot={false} 
-                                                                isAnimationActive={true}
-                                                            />
-                                                        </LineChart>
-                                                    </ResponsiveContainer>
+                                            <td className="px-10 py-8 text-center">
+                                                <div className="flex flex-col items-center">
+                                                    <span className="text-lg font-black text-slate-900">{item.views}</span>
+                                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Sessions</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-10 py-8 text-center">
+                                                <div className="flex flex-col items-center">
+                                                    <span className="text-lg font-black text-slate-900">{item.downloads}</span>
+                                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Files</span>
                                                 </div>
                                             </td>
                                             <td className="px-10 py-8">
                                                 <div className="flex items-center gap-3">
-                                                    <span className="text-xl font-black text-slate-900">{(item.engagement_score * 100).toFixed(0)}%</span>
+                                                    <span className="text-lg font-black text-slate-900">{(item.engagement_score * 100).toFixed(0)}%</span>
                                                     <div className="flex-1 min-w-[60px] h-2 bg-slate-100 rounded-full overflow-hidden">
                                                         <div 
                                                             className={`h-full rounded-full transition-all duration-700 ${item.engagement_score > 0.6 ? 'bg-emerald-500' : item.engagement_score > 0.4 ? 'bg-blue-500' : 'bg-slate-300'}`}
@@ -268,21 +261,11 @@ const AnalyticsDetail: React.FC = () => {
                                                         />
                                                     </div>
                                                 </div>
-                                                <p className="text-[10px] text-slate-400 mt-2 font-bold uppercase tracking-widest">Behavioral quality</p>
                                             </td>
                                             <td className="px-10 py-8">
-                                                <div className="flex flex-col gap-1">
-                                                    <div className={`text-lg font-black ${item.success_probability > 0.7 ? 'text-emerald-600' : item.success_probability > 0.4 ? 'text-blue-600' : 'text-slate-400'}`}>
-                                                        {(item.success_probability * 100).toFixed(0)}%
-                                                    </div>
-                                                    <div className="flex gap-1">
-                                                        {[1, 2, 3, 4, 5].map((s) => (
-                                                            <div 
-                                                                key={s} 
-                                                                className={`h-1 w-3 rounded-full ${s <= Math.round(item.success_probability * 5) ? (item.success_probability > 0.7 ? 'bg-emerald-500' : 'bg-blue-500') : 'bg-slate-100'}`} 
-                                                            />
-                                                        ))}
-                                                    </div>
+                                                <div className="flex items-center gap-2">
+                                                    <Clock className="w-3 h-3 text-slate-300" />
+                                                    <span className="text-base font-bold text-slate-600">{item.avg_duration || 0}s</span>
                                                 </div>
                                             </td>
                                             <td className="px-10 py-8 text-right">
@@ -297,7 +280,7 @@ const AnalyticsDetail: React.FC = () => {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={5} className="px-8 py-32 text-center">
+                                        <td colSpan={6} className="px-8 py-32 text-center">
                                             <div className="flex flex-col items-center">
                                                 <div className="p-6 bg-slate-50 rounded-[32px] mb-6">
                                                     <Search className="w-12 h-12 text-slate-200" />
@@ -315,7 +298,7 @@ const AnalyticsDetail: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Geographic and Reference Segmentation (v13.0.0) */}
+                {/* Geographic and Reference Segmentation */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* Referrer Segmentation */}
                     <div className="bg-white p-10 rounded-[32px] border border-slate-100 shadow-xl shadow-slate-200/20">
