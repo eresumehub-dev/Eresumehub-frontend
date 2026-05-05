@@ -280,70 +280,53 @@ const PublicResume: React.FC = () => {
                                     Build Yours - It's Free
                                     <ArrowRight className="w-4 h-4" />
                                 </Link>
-                            </Tooltip>
                         </div>
                     </div>
                 </header>
             )}
 
-            <main className={`max-w-[1400px] mx-auto w-full px-6 md:px-10 lg:px-12 flex flex-col xl:flex-row gap-16 items-start ${session ? 'pt-[104px] pb-16' : 'py-16'}`}>
+            <main className={`max-w-[1440px] mx-auto w-full px-4 md:px-10 lg:px-12 flex flex-col xl:flex-row gap-10 md:gap-16 items-start ${session ? 'pt-[92px] md:pt-[104px] pb-16' : 'pt-24 md:pt-16 pb-16'}`}>
                 
                 {/* Left Column - The Artifact (PDF Viewer) */}
                 <motion.div 
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                    className="flex-1 w-full flex flex-col gap-5 min-w-0"
+                    className="flex-1 w-full flex flex-col gap-6 md:gap-8 min-w-0"
                 >
-                    <div className="mb-8">
-                        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                            <div>
-                                <h1 className="text-[32px] md:text-[42px] font-bold text-[#1D1D1F] tracking-tight mb-2">
-                                    {resumeData.job_title || resumeData.title || 'Professional Resume'}
-                                </h1>
-                            </div>
-                        </div>
+                    <div className="px-1">
+                        <h1 className="text-[28px] md:text-[42px] font-bold text-[#1D1D1F] tracking-tight">
+                            {resumeData.job_title || resumeData.title || 'Professional Resume'}
+                        </h1>
                     </div>
 
                     {/* Premium Immersive PDF Stage */}
-                    <div className="w-full bg-white rounded-[28px] overflow-hidden border border-black/[0.04] shadow-2xl shadow-black/5 ring-1 ring-black/[0.02] relative flex flex-col group">
+                    <div className="w-full bg-white rounded-[24px] md:rounded-[28px] overflow-hidden border border-black/[0.04] shadow-2xl shadow-black/5 ring-1 ring-black/[0.02] relative flex flex-col group">
                         
-                        {/* macOS Window Bar - Refined Spacing */}
-                        <div className="w-full bg-[#f6f6f6] h-12 flex items-center justify-between px-5 border-b border-black/[0.06] select-none">
-                            <div className="flex items-center gap-2 opacity-80">
-                                <div className="w-3 h-3 rounded-full bg-[#FF5F56]"></div>
-                                <div className="w-3 h-3 rounded-full bg-[#FFBD2E]"></div>
-                                <div className="w-3 h-3 rounded-full bg-[#27C93F]"></div>
+                        {/* macOS Window Bar - Mobile Responsive */}
+                        <div className="w-full bg-[#f6f6f6] h-10 md:h-12 flex items-center justify-between px-4 md:px-5 border-b border-black/[0.06] select-none">
+                            <div className="flex items-center gap-1.5 md:gap-2 opacity-80">
+                                <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-[#FF5F56]"></div>
+                                <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-[#FFBD2E]"></div>
+                                <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-[#27C93F]"></div>
                             </div>
-                            <span className="text-[#86868B] text-[12px] font-bold tracking-wide">
+                            <span className="text-[#86868B] text-[10px] md:text-[12px] font-bold tracking-wide truncate max-w-[180px] px-2">
                                 {resumeData.full_name || 'Candidate'} Resume.pdf
                             </span>
-                            <div className="w-14"></div>
+                            <div className="w-10 md:w-14"></div>
                         </div>
 
-                        <div 
-                            ref={scrollContainerRef}
-                            className="w-full h-[80vh] min-h-[800px] bg-[#EBEBEB] overflow-hidden"
-                        >
-                            <object
-                                data={previewUrl}
-                                type="application/pdf"
-                                className="w-full h-full"
-                                title="Candidate Resume PDF"
-                            >
-                                <div className="flex flex-col items-center justify-center h-full bg-white p-12 text-center">
-                                    <AlertCircle className="w-16 h-16 text-muted-foreground/20 mb-6" />
-                                    <p className="text-muted-foreground font-medium text-[15px] mb-8">
-                                        Enhanced PDF preview requires a modern browser.
-                                    </p>
-                                    <button 
-                                        onClick={handleVerifiedDownload}
-                                        className="px-8 py-3.5 bg-[#1D1D1F] text-white rounded-2xl text-[15px] font-bold shadow-lg shadow-black/20"
-                                    >
-                                        Download Secure Copy
-                                    </button>
-                                </div>
-                            </object>
+                        {/* Enhanced PDF Bridge - Works on Mobile/Tablet/Desktop */}
+                        <div className="w-full aspect-[1/1.4] md:aspect-auto md:h-[800px] lg:h-[1000px] bg-[#525659] relative">
+                            <iframe
+                                src={window.innerWidth < 768 
+                                    ? `https://docs.google.com/viewer?url=${encodeURIComponent(resume.pdf_url)}&embedded=true` 
+                                    : `${resume.pdf_url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`
+                                }
+                                className="w-full h-full border-none"
+                                title="Resume Viewer"
+                                loading="eager"
+                            />
                         </div>
                     </div>
                 </motion.div>
