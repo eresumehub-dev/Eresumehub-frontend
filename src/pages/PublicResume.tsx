@@ -310,8 +310,8 @@ const PublicResume: React.FC = () => {
                                 <div className="w-3 h-3 rounded-full bg-[#FFBD2E]"></div>
                                 <div className="w-3 h-3 rounded-full bg-[#27C93F]"></div>
                             </div>
-                            <span className="text-[#86868B] text-[12px] font-bold tracking-widest uppercase">
-                                {resumeData.full_name?.replace(/\s/g, '_') || 'PROFILE'}_DOCUMENT.PDF
+                            <span className="text-[#86868B] text-[12px] font-bold tracking-wide">
+                                {resumeData.full_name || 'Candidate'} Resume.pdf
                             </span>
                             <div className="w-14"></div>
                         </div>
