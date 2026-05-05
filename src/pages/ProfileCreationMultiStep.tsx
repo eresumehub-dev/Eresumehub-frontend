@@ -140,6 +140,8 @@ const ProfileCreationMultiStep: React.FC = () => {
             publications: [],
             volunteering: []
         }
+    });
+
     const isLoadingProfile = isBootLoading;
     const isError = isBootError || (isFullError && !profile.full_name);
 
