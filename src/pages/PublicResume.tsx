@@ -6,15 +6,12 @@ import {
     Download, 
     Mail, 
     ArrowRight, 
-    Globe, 
     Loader2, 
     AlertCircle, 
     Check, 
-    ShieldCheck,
     BadgeCheck,
     Clock,
-    Linkedin,
-    MessageCircle
+    Linkedin
 } from 'lucide-react';
 
 // Services
