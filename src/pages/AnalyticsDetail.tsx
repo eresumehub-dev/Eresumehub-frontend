@@ -2,12 +2,9 @@ import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { 
     ArrowLeft, Clock, FileText, Globe, 
-    Smartphone, Search, Loader2, AlertCircle, 
-    Zap, Target, Link as LinkIcon, Download, MousePointer2, Users
+    Search, Loader2, AlertCircle, 
+    Zap, Link as LinkIcon, Download, Users
 } from 'lucide-react';
-import { 
-    LineChart, Line, ResponsiveContainer 
-} from 'recharts';
 import { useAnalyticsQuery } from '../hooks/queries/useAnalyticsQuery';
 
 const AnalyticsDetail: React.FC = () => {
@@ -65,9 +62,7 @@ const AnalyticsDetail: React.FC = () => {
 
     const sortedResumes = [...filteredResumes].sort((a, b) => b.views - a.views);
 
-    // Segmentation Insights
-    const topDevice = data.segments?.device ? 
-        Object.entries(data.segments.device).sort((a,b) => b[1] - a[1])[0] : null;
+
 
     return (
         <div className="min-h-screen bg-[#F8FAFC] p-6 lg:p-12">

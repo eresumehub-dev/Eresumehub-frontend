@@ -40,6 +40,8 @@ export interface AnalyticsData {
         engagement_score: number; // Probabilistic (v13.0.0)
         success_probability: number; // ML Predictor (v13.0.0)
         downloads: number; 
+        contact_clicks?: number;
+        avg_duration?: number;
         insight_tag?: string;
     }>;
     recommendation?: {
