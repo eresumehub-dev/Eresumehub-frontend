@@ -20,6 +20,7 @@ import { logView, updateViewHeartbeat, logDownload } from '../services/analytics
 import { tracker } from '../services/tracker';
 import { useAuth } from '../context/AuthContext';
 import Footer from '../components/shared/Footer';
+import Navbar from '../components/Navbar';
 
 // --- SHARED UI COMPONENTS ---
 
@@ -43,7 +44,7 @@ const Tooltip = ({ children, content, position = 'top' }: { children: React.Reac
 
 const PublicResume: React.FC = () => {
     const { username, slug } = useParams<{ username: string; slug: string }>();
-    const { user } = useAuth();
+    const { user, session } = useAuth();
     const [resume, setResume] = useState<Resume | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -254,34 +255,38 @@ const PublicResume: React.FC = () => {
                 .font-ibm { font-family: 'IBM Plex Sans', sans-serif; }
             `}} />
 
-            {/* Glassy Public Header - Unified with Brand Design */}
-            <header className="fixed top-0 left-0 right-0 h-[72px] z-[100] glass-panel border-b border-black/[0.04]">
-                <div className="flex items-center justify-between h-full px-6 md:px-10 lg:px-12 max-w-[1400px] mx-auto w-full">
-                    
-                    <Link to="/" className="flex items-center group shrink-0">
-                        <span className="text-[19px] font-bold text-[#1D1D1F] tracking-tight group-hover:opacity-70 transition-opacity">
-                            E-resumehub
-                        </span>
-                    </Link>
+            {/* Conditional Header: Official App Navbar for Members, Premium CTA for Guests */}
+            {session ? (
+                <Navbar />
+            ) : (
+                <header className="fixed top-0 left-0 right-0 h-[72px] z-[100] glass-panel border-b border-black/[0.04]">
+                    <div className="flex items-center justify-between h-full px-6 md:px-10 lg:px-12 max-w-[1400px] mx-auto w-full">
+                        
+                        <Link to="/" className="flex items-center group shrink-0">
+                            <span className="text-[19px] font-bold text-[#1D1D1F] tracking-tight group-hover:opacity-70 transition-opacity">
+                                E-resumehub
+                            </span>
+                        </Link>
 
-                    <div className="flex items-center gap-6">
-                        <span className="hidden md:block text-[13px] font-medium text-muted-foreground tracking-wide">
-                            Want a resume like this?
-                        </span>
-                        <Tooltip content="Takes 2 minutes. 100% Free." position="bottom">
-                            <Link 
-                                to="/signup" 
-                                className="flex items-center gap-2.5 px-6 py-2.5 bg-[#1D1D1F] text-white rounded-full text-[14px] font-semibold transition-all active:scale-[0.97] shadow-xl shadow-black/10 hover:shadow-black/20"
-                            >
-                                Build Yours - It's Free
-                                <ArrowRight className="w-4 h-4" />
-                            </Link>
-                        </Tooltip>
+                        <div className="flex items-center gap-6">
+                            <span className="hidden md:block text-[13px] font-medium text-muted-foreground tracking-wide">
+                                Want a resume like this?
+                            </span>
+                            <Tooltip content="Takes 2 minutes. 100% Free." position="bottom">
+                                <Link 
+                                    to="/signup" 
+                                    className="flex items-center gap-2.5 px-6 py-2.5 bg-[#1D1D1F] text-white rounded-full text-[14px] font-semibold transition-all active:scale-[0.97] shadow-xl shadow-black/10 hover:shadow-black/20"
+                                >
+                                    Build Yours - It's Free
+                                    <ArrowRight className="w-4 h-4" />
+                                </Link>
+                            </Tooltip>
+                        </div>
                     </div>
-                </div>
-            </header>
+                </header>
+            )}
 
-            <main className="max-w-[1400px] mx-auto w-full px-6 md:px-10 lg:px-12 py-16 flex flex-col xl:flex-row gap-16 items-start">
+            <main className={`max-w-[1400px] mx-auto w-full px-6 md:px-10 lg:px-12 flex flex-col xl:flex-row gap-16 items-start ${session ? 'pt-[104px] pb-16' : 'py-16'}`}>
                 
                 {/* Left Column - The Artifact (PDF Viewer) */}
                 <motion.div 
