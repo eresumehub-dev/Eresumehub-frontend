@@ -394,7 +394,7 @@ const PublicResume: React.FC = () => {
                                     </div>
                                     <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-bold uppercase tracking-widest">
                                         <Clock className="w-3 h-3" />
-                                        <span>Updated {new Date(resume.updated_at || resume.created_at).toLocaleDateString()}</span>
+                                        <span>Updated {new Date((resume.updated_at || resume.created_at) as string).toLocaleDateString()}</span>
                                     </div>
                                 </div>
                             </div>
