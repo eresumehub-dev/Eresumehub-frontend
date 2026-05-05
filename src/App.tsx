@@ -62,11 +62,11 @@ function App() {
                 </Route>
             </Route>
 
-            {/* v16.5.11: Public Resume View (Standalone - No standard Navbar) */}
-            <Route path="/:username/:slug" element={<Suspense fallback={<PageLoader />}><PublicResume /></Suspense>} />
-            
             {/* v16.6.0: Premium "At" Handle Route (e.g., /@johndoe/resume-slug) */}
             <Route path="/@:username/:slug" element={<Suspense fallback={<PageLoader />}><PublicResume /></Suspense>} />
+
+            {/* v16.5.11: Public Resume View (Standalone - No standard Navbar) */}
+            <Route path="/:username/:slug" element={<Suspense fallback={<PageLoader />}><PublicResume /></Suspense>} />
         </Routes>
     )
 }

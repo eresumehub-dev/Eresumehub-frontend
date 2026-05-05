@@ -74,7 +74,9 @@ const PublicResume: React.FC = () => {
 
     useEffect(() => {
         if (username && slug) {
-            loadResume(username, slug);
+            // v16.6.1 Hardening: Strip leading @ if it leaked through the router
+            const cleanUsername = username.startsWith('@') ? username.substring(1) : username;
+            loadResume(cleanUsername, slug);
         }
     }, [username, slug]);
 
