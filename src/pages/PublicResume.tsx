@@ -22,6 +22,7 @@ import { getPublicResume, Resume } from '../services/resume';
 import { logView, updateViewHeartbeat, logDownload } from '../services/analytics';
 import { tracker } from '../services/tracker';
 import { useAuth } from '../context/AuthContext';
+import Footer from '../components/shared/Footer';
 
 // --- SHARED UI COMPONENTS ---
 
@@ -474,12 +475,8 @@ const PublicResume: React.FC = () => {
                 </aside>
             </main>
 
-            {/* Official Shared Footer */}
-            <footer className="mt-auto py-12 px-6 text-center">
-                <p className="text-[13px] font-medium text-muted-foreground/60 tracking-wide">
-                    © 2026 E-ResumeHub. All rights reserved.
-                </p>
-            </footer>
+            {/* Official Shared Footer (Minimal Mode) */}
+            <Footer minimal />
         </div>
     );
 };
