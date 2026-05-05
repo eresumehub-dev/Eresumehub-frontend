@@ -13,7 +13,9 @@ import {
     Copy, 
     ShieldCheck,
     BadgeCheck,
-    Clock
+    Clock,
+    Linkedin,
+    MessageCircle
 } from 'lucide-react';
 
 // Services
@@ -410,26 +412,52 @@ const PublicResume: React.FC = () => {
                                 <span className="text-[16px]">Download Document</span>
                             </button>
                             
-                            <div className="flex gap-4">
-                                {resumeData.email && (
-                                    <a 
-                                        href={`mailto:${resumeData.email}`}
-                                        className="flex-1 h-[58px] bg-white hover:bg-[#F9F9FA] border border-black/[0.08] text-[#1D1D1F] font-bold rounded-2xl flex items-center justify-center gap-2.5 transition-all shadow-sm"
-                                    >
-                                        <Mail className="w-[20px] h-[20px] text-muted-foreground" />
-                                        <span className="text-[15px]">Inquire</span>
-                                    </a>
-                                )}
+                            <div className="grid grid-cols-3 gap-3">
+                                {resumeData.personalInfo?.phone || resumeData.contact?.phone || resumeData.phone ? (
+                                    <Tooltip content="Chat on WhatsApp" position="top">
+                                        <a 
+                                            href={`https://wa.me/${(resumeData.personalInfo?.phone || resumeData.contact?.phone || resumeData.phone).replace(/\D/g, '')}?text=${encodeURIComponent(`Hi ${resumeData.full_name || 'there'}, I saw your resume on E-resumehub and I'm interested in discussing opportunities with you.`)}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="w-full h-[58px] flex items-center justify-center rounded-2xl bg-[#25D366]/[0.08] hover:bg-[#25D366]/[0.12] border border-[#25D366]/[0.1] text-[#128C7E] transition-all shadow-sm"
+                                        >
+                                            <MessageCircle className="w-[22px] h-[22px] fill-[#25D366]/10" />
+                                        </a>
+                                    </Tooltip>
+                                ) : null}
 
-                                <Tooltip content={isCopied ? "Link Copied!" : "Copy Link"} position="top">
-                                    <button 
-                                        onClick={handleCopyLink}
-                                        className={`w-[58px] h-[58px] flex items-center justify-center rounded-2xl border transition-all shadow-sm
-                                            ${isCopied ? 'bg-emerald-50 border-emerald-200 text-emerald-600' : 'bg-white border-black/[0.08] text-muted-foreground'}`}
-                                    >
-                                        {isCopied ? <Check className="w-[20px] h-[20px]" /> : <Copy className="w-[20px] h-[20px]" />}
-                                    </button>
-                                </Tooltip>
+                                {(resumeData.personalInfo?.linkedin || resumeData.contact?.linkedin || resumeData.linkedin) ? (
+                                    <Tooltip content="View LinkedIn" position="top">
+                                        <a 
+                                            href={(resumeData.personalInfo?.linkedin || resumeData.contact?.linkedin || resumeData.linkedin).startsWith('http') 
+                                                ? (resumeData.personalInfo?.linkedin || resumeData.contact?.linkedin || resumeData.linkedin)
+                                                : `https://linkedin.com/in/${(resumeData.personalInfo?.linkedin || resumeData.contact?.linkedin || resumeData.linkedin)}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="w-full h-[58px] flex items-center justify-center rounded-2xl bg-[#0077B5]/[0.08] hover:bg-[#0077B5]/[0.12] border border-[#0077B5]/[0.1] text-[#0077B5] transition-all shadow-sm"
+                                        >
+                                            <Linkedin className="w-[22px] h-[22px] fill-[#0077B5]/10" />
+                                        </a>
+                                    </Tooltip>
+                                ) : null}
+
+                                {(resumeData.email || resumeData.personalInfo?.email || resumeData.contact?.email) ? (
+                                    <Tooltip content={isCopied ? "Email Copied!" : "Send Email"} position="top">
+                                        <button 
+                                            onClick={() => {
+                                                const email = resumeData.email || resumeData.personalInfo?.email || resumeData.contact?.email;
+                                                navigator.clipboard.writeText(email);
+                                                setIsCopied(true);
+                                                setTimeout(() => setIsCopied(false), 2000);
+                                                window.location.href = `mailto:${email}`;
+                                            }}
+                                            className={`w-full h-[58px] flex items-center justify-center rounded-2xl border transition-all shadow-sm
+                                                ${isCopied ? 'bg-emerald-50 border-emerald-200 text-emerald-600' : 'bg-white border-black/[0.08] text-muted-foreground hover:bg-[#F9F9FA]'}`}
+                                        >
+                                            {isCopied ? <Check className="w-[22px] h-[22px]" /> : <Mail className="w-[22px] h-[22px]" />}
+                                        </button>
+                                    </Tooltip>
+                                ) : null}
                             </div>
                         </div>
                     </motion.div>
