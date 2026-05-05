@@ -36,6 +36,43 @@ const PublicResume: React.FC = () => {
     };
 
     useEffect(() => {
+        if (resume) {
+            // Update page metadata for SEO and Social Sharing (Improvement #4)
+            const resumeData = resume.resume_data as any;
+            const title = `${resumeData?.full_name || 'Resume'} - ${resume.title}`;
+            const description = resumeData?.professional_summary || `View the professional resume of ${resumeData?.full_name || 'this candidate'} on EResumeHub.`;
+            
+            document.title = title;
+            
+            // Helper to update or create meta tags
+            const updateMeta = (name: string, content: string, isProperty = false) => {
+                const attr = isProperty ? 'property' : 'name';
+                let el = document.querySelector(`meta[${attr}="${name}"]`);
+                if (!el) {
+                    el = document.createElement('meta');
+                    el.setAttribute(attr, name);
+                    document.head.appendChild(el);
+                }
+                el.setAttribute('content', content);
+            };
+
+            updateMeta('description', description);
+            updateMeta('og:title', title, true);
+            updateMeta('og:description', description, true);
+            updateMeta('og:type', 'website', true);
+            updateMeta('og:url', window.location.href, true);
+            
+            // Generic placeholder for social preview
+            const placeholderImg = `${window.location.origin}/og-resume-preview.png`;
+            updateMeta('og:image', placeholderImg, true);
+            updateMeta('twitter:card', 'summary_large_image');
+            updateMeta('twitter:title', title);
+            updateMeta('twitter:description', description);
+            updateMeta('twitter:image', placeholderImg);
+        }
+    }, [resume]);
+
+    useEffect(() => {
         if (username && slug) {
             loadResume(username, slug);
         }
@@ -221,12 +258,25 @@ const PublicResume: React.FC = () => {
     const getAbsolutePdfUrl = (url: string) => {
         if (!url) return '';
         if (url.startsWith('http')) return url;
-        const baseUrl = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || '';
-        return `${baseUrl}${url}`;
+        const base = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || '';
+        return `${base}${url}`;
+    };
+
+    const buildPdfUrl = (rawUrl: string, extraParams: Record<string, string>) => {
+        const absolute = getAbsolutePdfUrl(rawUrl);
+        if (!absolute) return '';
+        try {
+            const url = new URL(absolute);
+            Object.entries(extraParams).forEach(([k, v]) => url.searchParams.set(k, v));
+            return url.toString();
+        } catch {
+            const connector = absolute.includes('?') ? '&' : '?';
+            return `${absolute}${connector}${new URLSearchParams(extraParams).toString()}`;
+        }
     };
 
     const previewUrl = resume.pdf_url
-        ? `${getAbsolutePdfUrl(resume.pdf_url)}${resume.pdf_url.includes('?') ? '&' : '?'}t=${Date.now()}&inline=true`
+        ? buildPdfUrl(resume.pdf_url, { inline: 'true', preview: 'true' })
         : '';
 
     const handleVerifiedDownload = async () => {
@@ -334,13 +384,24 @@ const PublicResume: React.FC = () => {
                         });
                     }}
                 >
-                    <iframe
-                        src={`${previewUrl}${previewUrl.includes('?') ? '&' : '?'}preview=true`}
-                        className="w-full h-[1122px] border-none"
-                        title="Resume View"
-                        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
-                        loading="lazy"
-                    />
+                    <object
+                        data={previewUrl}
+                        type="application/pdf"
+                        className="w-full h-[1122px]"
+                        title="Resume PDF Viewer"
+                    >
+                        <div className="flex flex-col items-center justify-center p-16 text-center bg-slate-50">
+                            <p className="text-slate-500 mb-6">Your browser doesn't support inline PDF viewing.</p>
+                            <a
+                                href={previewUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-8 py-3 bg-[#0A2A6B] text-white rounded-xl font-bold"
+                            >
+                                Download PDF Instead
+                            </a>
+                        </div>
+                    </object>
                 </div>
             </div>
 

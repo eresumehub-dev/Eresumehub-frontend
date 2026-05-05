@@ -30,7 +30,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ resume, username, onClose, onUp
         }
     });
 
-    const publicUrl = `${window.location.origin}/${username}/${resume.slug}`;
+    const publicUrl = `${window.location.origin}/@${username}/${resume.slug}`;
 
     const handleVisibilityChange = (newVal: 'public' | 'unlisted' | 'private') => {
         mutation.mutate(newVal);
