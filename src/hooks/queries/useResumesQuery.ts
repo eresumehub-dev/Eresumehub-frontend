@@ -36,11 +36,14 @@ export const useResumesQuery = () => {
             );
 
             // Optimistically update 'bootstrap' cache (v16.5.10)
+            // This ensures the Dashboard (which observes bootstrap) updates instantly
             queryClient.setQueryData(['bootstrap'], (old: any) => {
                 if (!old) return old;
                 return {
                     ...old,
-                    resumes: old.resumes?.filter((r: any) => r.id !== id) || []
+                    resumes: Array.isArray(old.resumes) 
+                        ? old.resumes.filter((r: any) => r.id !== id) 
+                        : []
                 };
             });
 
