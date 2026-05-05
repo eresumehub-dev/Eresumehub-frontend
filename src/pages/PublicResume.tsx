@@ -387,9 +387,15 @@ const PublicResume: React.FC = () => {
                                 <p className="text-[14px] text-muted-foreground font-medium mt-1 truncate">
                                     {resume.title}
                                 </p>
-                                <div className="flex items-center gap-2 mt-2">
-                                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                    <p className="text-[11px] text-emerald-600 font-bold uppercase tracking-widest">Available for hire</p>
+                                <div className="flex flex-col gap-2 mt-3">
+                                    <div className="flex items-center gap-2">
+                                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                        <p className="text-[11px] text-emerald-600 font-bold uppercase tracking-widest">Available for hire</p>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-bold uppercase tracking-widest">
+                                        <Clock className="w-3 h-3" />
+                                        <span>Updated {new Date(resume.updated_at).toLocaleDateString()}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
