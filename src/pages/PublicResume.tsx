@@ -391,6 +391,7 @@ const PublicResume: React.FC = () => {
                                             href={`https://wa.me/${(resumeData.personalInfo?.phone || resumeData.contact?.phone || resumeData.phone).replace(/\D/g, '')}?text=${encodeURIComponent(`Hi ${resumeData.full_name || 'there'}, I saw your resume on E-resumehub and I'm interested in discussing opportunities with you.`)}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
+                                            onClick={() => tracker.trackEvent('contact_whatsapp_clicked', { resume_id: resume.id }, user?.id)}
                                             className="w-full h-[58px] flex items-center justify-center rounded-2xl bg-[#25D366]/[0.08] hover:bg-[#25D366]/[0.12] border border-[#25D366]/[0.1] text-[#128C7E] transition-all shadow-sm group"
                                         >
                                             <svg className="w-[24px] h-[24px] fill-[#25D366] group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
@@ -408,6 +409,7 @@ const PublicResume: React.FC = () => {
                                                 : `https://linkedin.com/in/${(resumeData.personalInfo?.linkedin || resumeData.contact?.linkedin || resumeData.linkedin)}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
+                                            onClick={() => tracker.trackEvent('contact_linkedin_clicked', { resume_id: resume.id }, user?.id)}
                                             className="w-full h-[58px] flex items-center justify-center rounded-2xl bg-[#0077B5]/[0.08] hover:bg-[#0077B5]/[0.12] border border-[#0077B5]/[0.1] text-[#0077B5] transition-all shadow-sm"
                                         >
                                             <Linkedin className="w-[22px] h-[22px] fill-[#0077B5]/10" />
@@ -423,6 +425,7 @@ const PublicResume: React.FC = () => {
                                                 navigator.clipboard.writeText(email);
                                                 setIsCopied(true);
                                                 setTimeout(() => setIsCopied(false), 2000);
+                                                tracker.trackEvent('contact_email_clicked', { resume_id: resume.id }, user?.id);
                                                 window.location.href = `mailto:${email}`;
                                             }}
                                             className={`w-full h-[58px] flex items-center justify-center rounded-2xl border transition-all shadow-sm

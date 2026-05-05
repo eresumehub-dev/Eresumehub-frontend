@@ -209,6 +209,7 @@ const AnalyticsDetail: React.FC = () => {
                                     <th className="px-10 py-5 text-left text-[10px] font-black uppercase tracking-widest">Resume Artifact</th>
                                     <th className="px-10 py-5 text-left text-[10px] font-black uppercase tracking-widest text-center">Views</th>
                                     <th className="px-10 py-5 text-left text-[10px] font-black uppercase tracking-widest text-center">Downloads</th>
+                                    <th className="px-10 py-5 text-left text-[10px] font-black uppercase tracking-widest text-center">Recruiter Actions</th>
                                     <th className="px-10 py-5 text-left text-[10px] font-black uppercase tracking-widest">Engagement</th>
                                     <th className="px-10 py-5 text-left text-[10px] font-black uppercase tracking-widest">Avg. Duration</th>
                                     <th className="px-10 py-5 text-right text-[10px] font-black uppercase tracking-widest">Actions</th>
@@ -251,6 +252,12 @@ const AnalyticsDetail: React.FC = () => {
                                                     <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Files</span>
                                                 </div>
                                             </td>
+                                            <td className="px-10 py-8 text-center">
+                                                <div className="flex flex-col items-center">
+                                                    <span className="text-lg font-black text-indigo-600">{item.contact_clicks || 0}</span>
+                                                    <span className="text-[9px] font-bold text-indigo-400 uppercase tracking-widest mt-1">Clicks</span>
+                                                </div>
+                                            </td>
                                             <td className="px-10 py-8">
                                                 <div className="flex items-center gap-3">
                                                     <span className="text-lg font-black text-slate-900">{(item.engagement_score * 100).toFixed(0)}%</span>
@@ -280,7 +287,7 @@ const AnalyticsDetail: React.FC = () => {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={6} className="px-8 py-32 text-center">
+                                        <td colSpan={7} className="px-8 py-32 text-center">
                                             <div className="flex flex-col items-center">
                                                 <div className="p-6 bg-slate-50 rounded-[32px] mb-6">
                                                     <Search className="w-12 h-12 text-slate-200" />
