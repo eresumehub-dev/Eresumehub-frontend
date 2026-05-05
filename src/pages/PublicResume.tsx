@@ -21,6 +21,7 @@ import { getPublicResume, Resume } from '../services/resume';
 import { logView, updateViewHeartbeat, logDownload } from '../services/analytics';
 import { tracker } from '../services/tracker';
 import { useAuth } from '../context/AuthContext';
+import Footer from '../components/shared/Footer';
 
 // --- SHARED UI COMPONENTS ---
 
@@ -262,26 +263,26 @@ const PublicResume: React.FC = () => {
                 .font-ibm { font-family: 'IBM Plex Sans', sans-serif; }
             `}} />
 
-            {/* Glassy Public Header - Unified with Landing Page Design */}
+            {/* Glassy Public Header - Unified with Brand Design */}
             <header className="fixed top-0 left-0 right-0 h-[72px] z-[100] glass-panel border-b border-black/[0.04]">
-                <div className="flex items-center justify-between h-full px-6 md:px-10 lg:px-12 max-w-[1600px] mx-auto w-full">
+                <div className="flex items-center justify-between h-full px-6 md:px-10 lg:px-12 max-w-[1800px] mx-auto w-full">
                     
                     <Link to="/" className="flex items-center group shrink-0">
-                        <span className="text-[20px] font-bold text-[#1D1D1F] tracking-tighter group-hover:opacity-70 transition-opacity">
-                            E-resume<span className="text-muted-foreground font-medium">hub</span>
+                        <span className="text-[19px] font-bold text-[#1D1D1F] tracking-tight group-hover:opacity-70 transition-opacity">
+                            E-resumehub
                         </span>
                     </Link>
 
                     <div className="flex items-center gap-6">
                         <span className="hidden md:block text-[13px] font-medium text-muted-foreground tracking-wide">
-                            The future of professional sharing
+                            Want a resume like this?
                         </span>
                         <Tooltip content="Takes 2 minutes. 100% Free." position="bottom">
                             <Link 
                                 to="/signup" 
                                 className="flex items-center gap-2.5 px-6 py-2.5 bg-[#1D1D1F] text-white rounded-full text-[14px] font-semibold transition-all active:scale-[0.97] shadow-xl shadow-black/10 hover:shadow-black/20"
                             >
-                                Build Yours Free
+                                Build Yours - It's Free
                                 <ArrowRight className="w-4 h-4" />
                             </Link>
                         </Tooltip>
@@ -454,15 +455,8 @@ const PublicResume: React.FC = () => {
                 </aside>
             </main>
 
-            {/* Subtle Design-Aligned Footer */}
-            <footer className="mt-auto py-16 px-6 border-t border-black/[0.04] text-center">
-                <p className="text-[11px] font-bold text-black/20 uppercase tracking-[0.5em] mb-6">Designed for Excellence • E-resumehub</p>
-                <div className="flex justify-center gap-8 text-[13px] font-bold text-muted-foreground">
-                    <Link to="/about" className="hover:text-black transition-colors">Platform</Link>
-                    <Link to="/privacy" className="hover:text-black transition-colors">Trust</Link>
-                    <Link to="/support" className="hover:text-black transition-colors">Concierge</Link>
-                </div>
-            </footer>
+            {/* Official Shared Footer */}
+            <Footer />
         </div>
     );
 };
