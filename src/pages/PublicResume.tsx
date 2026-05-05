@@ -187,10 +187,10 @@ const PublicResume: React.FC = () => {
         initTracking();
 
         const handleScroll = () => {
-            if (!scrollContainerRef.current) return;
-            const el = scrollContainerRef.current;
+            const el = scrollContainerRef.current || document.documentElement;
             const pct = el.scrollTop / (el.scrollHeight - el.clientHeight);
             if (pct > maxScrollRef.current) maxScrollRef.current = Math.min(1, parseFloat(pct.toFixed(2)));
+            lastActivityRef.current = Date.now();
         };
         
         window.addEventListener('scroll', handleScroll, true);
