@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Check, X, Briefcase } from 'lucide-react';
 import executivePreview from '../assets/executive.jpg';
 
