@@ -19,7 +19,7 @@ const Sidebar: React.FC = () => {
 
     const navItems = [
         { to: "/dashboard", icon: TrendingUp, label: "Dashboard" },
-        { to: "/dashboard#resumes", icon: FileText, label: "My Resumes" },
+        { to: "/dashboard/resumes", icon: FileText, label: "My Resumes" },
         { to: "/analytics/traffic", icon: Eye, label: "Analytics" },
         { to: "/ats-checker", icon: ShieldCheck, label: "ATS Checker", mt: true },
         { to: "/templates", icon: LayoutTemplate, label: "Templates" },
@@ -34,13 +34,10 @@ const Sidebar: React.FC = () => {
         const currentHash = location.hash;
 
         if (to === '/dashboard') {
-            return currentPath === '/dashboard' && !currentHash;
-        }
-        if (to === '/dashboard#resumes') {
-            return currentPath === '/dashboard' && currentHash === '#resumes';
+            return currentPath === '/dashboard';
         }
         
-        return currentPath.startsWith(to);
+        return currentPath === to || currentPath.startsWith(to + '/');
     };
 
     return (

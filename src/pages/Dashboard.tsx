@@ -30,7 +30,7 @@ const Dashboard: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const isResumesView = location.hash === '#resumes';
+    const isResumesView = location.pathname === '/dashboard/resumes';
 
     const { data: bootData, isLoading: bootLoading } = useBootstrapQuery();
     const { data: analyticsData } = useAnalyticsQuery();

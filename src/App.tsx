@@ -50,7 +50,7 @@ function App() {
 
                 {/* Protected Workspace Routes */}
                 <Route element={<ProtectedRoute />}>
-                    <Route path="dashboard" element={<Suspense fallback={<PageLoader />}><Dashboard /></Suspense>} />
+                    <Route path="dashboard/*" element={<Suspense fallback={<PageLoader />}><Dashboard /></Suspense>} />
                     <Route path="analytics/:type" element={<Suspense fallback={<PageLoader />}><AnalyticsDetail /></Suspense>} />
                     <Route path="profile" element={<Suspense fallback={<PageLoader />}><ProfileCreationMultiStep /></Suspense>} />
                     <Route path="upload-resume" element={<Suspense fallback={<PageLoader />}><ResumeUploadWizard /></Suspense>} />
