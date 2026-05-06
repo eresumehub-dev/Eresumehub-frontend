@@ -112,7 +112,7 @@ const Dashboard: React.FC = () => {
         <div className="bg-[#F5F5F7] min-h-[calc(100vh-90px)] relative antialiased text-[#1D1D1F] pt-[90px]">
             <Sidebar />
 
-            <main className="flex-1 lg:ml-64 p-4 sm:p-6 md:p-10 lg:p-12 xl:p-16 pb-24 max-w-[1600px] mx-auto w-full">
+            <main className="flex-1 lg:ml-64 p-4 sm:p-6 md:p-10 lg:p-12 xl:p-16 pb-40 max-w-[1600px] mx-auto w-full">
                 <motion.div 
                     variants={containerVariants}
                     initial="hidden"
@@ -207,7 +207,7 @@ const Dashboard: React.FC = () => {
                                     </div>
 
                                     {/* Activity Feed */}
-                                    <div className="mt-12 mb-12">
+                                    <div className="mt-12 mb-20">
                                         <ActivityTimeline activities={activities} />
                                     </div>
                                 </div>
