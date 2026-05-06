@@ -51,7 +51,7 @@ const Navbar = () => {
 
     const navLinks = [
         { name: "Dashboard", icon: <LayoutDashboard className="w-4 h-4" />, href: "/dashboard" },
-        { name: "My Resumes", icon: <FileText className="w-4 h-4" />, href: "/dashboard" },
+        { name: "My Resumes", icon: <FileText className="w-4 h-4" />, href: "/dashboard#resumes" },
         { name: "Analytics", icon: <TrendingUp className="w-4 h-4" />, href: "/analytics/traffic" },
         { name: "ATS Scanner", icon: <ScanSearch className="w-4 h-4" />, href: "/ats-checker" },
         { name: "Templates", icon: <HelpCircle className="w-4 h-4" />, href: "/templates" }
