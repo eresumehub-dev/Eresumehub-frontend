@@ -184,7 +184,16 @@ const ResumeEditor: React.FC = () => {
             queryClient.invalidateQueries({ queryKey: ['resumes'] });
 
             if (variables.regenerate_pdf) {
-                setPreviewTimestamp(Date.now());
+                // Let the user know the PDF is rendering
+                toast('Rendering updated PDF...', 'info');
+                
+                // Add a 4-second delay to allow the backend PDF pipeline to finish and upload
+                setTimeout(() => {
+                    setPreviewTimestamp(Date.now());
+                    toast('PDF updated successfully!', 'success');
+                }, 4000); 
+
+                // Keep the score history fetch slightly after the PDF
                 setTimeout(async () => {
                     if (!id) return;
                     try {
@@ -193,10 +202,8 @@ const ResumeEditor: React.FC = () => {
                             setCurrentScore(scores[0].score);
                             setScoreHistory(scores);
                         }
-                    } catch {
-                        // Silently ignore score refresh failures
-                    }
-                }, 2000);
+                    } catch {}
+                }, 5000);
             }
         },
         // FIX #8: Don't access updateMutation.variables here — use the closure variable
