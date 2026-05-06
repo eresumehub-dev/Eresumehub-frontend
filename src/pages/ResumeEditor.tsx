@@ -188,9 +188,18 @@ const ResumeEditor: React.FC = () => {
                 toast('Rendering updated PDF...', 'info');
                 
                 // Add a 4-second delay to allow the backend PDF pipeline to finish and upload
-                setTimeout(() => {
-                    setPreviewTimestamp(Date.now());
-                    toast('PDF updated successfully!', 'success');
+                setTimeout(async () => {
+                    if (!id) return;
+                    try {
+                        // FIX: Explicitly pull the fresh record to get the new pdf_url / tokens
+                        const freshResume = await getResume(id);
+                        setResume(freshResume);
+
+                        setPreviewTimestamp(Date.now());
+                        toast('PDF updated successfully!', 'success');
+                    } catch (error) {
+                        console.error("Failed to refresh resume state", error);
+                    }
                 }, 4000); 
 
                 // Keep the score history fetch slightly after the PDF
