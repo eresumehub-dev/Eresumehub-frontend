@@ -47,6 +47,10 @@ export const useResumesQuery = () => {
                 };
             });
 
+            // Optimistically clear analytics to prevent ghost metrics (v16.8.0)
+            queryClient.setQueryData(['analytics'], null);
+            queryClient.setQueryData(['nudges'], null);
+
             return { previousResumes, previousBootstrap };
         },
         onError: (_err, _id, context) => {

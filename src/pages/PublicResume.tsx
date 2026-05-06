@@ -59,6 +59,7 @@ const PublicResume: React.FC = () => {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const maxScrollRef = useRef<number>(0);
     const lastActivityRef = useRef<number>(Date.now());
+    const beaconSentRef = useRef(false);
 
     const loadResume = async (u: string, s: string) => {
         try {
@@ -96,7 +97,11 @@ const PublicResume: React.FC = () => {
         }
     };
 
-    const previewUrl = resume?.pdf_url ? buildPdfUrl(resume.pdf_url, { inline: 'true', preview: 'true' }) : '';
+    const previewUrl = resume?.pdf_url
+        ? (resume.pdf_url.includes('supabase.co/storage')
+            ? resume.pdf_url  // Direct CDN URL — no extra params needed (better caching)
+            : buildPdfUrl(resume.pdf_url, { inline: 'true', preview: 'true' }))
+        : '';
 
     // Helper: Build Initials for Avatar
     const getInitials = (name: string) => {
@@ -105,7 +110,7 @@ const PublicResume: React.FC = () => {
 
     // Logic: Verified Download (Staff+ Hardened)
     const handleVerifiedDownload = async () => {
-        if (!resume || !previewUrl) return;
+        if (!resume || !previewUrl || isbot(navigator.userAgent)) return;
 
         try {
             if ((window as any).showSaveFilePicker) {
@@ -130,6 +135,10 @@ const PublicResume: React.FC = () => {
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+                
+                // Track simple download
+                await tracker.trackEvent('resume_download', { resume_id: resume.id, file_format: 'pdf', download_source: 'link' }, user?.id);
+                await logDownload({ resume_id: resume.id, format: 'pdf' });
             }
         } catch (err: any) {
             if (err.name !== 'AbortError') console.error("Download failed:", err);
@@ -217,16 +226,27 @@ const PublicResume: React.FC = () => {
         document.addEventListener('visibilitychange', handleVisibilityChange);
 
         const sendFinalHeartbeat = () => {
-            if (viewIdRef.current) {
-                const finalActive = document.hidden 
-                    ? activeTimeRef.current 
-                    : activeTimeRef.current + (Date.now() - lastVisibleAtRef.current);
-                const duration = Math.floor(finalActive / 1000);
-                if (duration > 0) {
-                    const baseUrl = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || '';
-                    const blob = new Blob([duration.toString()], { type: 'application/json' });
-                    navigator.sendBeacon(`${baseUrl}/analytics/view/${viewIdRef.current}/heartbeat`, blob);
-                }
+            if (beaconSentRef.current || !viewIdRef.current) return;
+            beaconSentRef.current = true;
+
+            const finalActive = document.hidden 
+                ? activeTimeRef.current 
+                : activeTimeRef.current + (Date.now() - lastVisibleAtRef.current);
+            const duration = Math.floor(finalActive / 1000);
+            
+            if (duration > 0) {
+                const apiBase = import.meta.env.VITE_API_URL?.replace(/\/$/, '').replace(/\/api\/v1$/, '') || '';
+                const baseUrl = `${apiBase}/api/v1`;
+                // Optimization: Send as JSON string for maximum backend parser compatibility
+                const blob = new Blob([JSON.stringify({ duration_seconds: duration })], { type: 'application/json' });
+                navigator.sendBeacon(`${baseUrl}/analytics/view/${viewIdRef.current}/heartbeat`, blob);
+                
+                // Track terminal engagement event (v16.8.0)
+                tracker.trackEvent('resume_view_ended', { 
+                    resume_id: resume.id, 
+                    duration_seconds: duration,
+                    max_scroll: maxScrollRef.current
+                }, user?.id);
             }
         };
 

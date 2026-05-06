@@ -9,6 +9,9 @@
     @apply bg-[#F5F5F7] text-[#1D1D1F] antialiased;
     font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
+  .font-ibm {
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
 }
 
 :root {
