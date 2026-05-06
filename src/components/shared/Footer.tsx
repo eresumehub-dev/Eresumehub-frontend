@@ -60,7 +60,7 @@ const Footer = ({ minimal = false, copyrightOnly = false }: FooterProps) => {
                     {!copyrightOnly && (
                         <div className="flex items-center gap-5">
                              <a 
-                                href="https://linkedin.com/company/eresumehub" 
+                                href="https://www.linkedin.com/company/eresumehub/" 
                                 target="_blank" 
                                 rel="noopener noreferrer"
                                 className="text-[#86868B] hover:text-[#1D1D1F] transition-colors"
@@ -68,7 +68,7 @@ const Footer = ({ minimal = false, copyrightOnly = false }: FooterProps) => {
                                  <Linkedin className="w-4 h-4" />
                              </a>
                              <a 
-                                href="https://instagram.com/eresumehub" 
+                                href="https://www.instagram.com/e_resumehub?igsh=MXZyNDhtZjVsdjB5MQ==" 
                                 target="_blank" 
                                 rel="noopener noreferrer"
                                 className="text-[#86868B] hover:text-[#1D1D1F] transition-colors"
