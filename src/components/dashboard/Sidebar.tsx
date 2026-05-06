@@ -1,6 +1,6 @@
 import React from 'react';
-import { 
-    FileText, 
+import {
+    FileText,
     Eye,
     TrendingUp,
     ShieldCheck,
@@ -35,19 +35,19 @@ const Sidebar: React.FC = () => {
         if (to === '/dashboard') {
             return currentPath === '/dashboard';
         }
-        
+
         return currentPath === to || currentPath.startsWith(to + '/');
     };
 
     return (
-        <aside className="w-64 bg-[#F5F5F7] border-r border-black/[0.04] p-6 hidden lg:flex flex-col fixed top-[90px] bottom-20 left-0 z-40 transition-all duration-300">
+        <aside className="w-64 bg-[#F5F5F7] border-r border-black/[0.04] p-6 hidden lg:flex flex-col fixed top-[90px] bottom-19 left-0 z-40 transition-all duration-300">
             {/* Top Logo Removed as requested (already in header) */}
-            
+
             <nav className="flex-1 space-y-1.5 mt-4">
                 {navItems.map((item) => {
                     const active = isActive(item);
                     const isProfileLink = item.to === '/profile';
-                    
+
                     return (
                         <Link
                             key={item.label}
@@ -65,11 +65,10 @@ const Sidebar: React.FC = () => {
                                     });
                                 }
                             }}
-                            className={`px-4 py-2.5 rounded-[12px] font-medium text-[14px] flex items-center gap-3 transition-all ${
-                                active 
-                                ? 'bg-white shadow-[0_2px_10px_rgb(0,0,0,0.02)] text-[#1D1D1F]' 
-                                : 'text-[#86868B] hover:text-[#1D1D1F] hover:bg-white/50'
-                            } ${item.mt ? 'mt-4' : ''}`}
+                            className={`px-4 py-2.5 rounded-[12px] font-medium text-[14px] flex items-center gap-3 transition-all ${active
+                                    ? 'bg-white shadow-[0_2px_10px_rgb(0,0,0,0.02)] text-[#1D1D1F]'
+                                    : 'text-[#86868B] hover:text-[#1D1D1F] hover:bg-white/50'
+                                } ${item.mt ? 'mt-4' : ''}`}
                         >
                             <item.icon className={`w-4 h-4 ${active ? 'text-[#1D1D1F]' : ''}`} strokeWidth={active ? 2.5 : 2} />
                             {item.label}
