@@ -64,10 +64,23 @@ const RefineTooltip: React.FC<RefineTooltipProps> = ({
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    const clampedPosition = React.useMemo(() => ({
-        left: Math.min(window.innerWidth - 340, Math.max(20, position.x - 160)),
-        top: position.y - 80
-    }), [position, window.innerWidth]);
+    const clampedPosition = React.useMemo(() => {
+        const tooltipWidth = 320;
+        const padding = 16;
+        let left = position.x - tooltipWidth / 2;
+        let top = position.y - 100;
+
+        // Horizontal clamping
+        if (left < padding) left = padding;
+        if (left + tooltipWidth > window.innerWidth - padding) {
+            left = window.innerWidth - tooltipWidth - padding;
+        }
+
+        // Vertical clamping (don't go above top edge)
+        if (top < padding) top = position.y + 20; // Flip to bottom if no space above
+
+        return { left, top };
+    }, [position, window.innerWidth]);
 
     if (!visible) return null;
 

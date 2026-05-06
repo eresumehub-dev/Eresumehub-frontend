@@ -1084,14 +1084,14 @@ const ResumeEditor: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="flex-1 w-full overflow-y-auto custom-scrollbar flex justify-center py-8 px-4">
-                        <div className="w-full max-w-[794px] min-h-[1123px] bg-white shadow-[0_4px_24px_rgba(0,0,0,0.4)] flex flex-col relative overflow-hidden">
+                    <div className="flex-1 w-full overflow-y-auto custom-scrollbar flex justify-center py-4 sm:py-8 px-2 sm:px-4">
+                        <div className="w-full max-w-[794px] aspect-[1/1.414] sm:min-h-[1123px] bg-white shadow-[0_4px_24px_rgba(0,0,0,0.4)] flex flex-col relative overflow-hidden">
+
                             {resume?.pdf_url ? (
                                 <iframe
                                     src={`${resume.pdf_url}?inline=true&t=${previewTimestamp}`}
                                     className="w-full h-full border-none absolute inset-0"
                                     title="Resume Preview"
-                                    sandbox="allow-scripts allow-same-origin"
                                     loading="lazy"
                                 />
                             ) : (
