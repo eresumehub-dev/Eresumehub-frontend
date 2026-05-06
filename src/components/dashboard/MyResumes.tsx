@@ -26,6 +26,7 @@ import { useNavigate } from 'react-router-dom';
 import { useResumesQuery } from '../../hooks/queries/useResumesQuery';
 import { useBootstrapQuery } from '../../hooks/queries/useBootstrapQuery';
 import { Resume, downloadResumePDF } from '../../services/resume';
+import Footer from '../shared/Footer';
 
 interface MyResumesProps {
   onEdit: (id: string) => void;
@@ -457,16 +458,8 @@ const MyResumes: React.FC<MyResumesProps> = ({
           </motion.div>
         )}
       </AnimatePresence>
-      {/* 4. Minimalist Footer */}
-      <footer className="pt-20 pb-10 border-t border-black/[0.04] mt-20">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[13px] text-[#86868B] font-light">
-          <p>© {new Date().getFullYear()} E-Resume Hub. All rights reserved.</p>
-          <div className="flex items-center gap-6">
-            <span className="hover:text-[#1D1D1F] cursor-pointer transition-colors">Privacy Policy</span>
-            <span className="hover:text-[#1D1D1F] cursor-pointer transition-colors">Terms of Service</span>
-          </div>
-        </div>
-      </footer>
+      {/* 4. Global Footer (Minimal) */}
+      <Footer minimal />
     </div>
   );
 }
