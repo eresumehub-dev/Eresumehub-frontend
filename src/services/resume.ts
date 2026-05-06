@@ -38,8 +38,9 @@ export const getResumes = async () => {
     return response.data.data.resumes;
 };
 
+// FIX #1: Was calling /resumes/${id} (plural). Backend route is /resume/{id} (singular).
 export const getResume = async (id: string) => {
-    const response = await api.get<{ success: boolean; data: Resume }>(`/resumes/${id}`);
+    const response = await api.get<{ success: boolean; data: Resume }>(`/resume/${id}`);
     return response.data.data;
 };
 
@@ -73,7 +74,6 @@ export const pollJobStatus = (
         const WATCHDOG_LIMIT_MS = 300000; // 5 minutes
 
         const poll = async () => {
-            // 1. Safety Check: Watchdog
             if (Date.now() - startTime > WATCHDOG_LIMIT_MS) {
                 return reject(new Error("GENERATION_TIMEOUT: Pipeline took too long to respond."));
             }
@@ -84,7 +84,6 @@ export const pollJobStatus = (
 
                 if (onProgress) onProgress(progress, step);
 
-                // 2. Terminal States
                 if (status === 'completed') {
                     if (onProgress) onProgress(100, "Completed");
                     return resolve(data);
@@ -94,27 +93,20 @@ export const pollJobStatus = (
                     return reject(new Error(error || "JOB_FAILED: The background worker encountered a fatal error."));
                 }
 
-                // 3. Recursive Step: Wait for the next beat
                 setTimeout(poll, intervalMs);
             } catch (err: any) {
-                // Handle 404s or network drops gracefully for 3 retries
                 console.error("Polling error:", err);
-                setTimeout(poll, intervalMs * 2); // Exponential backoff on error
+                setTimeout(poll, intervalMs * 2);
             }
         };
 
-        // Kick off the engine
         poll();
     });
 };
 
-// New helper for ATS Import flow
 export const createResumeFromData = async (parsedData: any, jobTitle: string, country: string, jobDescription?: string, atsReport?: any) => {
-    // Construct payload expected by backend
     const payload = {
         title: jobTitle || "Imported Resume",
-        // Flatten user_data for the endpoint if needed, or nest it depending on main.py expectation
-        // main.py line 835 expects data.get("user_data", {})
         user_data: {
             full_name: parsedData.full_name,
             contact: {
@@ -128,19 +120,18 @@ export const createResumeFromData = async (parsedData: any, jobTitle: string, co
             educations: parsedData.education || [],
             languages: parsedData.languages || [],
             projects: parsedData.projects || [],
-            ats_report: atsReport || null // Store the logic for AI to use later
+            ats_report: atsReport || null
         },
         country: country,
         language: "English",
-        template_style: "professional", // Use table-based layout for stability
+        template_style: "professional",
         job_description: jobDescription || "",
-        slug: `imported-${Date.now()}`, // Ensure unique slug
-        skip_enhancement: true // Use raw imported data, don’t rewrite immediately
+        slug: `imported-${Date.now()}`,
+        skip_enhancement: true
     };
 
-    // Use the CORRECT endpoint that returns JSON ID
     const response = await api.post('/resume/create', payload);
-    return response.data.data; // Correctly unwrap: { success: true, data: { id: ... } } -> { id: ... }
+    return response.data.data;
 };
 
 export const cloneResume = async (id: string, title?: string) => {
@@ -153,8 +144,10 @@ export const createVersion = async (id: string) => {
     return response.data.data;
 };
 
+// FIX #3: Was calling /resumes/${id}/scores which doesn't exist on the backend.
+// Scores are embedded in the resume versions. Fetch from the correct endpoint.
 export const getScoreHistory = async (id: string, limit: number = 10) => {
-    const response = await api.get(`/resumes/${id}/scores?limit=${limit}`);
+    const response = await api.get(`/resumes/${id}/score-history?limit=${limit}`);
     return response.data.data;
 };
 
@@ -168,8 +161,9 @@ export const restoreResume = async (id: string) => {
     return response.data.success;
 };
 
+// FIX #4: Was calling /resumes/${id}/enhance which doesn't exist. Correct route is /resume/${id}/enhance.
 export const enhanceResume = async (id: string): Promise<Resume> => {
-    const response = await api.post<{ success: boolean; data: Resume }>(`/resumes/${id}/enhance`);
+    const response = await api.post<{ success: boolean; data: Resume }>(`/resume/${id}/enhance`);
     return response.data.data;
 };
 
