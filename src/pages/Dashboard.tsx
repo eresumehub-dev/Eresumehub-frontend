@@ -106,13 +106,13 @@ const Dashboard: React.FC = () => {
         visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } }
     };
 
-    if (bootLoading) return <div className="bg-[#F5F5F7] min-h-screen pt-[72px]"><Sidebar /><main className="flex-1 p-12 lg:ml-64"><DashboardSkeleton /></main></div>;
+    if (bootLoading) return <div className="bg-[#F5F5F7] min-h-[calc(100vh-90px)] pt-[90px]"><Sidebar /><main className="flex-1 p-12 lg:ml-64"><DashboardSkeleton /></main></div>;
 
     return (
-        <div className="bg-[#F5F5F7] min-h-screen relative antialiased text-[#1D1D1F] pt-[90px]">
+        <div className="bg-[#F5F5F7] min-h-[calc(100vh-90px)] relative antialiased text-[#1D1D1F] pt-[90px]">
             <Sidebar />
 
-            <main className="flex-1 lg:ml-64 p-4 sm:p-6 md:p-10 lg:p-12 xl:p-16 max-w-[1600px] mx-auto w-full overflow-y-auto">
+            <main className="flex-1 lg:ml-64 p-4 sm:p-6 md:p-10 lg:p-12 xl:p-16 pb-24 max-w-[1600px] mx-auto w-full">
                 <motion.div 
                     variants={containerVariants}
                     initial="hidden"
@@ -207,7 +207,7 @@ const Dashboard: React.FC = () => {
                                     </div>
 
                                     {/* Activity Feed */}
-                                    <div className="mt-12">
+                                    <div className="mt-12 mb-12">
                                         <ActivityTimeline activities={activities} />
                                     </div>
                                 </div>
