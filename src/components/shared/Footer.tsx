@@ -18,7 +18,7 @@ const Footer = ({ minimal = false, copyrightOnly = false }: FooterProps) => {
                                 <span className="text-[20px] font-bold text-[#1D1D1F] tracking-tight">E-resumeHub</span>
                             </div>
                             <p className="text-[14px] text-[#86868B] font-light leading-relaxed max-w-xs mb-6">
-                                The intelligent resume builder designed to bypass automated filters and help you land interviews faster.
+                                The intelligent resume builder designed to bypass automated filters.
                             </p>
                         </div>
 
@@ -26,8 +26,8 @@ const Footer = ({ minimal = false, copyrightOnly = false }: FooterProps) => {
                             <h4 className="text-[12px] font-bold uppercase tracking-widest text-[#1D1D1F] mb-6">Company</h4>
                             <ul className="space-y-4">
                                 <li><Link to="/about" className="text-[14px] text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">About Us</Link></li>
-                                 <li><span className="text-[14px] text-[#86868B]/40 font-medium cursor-not-allowed">Careers <span className="text-[10px]">(Coming Soon)</span></span></li>
-                                 <li><span className="text-[14px] text-[#86868B]/40 font-medium cursor-not-allowed">Blog <span className="text-[10px]">(Coming Soon)</span></span></li>
+                                 <li><span className="text-[14px] text-[#86868B]/40 font-medium cursor-not-allowed">Careers <span className="text-[10px]">(soon)</span></span></li>
+                                 <li><span className="text-[14px] text-[#86868B]/40 font-medium cursor-not-allowed">Blog <span className="text-[10px]">(soon)</span></span></li>
                                 <li><Link to="/contact" className="text-[14px] text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">Contact</Link></li>
                             </ul>
                         </div>
@@ -38,12 +38,12 @@ const Footer = ({ minimal = false, copyrightOnly = false }: FooterProps) => {
                                 <li><Link to="/signup" className="text-[14px] text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">AI Resume Builder</Link></li>
                                 <li><Link to="/templates" className="text-[14px] text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">Resume Templates</Link></li>
                                 <li><Link to="/ats-checker" className="text-[14px] text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">ATS Checker</Link></li>
-                                 <li><span className="text-[14px] text-[#86868B]/40 font-medium cursor-not-allowed">Cover Letter Builder <span className="text-[10px]">(Coming Soon)</span></span></li>
+                                 <li><span className="text-[14px] text-[#86868B]/40 font-medium cursor-not-allowed">Cover Letter <span className="text-[10px]">(soon)</span></span></li>
                             </ul>
                         </div>
 
                         <div>
-                            <h4 className="text-[12px] font-bold uppercase tracking-widest text-[#1D1D1F] mb-6">Legal & Support</h4>
+                            <h4 className="text-[12px] font-bold uppercase tracking-widest text-[#1D1D1F] mb-6">Legal & support</h4>
                             <ul className="space-y-4">
                                 <li><Link to="/support" className="text-[14px] text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">Help Center</Link></li>
                                 <li><Link to="/privacy" className="text-[14px] text-[#86868B] hover:text-[#1D1D1F] transition-colors font-medium">Privacy Policy</Link></li>
@@ -59,12 +59,22 @@ const Footer = ({ minimal = false, copyrightOnly = false }: FooterProps) => {
 
                     {!copyrightOnly && (
                         <div className="flex items-center gap-5">
-                             <span className="text-[#86868B]/40 cursor-not-allowed">
+                             <a 
+                                href="https://linkedin.com/company/eresumehub" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-[#86868B] hover:text-[#1D1D1F] transition-colors"
+                             >
                                  <Linkedin className="w-4 h-4" />
-                             </span>
-                             <span className="text-[#86868B]/40 cursor-not-allowed">
+                             </a>
+                             <a 
+                                href="https://instagram.com/eresumehub" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-[#86868B] hover:text-[#1D1D1F] transition-colors"
+                             >
                                  <Instagram className="w-4 h-4" />
-                             </span>
+                             </a>
                         </div>
                     )}
                 </div>

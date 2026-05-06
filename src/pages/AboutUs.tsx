@@ -8,7 +8,6 @@ import {
     FileText,
     Globe
 } from 'lucide-react';
-import Footer from '../components/shared/Footer';
 
 const AboutUs = () => {
     const navigate = useNavigate();
@@ -163,7 +162,6 @@ const AboutUs = () => {
                     </div>
                 </div>
             </section>
-            <Footer />
         </div>
     );
 };

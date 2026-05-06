@@ -1,9 +1,23 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
 import ScrollToTop from './shared/ScrollToTop';
+import Footer from './shared/Footer';
 import { Toaster } from 'react-hot-toast';
 
 const Layout = () => {
+    const location = useLocation();
+    
+    // Define which routes get the minimal footer
+    const minimalFooterRoutes = [
+        '/login', '/signup', '/dashboard', '/analytics', 
+        '/ats-checker', '/profile', '/create', '/settings', 
+        '/resume', '/templates'
+    ];
+    
+    const isMinimal = minimalFooterRoutes.some(route => 
+        location.pathname === route || location.pathname.startsWith(route + '/')
+    );
+
     return (
         <div className="min-h-screen bg-white flex flex-col overflow-x-hidden">
             <Toaster 
@@ -24,6 +38,7 @@ const Layout = () => {
             <main className="flex-grow">
                 <Outlet />
             </main>
+            <Footer minimal={isMinimal} />
             <ScrollToTop />
         </div>
     );

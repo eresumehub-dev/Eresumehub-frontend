@@ -10,7 +10,6 @@ import {
     Instagram,
     Building2
 } from 'lucide-react';
-import Footer from '../components/shared/Footer';
 import api from '../services/api';
 
 const ContactUs = () => {
@@ -256,7 +255,6 @@ const ContactUs = () => {
 
                 </div>
             </section>
-            <Footer />
         </div>
     );
 };

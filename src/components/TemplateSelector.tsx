@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Check, X, Briefcase } from 'lucide-react';
 import executivePreview from '../assets/executive.jpg';
 
@@ -94,12 +95,6 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ selectedTemplate, o
                             </button>
                         </div>
 
-                        {/* Minimal Footer */}
-                        <div className="p-3 border-t border-zinc-100 text-center bg-white">
-                            <span className={`text-sm font-bold ${isSelected ? 'text-zinc-900' : 'text-zinc-600'}`}>
-                                {template.name}
-                            </span>
-                        </div>
                     </div>
                 );
             })}

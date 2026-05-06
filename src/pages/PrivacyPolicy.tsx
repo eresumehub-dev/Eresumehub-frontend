@@ -10,7 +10,6 @@ import {
     Fingerprint,
     Trash2
 } from 'lucide-react';
-import Footer from '../components/shared/Footer';
 
 const PrivacyPolicy = () => {
     const [activeSection, setActiveSection] = useState('collection');
@@ -263,7 +262,6 @@ const PrivacyPolicy = () => {
 
                 </main>
             </section>
-            <Footer />
         </div>
     );
 };

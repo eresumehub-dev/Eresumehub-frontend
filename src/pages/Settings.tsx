@@ -20,7 +20,6 @@ import {
     Check,
     ChevronLeft
 } from 'lucide-react';
-import Footer from '../components/shared/Footer';
 
 const SettingsPage = () => {
     const navigate = useNavigate();
@@ -460,8 +459,6 @@ const SettingsPage = () => {
                     </motion.div>
                 )}
             </AnimatePresence>
-            <Footer />
-
         </div>
     );
 };

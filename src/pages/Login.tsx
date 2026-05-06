@@ -217,21 +217,6 @@ const Login = () => {
                     </motion.p>
                 </motion.div>
             </main>
-
-            {/* Micro-Footer for Trust Signals */}
-            <motion.footer 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.3 }}
-                className="w-full py-6 px-6 md:px-12 flex flex-col md:flex-row items-center justify-between gap-4 relative z-20 border-t border-black/[0.04] max-w-[1800px] mx-auto"
-            >
-                <p className="text-[12px] text-[#86868B] font-medium">
-                    © {new Date().getFullYear()} E-ResumeHub. All rights reserved.
-                </p>
-                <div className="flex gap-6 text-[12px] font-medium text-[#86868B]">
-                    <Link to="/privacy" className="hover:text-[#1D1D1F] transition-colors">Privacy Policy</Link>
-                </div>
-            </motion.footer>
         </div>
     );
 };

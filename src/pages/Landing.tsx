@@ -14,7 +14,6 @@ import {
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import Footer from '../components/shared/Footer';
 
 import CozaintLogo from '../../Logos/cozaint_logo.png';
 import LifeLogo from '../../Logos/lifeinteractive-logo.jpg';
@@ -439,7 +438,6 @@ const Landing = () => {
 
                 </div>
             </section>
-            <Footer />
         </div>
     );
 };
