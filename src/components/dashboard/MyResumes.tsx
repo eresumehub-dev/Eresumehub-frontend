@@ -15,10 +15,8 @@ import {
   Star,
   Check,
   X,
-  ArrowUpDown,
   TrendingUp,
   Award,
-  Zap,
   ArrowLeft
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -47,7 +45,7 @@ const MyResumes: React.FC<MyResumesProps> = ({
   onEdit, onPreview, onShare, onDelete, onEnhance
 }) => {
   const navigate = useNavigate();
-  const { data: bootData, isLoading: bootLoading } = useBootstrapQuery();
+  const { isLoading: bootLoading } = useBootstrapQuery();
   const { resumes: allResumes, isLoading: resumesLoading } = useResumesQuery();
 
   // State
