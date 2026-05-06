@@ -458,8 +458,8 @@ const MyResumes: React.FC<MyResumesProps> = ({
           </motion.div>
         )}
       </AnimatePresence>
-      {/* 4. Global Footer (Minimal) */}
-      <Footer minimal />
+      {/* 4. Global Footer (Copyright Only) */}
+      <Footer copyrightOnly />
     </div>
   );
 }

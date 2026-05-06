@@ -3,13 +3,14 @@ import { Linkedin, Instagram } from 'lucide-react';
 
 interface FooterProps {
     minimal?: boolean;
+    copyrightOnly?: boolean;
 }
 
-const Footer = ({ minimal = false }: FooterProps) => {
+const Footer = ({ minimal = false, copyrightOnly = false }: FooterProps) => {
     return (
-        <footer className={`bg-white border-t border-black/[0.04] ${minimal ? 'py-8' : 'pt-16 pb-8'} px-6 lg:px-12 mt-auto z-10 relative`}>
+        <footer className={`${copyrightOnly ? 'py-10 bg-transparent' : 'bg-white border-t border-black/[0.04]'} ${minimal ? 'py-8' : 'pt-16 pb-8'} px-6 lg:px-12 mt-auto z-10 relative`}>
             <div className="max-w-[1800px] mx-auto">
-                {!minimal && (
+                {!minimal && !copyrightOnly && (
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-16">
                         
                         <div className="col-span-2 lg:col-span-2 pr-8">
@@ -51,19 +52,21 @@ const Footer = ({ minimal = false }: FooterProps) => {
                     </div>
                 )}
 
-                <div className={`flex flex-col md:flex-row justify-between items-center ${!minimal ? 'pt-8 border-t border-black/[0.04]' : ''} gap-4`}>
+                <div className={`flex flex-col md:flex-row justify-between items-center ${!minimal && !copyrightOnly ? 'pt-8 border-t border-black/[0.04]' : ''} gap-4`}>
                      <p className="text-[13px] text-[#86868B] font-medium text-center md:text-left">
                          © {new Date().getFullYear()} E-ResumeHub. All rights reserved.
                      </p>
 
-                    <div className="flex items-center gap-5">
-                         <span className="text-[#86868B]/40 cursor-not-allowed">
-                             <Linkedin className="w-4 h-4" />
-                         </span>
-                         <span className="text-[#86868B]/40 cursor-not-allowed">
-                             <Instagram className="w-4 h-4" />
-                         </span>
-                    </div>
+                    {!copyrightOnly && (
+                        <div className="flex items-center gap-5">
+                             <span className="text-[#86868B]/40 cursor-not-allowed">
+                                 <Linkedin className="w-4 h-4" />
+                             </span>
+                             <span className="text-[#86868B]/40 cursor-not-allowed">
+                                 <Instagram className="w-4 h-4" />
+                             </span>
+                        </div>
+                    )}
                 </div>
             </div>
         </footer>
