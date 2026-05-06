@@ -26,7 +26,6 @@ import { useNavigate } from 'react-router-dom';
 import { useResumesQuery } from '../../hooks/queries/useResumesQuery';
 import { useBootstrapQuery } from '../../hooks/queries/useBootstrapQuery';
 import { Resume, downloadResumePDF } from '../../services/resume';
-import Footer from '../shared/Footer';
 
 interface MyResumesProps {
   onEdit: (id: string) => void;
@@ -458,8 +457,6 @@ const MyResumes: React.FC<MyResumesProps> = ({
           </motion.div>
         )}
       </AnimatePresence>
-      {/* 4. Global Footer (Copyright Only) */}
-      <Footer copyrightOnly />
     </div>
   );
 }
