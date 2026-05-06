@@ -31,7 +31,6 @@ const Sidebar: React.FC = () => {
     const isActive = (item: typeof navItems[0]) => {
         const { to } = item;
         const currentPath = location.pathname;
-        const currentHash = location.hash;
 
         if (to === '/dashboard') {
             return currentPath === '/dashboard';
