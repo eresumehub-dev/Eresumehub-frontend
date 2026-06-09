@@ -43,7 +43,7 @@ describe('useCreateResumeFlow', () => {
         vi.clearAllMocks();
         (router.useNavigate as any).mockReturnValue(navigate);
         (query.useQueryClient as any).mockReturnValue({ invalidateQueries });
-        (query.useMutation as any).mockReturnValue({ mutate, mutateAsync: vi.fn() });
+        (query.useMutation as any).mockReturnValue({ mutate, mutateAsync: mutate });
     });
 
     it('initializes with default form data', () => {

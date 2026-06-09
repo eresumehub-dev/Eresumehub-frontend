@@ -54,8 +54,11 @@ describe('Resume Generation Integration', () => {
 
         // 1. Initial State: Button should be disabled (title empty)
         const sidebar = screen.getByTestId('readiness-hub');
-        let generateBtn = within(sidebar).getByRole('button', { name: /generate perfect resume/i });
-        expect(generateBtn).toBeDisabled();
+        let generateBtn: any;
+        await waitFor(() => {
+            generateBtn = within(sidebar).getByRole('button', { name: /generate perfect resume/i });
+            expect(generateBtn).toBeDisabled();
+        });
 
         // 2. User Action: Enter Job Title
         const titleInput = screen.getByPlaceholderText(/e.g. senior frontend engineer/i);

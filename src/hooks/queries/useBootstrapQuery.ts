@@ -14,8 +14,17 @@ export const useBootstrapQuery = (options: { enabled?: boolean } = {}) => {
         queryFn: async () => {
             const response = await getBootstrapData();
             if (response.success && response.data) {
-                const { profile, resumes } = response.data;
-                if (profile) queryClient.setQueryData(['profile'], { profile, exists: true });
+                const { profile, resumes, meta, exists } = response.data;
+                
+                // 🛡️ v16.5.0: Handle degraded responses gracefully
+                if (meta?.degraded) {
+                    console.warn('Bootstrap degraded:', meta.reason);
+                    return response.data;
+                }
+                
+                if (profile) {
+                    queryClient.setQueryData(['profile'], { profile, exists: !!exists });
+                }
                 if (Array.isArray(resumes)) queryClient.setQueryData(['resumes'], resumes);
                 return response.data;
             }
@@ -23,7 +32,8 @@ export const useBootstrapQuery = (options: { enabled?: boolean } = {}) => {
         },
         staleTime: 5 * 60 * 1000, 
         gcTime: 30 * 60 * 1000,   
-        retry: 1, // Fail fast for UX
+        retry: false,              // 🛡️ v16.5.0: NEVER retry bootstrap
+        refetchOnWindowFocus: false, // 🛡️ Prevent surprise refetches
         ...options
     });
 };

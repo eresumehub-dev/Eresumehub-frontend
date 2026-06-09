@@ -182,6 +182,11 @@ export const getBootstrapData = async (): Promise<{
         profile: UserProfile; 
         resumes: Resume[]; 
         timestamp: string; 
+        exists?: boolean;
+        meta?: {
+            degraded?: boolean;
+            reason?: string;
+        };
     } 
 }> => {
     const response = await api.get('/user/bootstrap');

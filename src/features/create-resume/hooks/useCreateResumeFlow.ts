@@ -41,6 +41,13 @@ export const useCreateResumeFlow = () => {
         localStorage.setItem(LS_KEY, JSON.stringify(formData));
     }, [formData]);
 
+    // Sync country from profile when loaded and local draft is empty
+    useEffect(() => {
+        if (profile?.country && !formData.country) {
+            setFormData((prev: any) => ({ ...prev, country: profile.country }));
+        }
+    }, [profile?.country, formData.country]);
+
     // 3. Mutation
     const mutation = useMutation({
         mutationFn: async (payload: any) => {
